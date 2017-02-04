@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">PictoThemo</string>
+    <!-- Connexion/Registration form -->
+    <string name="login_email">Email</string>
+    <string name="login_password">Password</string>
+    <string name="login_action">Validate</string>
+    <string name="login_registration">Register</string>
+    <string name="login_login">Log in</string>
+    <string name="login_already_account">I am already registered</string>
 </resources>

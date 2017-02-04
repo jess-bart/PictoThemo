@@ -1,2 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <!-- Connexion/Registration form -->
+    <string name="login_password">Mot de passe</string>
+    <string name="login_action">Valider</string>
+    <string name="login_registration">Inscription</string>
+    <string name="login_login">Connexion</string>
+    <string name="login_already_account">J\'ai déjà un compte</string>
+</resources>
