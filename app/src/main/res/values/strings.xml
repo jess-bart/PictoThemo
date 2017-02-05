@@ -3,8 +3,9 @@
     <!-- Connexion/Registration form -->
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
-    <string name="login_action">Validate</string>
     <string name="login_registration">Register</string>
     <string name="login_login">Log in</string>
-    <string name="login_already_account">I am already registered</string>
+    <string name="login_verification">Verifying the information</string>
+    <string name="login_email_verification">Invalid email address</string>
+    <string name="login_password_verification">Password must contains 8 characters minimum</string>
 </resources>

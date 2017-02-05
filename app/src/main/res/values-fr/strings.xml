@@ -2,8 +2,9 @@
 <resources>
     <!-- Connexion/Registration form -->
     <string name="login_password">Mot de passe</string>
-    <string name="login_action">Valider</string>
     <string name="login_registration">Inscription</string>
     <string name="login_login">Connexion</string>
-    <string name="login_already_account">J\'ai déjà un compte</string>
+    <string name="login_verification">Vérification des informations</string>
+    <string name="login_email_verification">Adresse email invalide</string>
+    <string name="login_password_verification">Le mot de passe doit contenir 8 caractères minimum</string>
 </resources>
