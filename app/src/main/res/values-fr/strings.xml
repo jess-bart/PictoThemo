@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- Global -->
+    <string name="network_unavalaible">Veuillez activer internet</string>
     <!-- Connexion/Registration form -->
     <string name="login_password">Mot de passe</string>
     <string name="login_registration">Inscription</string>
@@ -7,4 +10,5 @@
     <string name="login_verification">Vérification des informations</string>
     <string name="login_email_verification">Adresse email invalide</string>
     <string name="login_password_verification">Le mot de passe doit contenir 8 caractères minimum</string>
+    <string name="login_fail">Identifiants incorrects</string>
 </resources>

@@ -1,13 +1,15 @@
 package com.jessy_barthelemy.pictothemo;
 
-import android.app.ProgressDialog;
+import android.Manifest;
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.net.ConnectivityManager;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -16,21 +18,23 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.jessy_barthelemy.pictothemo.DatabaseInteractions.RegistrationTask;
+import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.RegistrationTask;
+import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
+import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
+import com.jessy_barthelemy.pictothemo.Helpers.FormHelper;
+import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 
-import java.util.Hashtable;
-import java.util.regex.Pattern;
+public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-
-public class LoginActivity extends AppCompatActivity {
+    private final int PERMISSION_READ_ACCOUNT = 100;
 
     private TextInputLayout email;
     private TextInputLayout password;
-    private Button loginAction;
-    private Button registerAction;
     private Resources resources;
+    private FormHelper formHelper;
+    private TokenInformations tokenInfos;
     /*Keep the last action to execute on password IME action (login or register)*/
     private boolean attemptRegitration;
 
@@ -39,12 +43,28 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        tokenInfos = ApplicationHelper.getTokenInformations(this);
+        if(!tokenInfos.getAccessToken().isEmpty()){
+            ApiHelper helper = new ApiHelper();
+            helper.validateToken(this, tokenInfos, this);
+        }
+
+        email = (TextInputLayout) findViewById(R.id.login_email);
+        password = (TextInputLayout) findViewById(R.id.login_password);
+        Button loginAction = (Button) findViewById(R.id.login_action);
+        Button registerAction = (Button) findViewById(R.id.login_register_action);
+
         attemptRegitration = true;
+        formHelper = new FormHelper();
         resources = getResources();
-        email = (TextInputLayout)findViewById(R.id.login_email);
-        password = (TextInputLayout)findViewById(R.id.login_password);
-        loginAction = (Button) findViewById(R.id.login_action);
-        registerAction = (Button) findViewById(R.id.login_register_action);
+
+        //Prefill the email field
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.GET_ACCOUNTS}, PERMISSION_READ_ACCOUNT);
+        }else{
+            this.preFillEmail();
+        }
+
 
         password.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -83,10 +103,32 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void attemptLogin(){
-        attemptRegitration = false;
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_READ_ACCOUNT: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    this.preFillEmail();
+                }
+            }
+        }
+    }
+
+    public void preFillEmail(){
+        try{
+            Account[] accounts = AccountManager.get(this).getAccountsByType("com.google");
+            if(accounts.length > 0 && formHelper.validateEmail(accounts[0].name))
+                email.getEditText().setText(accounts[0].name);
+        }catch(SecurityException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void attemptRegistration(){
+        attemptRegitration = true;
+
         //Email verification
-        if(!validateEmail(email.getEditText().getText().toString())){
+        if(!formHelper.validateEmail(email.getEditText().getText().toString())){
             email.setErrorEnabled(true);
             email.setError(resources.getString(R.string.login_email_verification));
             return;
@@ -96,7 +138,7 @@ public class LoginActivity extends AppCompatActivity {
         email.setErrorEnabled(false);
 
         //Password verification
-        if(!validatePassword(password.getEditText().getText().toString())){
+        if(!formHelper.validatePassword(password.getEditText().getText().toString())){
             password.setErrorEnabled(true);
             password.setError(resources.getString(R.string.login_password_verification));
             return;
@@ -110,29 +152,48 @@ public class LoginActivity extends AppCompatActivity {
         registration.execute(email.getEditText().getText().toString(), password.getEditText().getText().toString());
     }
 
-    public boolean validateEmail(String email){
-        try{
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-            return true;
-        }catch(AddressException e){
-            return false;
+    private void attemptLogin(){
+        attemptRegitration = false;
+        ApplicationHelper.resetPreferences(this);
+        tokenInfos = new TokenInformations();
+
+        //Email verification
+        if(!formHelper.validateEmail(email.getEditText().getText().toString())){
+            email.setErrorEnabled(true);
+            email.setError(resources.getString(R.string.login_email_verification));
+            return;
         }
+
+        email.setError(null);
+        email.setErrorEnabled(false);
+
+        //Password verification
+        if(!formHelper.validatePassword(password.getEditText().getText().toString())){
+            password.setErrorEnabled(true);
+            password.setError(resources.getString(R.string.login_password_verification));
+            return;
+        }
+
+        password.setError(null);
+        password.setErrorEnabled(false);
+
+        this.tokenInfos.setEmail(email.getEditText().getText().toString());
+        this.tokenInfos.setPassword(password.getEditText().getText().toString());
+        LogInTask login = new LogInTask(this, tokenInfos, true);
+        login.setDelegate(this);
+        login.execute();
     }
 
-    public boolean validatePassword(String password){
-        return password.length() >= 8;
+    @Override
+    public void asyncTaskSuccess() {
+        password.setErrorEnabled(false);
+        password.setError(null);
+        Toast.makeText(this, "CONNECTEd", Toast.LENGTH_LONG).show();
     }
 
-    private void attemptRegistration(){
-        Toast.makeText(LoginActivity.this, "Attempting registration", Toast.LENGTH_SHORT).show();
-        attemptRegitration = true;
+    @Override
+    public void asyncTaskFail(String errorMessage) {
+        password.setErrorEnabled(true);
+        password.setError(errorMessage);
     }
-
-    /*
-    *     public boolean isNetworkAvailable() {
-        final ConnectivityManager connectivityManager = ((ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE));
-        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
-    }
-    * */
 }

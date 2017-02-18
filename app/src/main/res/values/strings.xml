@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">PictoThemo</string>
+    <!-- Global -->
+    <string name="network_unavalaible">Please enable internet connection</string>
     <!-- Connexion/Registration form -->
     <string name="login_email">Email</string>
     <string name="login_password">Password</string>
@@ -8,4 +10,5 @@
     <string name="login_verification">Verifying the information</string>
     <string name="login_email_verification">Invalid email address</string>
     <string name="login_password_verification">Password must contains 8 characters minimum</string>
+    <string name="login_fail">Bad Credentials</string>*
 </resources>

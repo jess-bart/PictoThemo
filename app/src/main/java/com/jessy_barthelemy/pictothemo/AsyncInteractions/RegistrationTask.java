@@ -1,4 +1,4 @@
-package com.jessy_barthelemy.pictothemo.DatabaseInteractions;
+package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
 import android.app.ProgressDialog;
 import android.content.Context;
