@@ -34,6 +34,8 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     private TextInputLayout password;
     private Resources resources;
     private FormHelper formHelper;
+    private Button loginAction;
+    private Button registerAction;
     private TokenInformations tokenInfos;
     /*Keep the last action to execute on password IME action (login or register)*/
     private boolean attemptRegitration;
@@ -43,16 +45,16 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        email = (TextInputLayout) findViewById(R.id.login_email);
+        password = (TextInputLayout) findViewById(R.id.login_password);
+        loginAction = (Button) findViewById(R.id.login_action);
+        registerAction = (Button) findViewById(R.id.login_register_action);
+
         tokenInfos = ApplicationHelper.getTokenInformations(this);
         if(!tokenInfos.getAccessToken().isEmpty()){
             ApiHelper helper = new ApiHelper();
             helper.validateToken(this, tokenInfos, this);
         }
-
-        email = (TextInputLayout) findViewById(R.id.login_email);
-        password = (TextInputLayout) findViewById(R.id.login_password);
-        Button loginAction = (Button) findViewById(R.id.login_action);
-        Button registerAction = (Button) findViewById(R.id.login_register_action);
 
         attemptRegitration = true;
         formHelper = new FormHelper();
@@ -127,41 +129,39 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     private void attemptRegistration(){
         attemptRegitration = true;
 
-        //Email verification
-        if(!formHelper.validateEmail(email.getEditText().getText().toString())){
-            email.setErrorEnabled(true);
-            email.setError(resources.getString(R.string.login_email_verification));
-            return;
+        ApplicationHelper.resetPreferences(this);
+        tokenInfos = new TokenInformations();
+
+        if(this.isFormValid()){
+            /*Database verification*/
+            this.tokenInfos.setEmail(email.getEditText().getText().toString());
+            this.tokenInfos.setPassword(password.getEditText().getText().toString());
+            RegistrationTask registration = new RegistrationTask(this, tokenInfos, this);
+            registration.execute();
         }
-
-        email.setError(null);
-        email.setErrorEnabled(false);
-
-        //Password verification
-        if(!formHelper.validatePassword(password.getEditText().getText().toString())){
-            password.setErrorEnabled(true);
-            password.setError(resources.getString(R.string.login_password_verification));
-            return;
-        }
-
-        password.setError(null);
-        password.setErrorEnabled(false);
-
-        /*Database verification*/
-        RegistrationTask registration = new RegistrationTask(this, email);
-        registration.execute(email.getEditText().getText().toString(), password.getEditText().getText().toString());
     }
 
     private void attemptLogin(){
         attemptRegitration = false;
+
         ApplicationHelper.resetPreferences(this);
         tokenInfos = new TokenInformations();
 
+        if(this.isFormValid()){
+            this.tokenInfos.setEmail(email.getEditText().getText().toString());
+            this.tokenInfos.setPassword(password.getEditText().getText().toString());
+            LogInTask login = new LogInTask(this, tokenInfos, true);
+            login.setDelegate(this);
+            login.execute();
+        }
+    }
+
+    private boolean isFormValid(){
         //Email verification
         if(!formHelper.validateEmail(email.getEditText().getText().toString())){
             email.setErrorEnabled(true);
             email.setError(resources.getString(R.string.login_email_verification));
-            return;
+            return false;
         }
 
         email.setError(null);
@@ -171,17 +171,13 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         if(!formHelper.validatePassword(password.getEditText().getText().toString())){
             password.setErrorEnabled(true);
             password.setError(resources.getString(R.string.login_password_verification));
-            return;
+            return false;
         }
 
         password.setError(null);
         password.setErrorEnabled(false);
 
-        this.tokenInfos.setEmail(email.getEditText().getText().toString());
-        this.tokenInfos.setPassword(password.getEditText().getText().toString());
-        LogInTask login = new LogInTask(this, tokenInfos, true);
-        login.setDelegate(this);
-        login.execute();
+        return true;
     }
 
     @Override

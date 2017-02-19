@@ -9,6 +9,7 @@
     <string name="login_login">Log in</string>
     <string name="login_verification">Verifying the information</string>
     <string name="login_email_verification">Invalid email address</string>
-    <string name="login_password_verification">Password must contains 8 characters minimum</string>
-    <string name="login_fail">Bad Credentials</string>*
+    <string name="login_password_verification">Password must contains 6 characters minimum</string>
+    <string name="login_fail">Bad Credentials</string>
+    <string name="registration_fail">Email already exists</string>
 </resources>

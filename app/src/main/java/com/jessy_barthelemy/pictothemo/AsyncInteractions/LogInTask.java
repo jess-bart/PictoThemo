@@ -81,8 +81,8 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
             errorMessage = context.getResources().getString(R.string.login_fail);
         }catch (Exception e){
             errorMessage = context.getResources().getString(R.string.network_unavalaible);
+            e.printStackTrace();
         }
-
         return errorMessage;
     }
 

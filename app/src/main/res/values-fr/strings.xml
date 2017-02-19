@@ -9,6 +9,7 @@
     <string name="login_login">Connexion</string>
     <string name="login_verification">Vérification des informations</string>
     <string name="login_email_verification">Adresse email invalide</string>
-    <string name="login_password_verification">Le mot de passe doit contenir 8 caractères minimum</string>
+    <string name="login_password_verification">Le mot de passe doit contenir 6 caractères minimum</string>
     <string name="login_fail">Identifiants incorrects</string>
+    <string name="registration_fail">Cet email est déjà utilisé</string>
 </resources>

@@ -3,6 +3,7 @@ package com.jessy_barthelemy.pictothemo.Helpers;
 import android.content.Context;
 import android.net.Uri;
 
+import com.jessy_barthelemy.pictothemo.Api.HttpVerb;
 import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
@@ -24,8 +25,10 @@ import java.util.Date;
 
 public class ApiHelper {
 
-    private final String API_URL = "http://ptapi.esy.es/api/";
-    private final String AUTHENTICATION = "Authentication";
+    private final String API_URL = "http://ptapi.esy.es/api/test";
+    /*endpoint*/
+    private final String AUTHENTICATION = "/Authentication";
+    private final String USERS = "/Users";
 
     //Authentication fields
     public static final String EMAIL = "email";
@@ -36,36 +39,16 @@ public class ApiHelper {
     public static final String FLAG_SALT = "SALTED";
 
     public JSONObject getAccessToken(String email, String password, String flags) throws IOException, JSONException, InvalidParameterException {
-        URL url = new URL(API_URL+AUTHENTICATION);
-
-        Uri.Builder query = new Uri.Builder()
+        Uri.Builder parameters = new Uri.Builder()
                 .appendQueryParameter("email", email)
                 .appendQueryParameter("password", password);
 
         if(flags != null)
-            query.appendQueryParameter("flags", flags);
-        HttpURLConnection http = (HttpURLConnection)url.openConnection();
-        http.setRequestMethod("POST");
-        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        http.setDoOutput(true);
-
-        OutputStream os = http.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        writer.write(query.build().getEncodedQuery());
-        writer.flush();
-        writer.close();
-        os.close();
+            parameters.appendQueryParameter("flags", flags);
+        HttpURLConnection http = this.createHttpConnection(API_URL+AUTHENTICATION, HttpVerb.POST.toString(), parameters);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-            BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-            return new JSONObject(response.toString());
+            return this.getJSONResponse(http);
         }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
             throw new InvalidMarkException();
         }
@@ -75,7 +58,8 @@ public class ApiHelper {
     }
 
     public void validateToken(Context context, TokenInformations tokenInfos, IAsyncResponse delegate){
-        if(!new Date().after(tokenInfos.getExpiresToken())){
+        Date t = new Date();
+        if(new Date().after(tokenInfos.getExpiresToken())){
             this.refreshToken(context, tokenInfos, delegate);
         }else{
             delegate.asyncTaskSuccess();
@@ -86,5 +70,62 @@ public class ApiHelper {
         LogInTask login = new LogInTask(context, tokenInfos, true);
         login.setDelegate(delegate);
         login.execute();
+    }
+
+    public JSONObject createUser(String email, String password) throws IOException, JSONException{
+        Uri.Builder parameter = new Uri.Builder()
+                .appendQueryParameter("email", email)
+                .appendQueryParameter("password", password);
+        HttpURLConnection http = this.createHttpConnection(API_URL+USERS, HttpVerb.PUT.toString(), parameter);
+
+        if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
+            return this.getJSONResponse(http);
+        }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
+            throw new InvalidParameterException();
+        }
+
+        http.disconnect();
+        return null;
+    }
+
+    public boolean deleteUser(String email, String password) throws IOException{
+        boolean result;
+        String parameters = String.format("?email=%s&password=%s", email, password);
+        HttpURLConnection http = this.createHttpConnection(API_URL+USERS+parameters, HttpVerb.DELETE.toString(), null);
+
+        result = http.getResponseCode() == HttpURLConnection.HTTP_OK;
+        http.disconnect();
+        return result;
+    }
+
+    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters) throws IOException{
+        URL url = new URL(Url);
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod(method);
+        http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        http.setDoOutput(true);
+
+        OutputStream os = http.getOutputStream();
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        if(parameters != null)
+            writer.write(parameters.build().getEncodedQuery());
+        writer.flush();
+        writer.close();
+        os.close();
+        return http;
+    }
+
+    private JSONObject getJSONResponse(HttpURLConnection http) throws IOException, JSONException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+
+        return new JSONObject(response.toString());
     }
 }

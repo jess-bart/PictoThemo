@@ -52,8 +52,10 @@ public class ApplicationHelper {
         editor.putString(ApplicationHelper.USER_EMAIL_PREF, tokenInfos.getEmail());
         editor.putString(ApplicationHelper.USER_PASSWORD_PREF, tokenInfos.getPassword());
         editor.putString(ApplicationHelper.USER_TOKEN_PREF, tokenInfos.getAccessToken());
-        SimpleDateFormat df = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
-        editor.putString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, df.format(tokenInfos.getExpiresToken()));
+        if(tokenInfos.getExpiresToken() != null){
+            SimpleDateFormat df = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
+            editor.putString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, df.format(tokenInfos.getExpiresToken()));
+        }
         editor.apply();
     }
 
