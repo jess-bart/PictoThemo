@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 
+import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
-import com.jessy_barthelemy.pictothemo.LoginActivity;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;

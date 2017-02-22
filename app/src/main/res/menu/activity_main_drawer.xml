@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_potd"
+            android:icon="@drawable/ic_trophy"
+            android:title="@string/picture_of_the_day"
+            android:checked="true"/>
+        <item
+            android:id="@+id/nav_send"
+            android:icon="@drawable/ic_menu_camera"
+            android:title="@string/nav_send" />
+        <item
+            android:id="@+id/nav_profile"
+            android:icon="@drawable/ic_account_circle"
+            android:title="@string/my_profile" />
+        <item
+            android:id="@+id/nav_gallery"
+            android:icon="@drawable/ic_menu_gallery"
+            android:title="@string/gallery" />
+
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="@string/nav_preferences" />
+    </group>
+</menu>

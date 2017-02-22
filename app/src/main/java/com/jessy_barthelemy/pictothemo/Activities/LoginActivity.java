@@ -1,9 +1,10 @@
-package com.jessy_barthelemy.pictothemo;
+package com.jessy_barthelemy.pictothemo.Activities;
 
 import android.Manifest;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -16,7 +17,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
@@ -25,6 +25,7 @@ import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.FormHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.R;
 
 public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
@@ -184,7 +185,10 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     public void asyncTaskSuccess() {
         password.setErrorEnabled(false);
         password.setError(null);
-        Toast.makeText(this, "CONNECTEd", Toast.LENGTH_LONG).show();
+
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     @Override

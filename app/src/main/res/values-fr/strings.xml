@@ -3,6 +3,10 @@
 
     <!-- Global -->
     <string name="network_unavalaible">Veuillez activer internet</string>
+    <string name="picture_of_the_day">Image du jour</string>
+    <string name="my_profile">Mon profil</string>
+    <string name="gallery">Gallerie</string>
+
     <!-- Connexion/Registration form -->
     <string name="login_password">Mot de passe</string>
     <string name="login_registration">Inscription</string>
@@ -12,4 +16,10 @@
     <string name="login_password_verification">Le mot de passe doit contenir 6 caractères minimum</string>
     <string name="login_fail">Identifiants incorrects</string>
     <string name="registration_fail">Cet email est déjà utilisé</string>
+
+    <!-- Menu -->
+    <string name="nav_send">Propose ton image</string>
+    <string name="nav_preferences">Préférences</string>
+    <string name="navigation_drawer_open">Ouvrir le menu</string>
+    <string name="navigation_drawer_close">Fermer le menu</string>
 </resources>
