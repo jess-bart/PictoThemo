@@ -1,27 +1,30 @@
 <resources>
-<string name="app_name">PictoThemo</string>
+    <string name="app_name">PictoThemo</string>
 
-<!-- Global -->
-<string name="network_unavalaible">Please enable internet connection</string>
-<string name="picture_of_the_day">Picture of the day</string>
-<string name="my_profile">My profile</string>
-<string name="gallery">Gallery</string>
+    <!-- Global -->
+    <string name="network_unavalaible">Please enable internet connection</string>
+    <string name="picture_of_the_day">Picture of the day</string>
+    <string name="my_profile">My profile</string>
+    <string name="gallery">Gallery</string>
 
-<!-- Connexion/Registration form -->
-<string name="login_email">Email</string>
-<string name="login_password">Password</string>
-<string name="login_registration">Register</string>
-<string name="login_login">Log in</string>
-<string name="login_verification">Verifying the information</string>
-<string name="login_email_verification">Invalid email address</string>
-<string name="login_password_verification">Password must contains 6 characters minimum</string>
-<string name="login_fail">Bad Credentials</string>
-<string name="registration_fail">Email already exists</string>
+    <!-- Connexion/Registration form -->
+    <string name="login_pseudo">Pseudo</string>
+    <string name="login_password">Password</string>
+    <string name="login_registration">Register</string>
+    <string name="login_login">Log in</string>
+    <string name="login_verification">Verifying the information</string>
+    <string name="login_pseudo_verification">Invalid pseudo</string>
+    <string name="login_password_verification">Password must contains 6 characters minimum</string>
+    <string name="login_fail">Bad Credentials</string>
+    <string name="registration_fail">This pseudo is already taken</string>
 
-<!-- Menu -->
-<string name="nav_send">Send your picture</string>
-<string name="nav_preferences">Preferences</string>
-<string name="navigation_drawer_open">Open navigation drawer</string>
-<string name="navigation_drawer_close">Close navigation drawer</string>
+    <!-- Menu -->
+    <string name="nav_send">Send your picture</string>
+    <string name="nav_preferences">Preferences</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- POTD -->
+    <string name="user_unknow">Anonymous</string>
 
 </resources>

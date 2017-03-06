@@ -21,10 +21,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Activities.MainActivity"
+            android:name=".Activities.BaseActivity"
             android:label="@string/picture_of_the_day"
             android:noHistory="true"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".Activities.HomeActivity"></activity>
     </application>
 
 </manifest>

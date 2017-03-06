@@ -12,14 +12,17 @@
     <string name="login_registration">Inscription</string>
     <string name="login_login">Connexion</string>
     <string name="login_verification">Vérification des informations</string>
-    <string name="login_email_verification">Adresse email invalide</string>
+    <string name="login_pseudo_verification">Pseudo invalide</string>
     <string name="login_password_verification">Le mot de passe doit contenir 6 caractères minimum</string>
     <string name="login_fail">Identifiants incorrects</string>
-    <string name="registration_fail">Cet email est déjà utilisé</string>
+    <string name="registration_fail">Ce pseudo est déjà utilisé</string>
 
     <!-- Menu -->
     <string name="nav_send">Propose ton image</string>
     <string name="nav_preferences">Préférences</string>
     <string name="navigation_drawer_open">Ouvrir le menu</string>
     <string name="navigation_drawer_close">Fermer le menu</string>
+
+    <!-- POTD -->
+    <string name="user_unknow">Anonyme</string>
 </resources>

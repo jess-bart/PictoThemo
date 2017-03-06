@@ -6,17 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <!-- Button -->
-    <style name="ColoredButton" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:textColor">@android:color/white</item>
-        <item name="colorButtonNormal">@color/colorPrimary</item>
-    </style>
 
     <style name="ColoredButtonAccent" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@android:color/white</item>
         <item name="colorButtonNormal">@color/colorAccent</item>
+    </style>
+    <style name="ColoredButtonBase" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 
     <!-- Text -->
@@ -27,9 +28,32 @@
     <style name="TitleAppearance" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textSize">@dimen/title_size</item>
+    </style>
+
+    <style name="TitleBoldTheme" parent="Theme.AppCompat.Light">
+        <item name="android:textAppearance">@style/TitleBoldAppearance</item>
+    </style>
+
+    <style name="TitleBoldAppearance" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/title_size</item>
         <item name="android:textStyle">bold</item>
     </style>
-            <style name="AppTheme.NoActionBar">
+
+    <style name="ThemeOverlay" parent="Theme.AppCompat.Light">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:shadowColor">@color/textShadow</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
+        <item name="android:shadowRadius">3</item>
+        <item name="android:background">@drawable/theme_bg</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:paddingTop">2dp</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

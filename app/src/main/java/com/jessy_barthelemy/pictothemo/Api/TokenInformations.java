@@ -8,21 +8,21 @@ import java.util.Date;
 public class TokenInformations {
     private String accessToken;
     private Date expiresToken;
-    private String email;
+    private String pseudo;
     private String password;
     private boolean isPasswordSalted;
 
     public TokenInformations() {
         this.accessToken = "";
-        this.email = "";
+        this.pseudo = "";
         this.password = "";
         this.expiresToken = null;
         this.isPasswordSalted = false;
     }
 
-    public TokenInformations(String accessToken,String expireToken, String email, String password, boolean isPasswordSalted) {
+    public TokenInformations(String accessToken,String expireToken, String pseudo, String password, boolean isPasswordSalted) {
         this.accessToken = accessToken;
-        this.email = email;
+        this.pseudo = pseudo;
         this.password = password;
         this.setExpiresToken(expireToken);
         this.isPasswordSalted = isPasswordSalted;
@@ -48,12 +48,12 @@ public class TokenInformations {
         this.accessToken = accessToken;
     }
 
-    public String getEmail() {
-        return email;
+    public String getPseudo() {
+        return pseudo;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setPseudo(String pseudo) {
+        this.pseudo = pseudo;
     }
 
     public String getPassword() {

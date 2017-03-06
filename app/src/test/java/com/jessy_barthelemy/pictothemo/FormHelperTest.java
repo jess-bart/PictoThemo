@@ -10,14 +10,14 @@ import static org.junit.Assert.assertTrue;
 public class FormHelperTest {
 
     @Test
-    public void checkEmailTest() throws Exception {
+    public void checkPseudoTest() throws Exception {
         FormHelper formHelper = new FormHelper();
-        assertFalse(formHelper.validateEmail(null));
-        assertFalse(formHelper.validateEmail(""));
-        assertFalse(formHelper.validateEmail("test"));
-        assertFalse(formHelper.validateEmail("test@"));
-        assertTrue(formHelper.validateEmail("test@54654.fr"));
-        assertTrue(formHelper.validateEmail("test@test.fr"));
+        assertFalse(formHelper.validatePseudo(null));
+        assertFalse(formHelper.validatePseudo(""));
+        assertFalse(formHelper.validatePseudo("siz"));
+        assertFalse(formHelper.validatePseudo("stest@"));
+        assertTrue(formHelper.validatePseudo("oOpseudo_51Oo"));
+        assertTrue(formHelper.validatePseudo("jES858X6-"));
     }
 
     @Test

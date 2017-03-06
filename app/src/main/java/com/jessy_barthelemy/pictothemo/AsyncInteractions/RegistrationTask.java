@@ -42,7 +42,7 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
     }
 
     /*
-    * Param 1 : Email(String)
+    * Param 1 : Pseudo(String)
     * Param 2 : Password(String)
     * Return the error message or null
     * */
@@ -51,7 +51,7 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
         String errorMessage = null;
         try {
             ApiHelper helper = new ApiHelper();
-            JSONObject result = helper.createUser(tokensInfos.getEmail(), tokensInfos.getPassword());
+            JSONObject result = helper.createUser(tokensInfos.getPseudo(), tokensInfos.getPassword());
 
             if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
                 this.tokensInfos.setAccessToken(result.getString(ApiHelper.ACCESS_TOKEN));

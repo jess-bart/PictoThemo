@@ -1,20 +1,14 @@
 package com.jessy_barthelemy.pictothemo.Helpers;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
+import java.util.regex.Pattern;
 
 public class FormHelper {
-    public boolean validateEmail(String email){
-        if(email == null){
+    public boolean validatePseudo(String pseudo){
+        if(pseudo == null){
             return false;
         }
-        try{
-            InternetAddress emailAddr = new InternetAddress(email);
-            emailAddr.validate();
-            return true;
-        }catch(AddressException e){
-            return false;
-        }
+        Pattern p = Pattern.compile("^[a-zA-Z0-9-_]{"+ApplicationHelper.PSEUDO_MAX_LENGTH+",}$");
+        return p.matcher(pseudo).matches();
     }
 
     public boolean validatePassword(String password){

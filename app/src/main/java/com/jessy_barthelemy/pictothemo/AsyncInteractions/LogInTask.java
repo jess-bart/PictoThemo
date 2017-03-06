@@ -22,6 +22,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     private TokenInformations tokensInfos;
     /*reference to the class that want a success callback*/
     private IAsyncResponse delegate;
+    private boolean isNetworkAvailable;
 
     /*Constructor without ui*/
     public LogInTask(Context ctx, TokenInformations tokenInfos, boolean showLoading){
@@ -53,17 +54,18 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     }
 
     /*
-    * Param 1 : Email(String)
+    * Param 1 : Pseudo(String)
     * Param 2 : Password(String)
     * Return the error message or null
     * */
     @Override
     protected String doInBackground(Void... params) {
         String errorMessage = null;
+        isNetworkAvailable = true;
         try {
             String flags = (tokensInfos.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
             ApiHelper helper = new ApiHelper();
-            JSONObject result = helper.getAccessToken(tokensInfos.getEmail(), tokensInfos.getPassword(), flags);
+            JSONObject result = helper.getAccessToken(tokensInfos.getPseudo(), tokensInfos.getPassword(), flags);
 
             if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
                 this.tokensInfos.setAccessToken(result.getString(ApiHelper.ACCESS_TOKEN));
@@ -80,6 +82,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         }catch (InvalidParameterException ipe){
             errorMessage = context.getResources().getString(R.string.login_fail);
         }catch (Exception e){
+            isNetworkAvailable = false;
             errorMessage = context.getResources().getString(R.string.network_unavalaible);
             e.printStackTrace();
         }
@@ -93,11 +96,12 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         if(errorMessage != null && !errorMessage.isEmpty()){
             if(delegate != null)
                 delegate.asyncTaskFail(errorMessage);
-
-            ApplicationHelper.resetPreferences(this.context);
-            if(this.tokensInfos.isPasswordSalted()){
-                ApplicationHelper.restartApp(this.context);
+            if(isNetworkAvailable){
+                ApplicationHelper.resetPreferences(this.context);
+                if(this.tokensInfos.isPasswordSalted())
+                    ApplicationHelper.restartApp(this.context);
             }
+
         }else{
             ApplicationHelper.savePreferences(this.context, this.tokensInfos);
             if(delegate != null)

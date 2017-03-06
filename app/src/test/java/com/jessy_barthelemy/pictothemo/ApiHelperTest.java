@@ -23,13 +23,13 @@ public class ApiHelperTest {
     public void createDeleteUser() throws Exception{
         ApiHelper helper = new ApiHelper();
 
-        JSONObject result = helper.createUser("john.doe@gmail.com", "john");
+        JSONObject result = helper.createUser("john.doe@test.com", "john");
         String salt = result.getString(ApiHelper.SALT);
         assertNotNull(result);
 
         boolean checkDuplicate = false;
         try{
-            assertNotNull(helper.createUser("john.doe@gmail.com", "john"));
+            assertNotNull(helper.createUser("john.doe@test.com", "john"));
         }catch(InvalidParameterException e){
             checkDuplicate = true;
         }
@@ -38,13 +38,13 @@ public class ApiHelperTest {
         checkDuplicate = false;
 
         try{
-            assertNotNull(helper.createUser("john.doe@gmail.com", "john2"));
+            assertNotNull(helper.createUser("john.doe@test.com", "john2"));
         }catch(InvalidParameterException e){
             checkDuplicate = true;
         }
 
         assertTrue(checkDuplicate);
-        assertTrue(helper.deleteUser("john.doe@gmail.com", ApplicationHelper.hashPassword("john"+salt)));
+        assertTrue(helper.deleteUser("john.doe@test.com", ApplicationHelper.hashPassword("john"+salt)));
     }
 
     @Test
@@ -66,5 +66,39 @@ public class ApiHelperTest {
 
         assertNotNull(access_token);
         assertNotNull(expire_token);
+    }
+
+    @Test
+    public void getPictures() throws  Exception{
+        ApiHelper helper = new ApiHelper();
+
+        JSONObject result = helper.getPictures(ApplicationHelper.convertStringToDate("2017-03-06"), null);
+        JSONObject picture1 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(0);
+        JSONObject picture2 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(1);
+
+        assertEquals(result.getJSONArray(ApiHelper.PICTURES).length(), 2);
+        assertEquals(picture1.getInt(ApiHelper.ID), 1);
+        assertEquals(picture1.getString(ApiHelper.THEME_NAME), "Fire");
+        assertEquals(picture1.getString(ApiHelper.PSEUDO), "");
+        assertEquals(picture1.getInt(ApiHelper.POSITIVE_VOTE), 1);
+        assertEquals(picture1.getInt(ApiHelper.NEGATIVE_VOTE), 1);
+
+        assertEquals(picture2.getInt(ApiHelper.ID), 2);
+        assertEquals(picture2.getString(ApiHelper.THEME_NAME), "Fire");
+        assertEquals(picture2.getString(ApiHelper.PSEUDO), "john.always@test.fr");
+        assertEquals(picture2.getInt(ApiHelper.POSITIVE_VOTE), 0);
+        assertEquals(picture2.getInt(ApiHelper.NEGATIVE_VOTE), 2);
+
+        result = helper.getPictures(ApplicationHelper.convertStringToDate("2017-03-06"), ApiHelper.FLAG_POTD);
+        picture1 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(0);
+
+        assertEquals(result.getJSONArray(ApiHelper.PICTURES).length(), 1);
+        assertEquals(picture1.getInt(ApiHelper.ID), 1);
+        assertEquals(picture1.getString(ApiHelper.THEME_NAME), "Fire");
+        assertEquals(picture1.getString(ApiHelper.PSEUDO), "");
+        assertEquals(picture1.getInt(ApiHelper.POSITIVE_VOTE), 1);
+        assertEquals(picture1.getInt(ApiHelper.NEGATIVE_VOTE), 1);
+
+        assertNotNull(result);
     }
 }

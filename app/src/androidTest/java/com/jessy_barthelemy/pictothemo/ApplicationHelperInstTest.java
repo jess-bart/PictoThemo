@@ -19,14 +19,14 @@ public class ApplicationHelperInstTest {
     public void preferencesTest() throws Exception {
         // Context of the app under test.
         Context context = InstrumentationRegistry.getTargetContext();
-        TokenInformations tokenInfos = new TokenInformations("access", "2017-01-11 18:32:19", "email", "password", true);
+        TokenInformations tokenInfos = new TokenInformations("access", "2017-01-11 18:32:19", "pseudo", "password", true);
         ApplicationHelper.savePreferences(context, tokenInfos);
 
         TokenInformations tokenInfosRestored = ApplicationHelper.getTokenInformations(context);
         assertNotNull(tokenInfosRestored);
         assertEquals(tokenInfosRestored.getAccessToken(), tokenInfos.getAccessToken());
         assertEquals(tokenInfosRestored.getExpiresToken(), tokenInfos.getExpiresToken());
-        assertEquals(tokenInfosRestored.getEmail(), tokenInfos.getEmail());
+        assertEquals(tokenInfosRestored.getPseudo(), tokenInfos.getPseudo());
         assertEquals(tokenInfosRestored.getPassword(), tokenInfos.getPassword());
         assertEquals(tokenInfosRestored.isPasswordSalted(), tokenInfos.isPasswordSalted());
 
@@ -34,8 +34,15 @@ public class ApplicationHelperInstTest {
         TokenInformations tokenReseted = ApplicationHelper.getTokenInformations(context);
         assertEquals(tokenReseted.getAccessToken(), "");
         assertEquals(tokenReseted.getExpiresToken(), null);
-        assertEquals(tokenReseted.getEmail(), "");
+        assertEquals(tokenReseted.getPseudo(), "");
         assertEquals(tokenReseted.getPassword(), "");
         assertEquals(tokenReseted.isPasswordSalted(), false);
+    }
+
+    @Test
+    public void pseudoTest() throws Exception {
+        Context context = InstrumentationRegistry.getTargetContext();
+        assertEquals(ApplicationHelper.handleUnknowPseudo(context, ""), "Anonyme");
+        assertEquals(ApplicationHelper.handleUnknowPseudo(context, "John"), "John");
     }
 }

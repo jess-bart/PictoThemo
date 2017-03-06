@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.R;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -16,12 +17,13 @@ import java.util.Date;
 
 public class ApplicationHelper {
     private static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
-    private static final String USER_EMAIL_PREF = "USER_EMAIL";
+    private static final String USER_PSEUDO_PREF = "USER_PSEUDO";
     private static final String USER_PASSWORD_PREF = "USER_PASSWORD";
     private static final String USER_TOKEN_PREF = "USER_TOKEN";
     private static final String USER_EXPIRES_TOKEN_PREF = "USER_EXPIRES_TOKEN";
+    static final int PSEUDO_MAX_LENGTH = 4;
     static final int PASSWORD_MAX_LENGTH = 6;
-    private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
 
     //Static helper methods
     public static String hashPassword(String password) throws ParseException {
@@ -49,7 +51,7 @@ public class ApplicationHelper {
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putString(ApplicationHelper.USER_EMAIL_PREF, tokenInfos.getEmail());
+        editor.putString(ApplicationHelper.USER_PSEUDO_PREF, tokenInfos.getPseudo());
         editor.putString(ApplicationHelper.USER_PASSWORD_PREF, tokenInfos.getPassword());
         editor.putString(ApplicationHelper.USER_TOKEN_PREF, tokenInfos.getAccessToken());
         if(tokenInfos.getExpiresToken() != null){
@@ -63,10 +65,10 @@ public class ApplicationHelper {
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         String accessToken = settings.getString(ApplicationHelper.USER_TOKEN_PREF, "");
         String expiresToken = settings.getString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, "");
-        String email = settings.getString(ApplicationHelper.USER_EMAIL_PREF, "");
+        String pseudo = settings.getString(ApplicationHelper.USER_PSEUDO_PREF, "");
         String password = settings.getString(ApplicationHelper.USER_PASSWORD_PREF, "");
 
-        return new TokenInformations(accessToken, expiresToken, email, password, !accessToken.isEmpty());
+        return new TokenInformations(accessToken, expiresToken, pseudo, password, !accessToken.isEmpty());
     }
 
     public static void resetPreferences(Context context){
@@ -85,4 +87,15 @@ public class ApplicationHelper {
         return formatter.parse(date);
     }
 
+    public static String convertDateToString(Date date) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
+        return formatter.format(date);
+    }
+
+    public static String handleUnknowPseudo(Context ctx, String pseudo){
+        if(pseudo == null || pseudo.isEmpty())
+            return ctx.getResources().getString(R.string.user_unknow);
+        else
+            return pseudo;
+    }
 }
