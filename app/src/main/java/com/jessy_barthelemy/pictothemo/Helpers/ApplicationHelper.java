@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
-import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.math.BigInteger;
@@ -13,7 +13,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
 public class ApplicationHelper {
     private static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
@@ -28,20 +28,23 @@ public class ApplicationHelper {
     //Static helper methods
     public static String hashPassword(String password) throws ParseException {
         if(password == null || password.isEmpty()) return "";
-
-        MessageDigest m = null;
+        String hashText = null;
+        MessageDigest m;
         try {
             m = MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            return null;
         }
-        m.reset();
-        m.update(password.getBytes());
-        byte[] digest = m.digest();
-        BigInteger bigInt = new BigInteger(1,digest);
-        String hashText = bigInt.toString(16);
-        while(hashText.length() < 32 ){
-            hashText = "0"+hashText;
+
+        if(m != null){
+            m.reset();
+            m.update(password.getBytes());
+            byte[] digest = m.digest();
+            BigInteger bigInt = new BigInteger(1,digest);
+            hashText = bigInt.toString(16);
+            while(hashText.length() < 32 ){
+                hashText = "0"+hashText;
+            }
         }
 
         return hashText;
@@ -56,7 +59,7 @@ public class ApplicationHelper {
         editor.putString(ApplicationHelper.USER_TOKEN_PREF, tokenInfos.getAccessToken());
         if(tokenInfos.getExpiresToken() != null){
             SimpleDateFormat df = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
-            editor.putString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, df.format(tokenInfos.getExpiresToken()));
+            editor.putString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, df.format(tokenInfos.getExpiresToken().getTime()));
         }
         editor.apply();
     }
@@ -67,8 +70,14 @@ public class ApplicationHelper {
         String expiresToken = settings.getString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, "");
         String pseudo = settings.getString(ApplicationHelper.USER_PSEUDO_PREF, "");
         String password = settings.getString(ApplicationHelper.USER_PASSWORD_PREF, "");
+        Calendar expiresDate;
+        try {
+            expiresDate = ApplicationHelper.convertStringToDate(expiresToken);
+        } catch (ParseException e) {
+            return null;
+        }
 
-        return new TokenInformations(accessToken, expiresToken, pseudo, password, !accessToken.isEmpty());
+        return new TokenInformations(accessToken, expiresDate, pseudo, password, !accessToken.isEmpty());
     }
 
     public static void resetPreferences(Context context){
@@ -82,14 +91,16 @@ public class ApplicationHelper {
         context.startActivity(i);
     }
 
-    public static Date convertStringToDate(String date) throws ParseException {
+    public static Calendar convertStringToDate(String date) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
-        return formatter.parse(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(formatter.parse(date));
+        return calendar;
     }
 
-    public static String convertDateToString(Date date) throws ParseException {
+    public static String convertDateToString(Calendar date) throws ParseException {
         SimpleDateFormat formatter = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
-        return formatter.format(date);
+        return formatter.format(date.getTime());
     }
 
     public static String handleUnknowPseudo(Context ctx, String pseudo){

@@ -2,10 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jessy_barthelemy.pictothemo">
 
-    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -26,6 +25,7 @@
             android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".Activities.HomeActivity"></activity>
+        <service android:name=".Services.SaveImageCacheService" android:enabled="true"/>
     </application>
 
 </manifest>

@@ -13,7 +13,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.RegistrationTask;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         registerAction = (Button) findViewById(R.id.login_register_action);
 
         tokenInfos = ApplicationHelper.getTokenInformations(this);
-        if(!tokenInfos.getAccessToken().isEmpty()){
+        if(tokenInfos != null && !tokenInfos.getAccessToken().isEmpty()){
             ApiHelper helper = new ApiHelper();
             helper.validateToken(this, tokenInfos, this);
         }

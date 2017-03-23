@@ -26,5 +26,6 @@
 
     <!-- POTD -->
     <string name="user_unknow">Anonymous</string>
-
+    <string name="theme_title">Theme of %1$s</string>
+    <string name="theme_vote_error">Cannot vote for theme %1$s</string>
 </resources>

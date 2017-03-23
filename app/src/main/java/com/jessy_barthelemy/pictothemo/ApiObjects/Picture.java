@@ -1,4 +1,6 @@
-package com.jessy_barthelemy.pictothemo.Api;
+package com.jessy_barthelemy.pictothemo.ApiObjects;
+
+import java.util.Calendar;
 
 public class Picture {
     private int id ;
@@ -6,14 +8,16 @@ public class Picture {
     private User user;
     private int positiveVote;
     private int negativeVote;
+    private Calendar date;
 
-    public Picture(int id, String theme, User user, int positiveVote, int negativeVote) {
+    public Picture(int id, String theme, User user, Calendar date, int positiveVote, int negativeVote) {
 
         this.id = id;
         this.theme = theme;
         this.user = user;
         this.positiveVote = positiveVote;
         this.negativeVote = negativeVote;
+        this.date = date;
     }
 
     public int getNegativeVote() {
@@ -54,5 +58,13 @@ public class Picture {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Calendar getDate() {
+        return date;
+    }
+
+    public void setDate(Calendar date) {
+        this.date = date;
     }
 }

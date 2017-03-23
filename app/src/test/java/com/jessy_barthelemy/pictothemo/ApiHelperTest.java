@@ -1,8 +1,9 @@
 package com.jessy_barthelemy.pictothemo;
 
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
-import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.security.InvalidParameterException;
+import java.util.Calendar;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -23,8 +25,7 @@ public class ApiHelperTest {
     public void createDeleteUser() throws Exception{
         ApiHelper helper = new ApiHelper();
 
-        JSONObject result = helper.createUser("john.doe@test.com", "john");
-        String salt = result.getString(ApiHelper.SALT);
+        TokenInformations result = helper.createUser("john.doe@test.com", "john");
         assertNotNull(result);
 
         boolean checkDuplicate = false;
@@ -44,39 +45,37 @@ public class ApiHelperTest {
         }
 
         assertTrue(checkDuplicate);
-        assertTrue(helper.deleteUser("john.doe@test.com", ApplicationHelper.hashPassword("john"+salt)));
+        helper.getAccessToken("john.doe@test.com", "john", null);
+        assertTrue(helper.deleteUser("john.doe@test.com", result.getPassword()));
     }
 
     @Test
     public void getAccessToken() throws Exception{
         ApiHelper helper = new ApiHelper();
 
-        JSONObject result = helper.getAccessToken("john.always@test.fr", "johnjohn", null);
-        String access_token = result.getString(ApiHelper.ACCESS_TOKEN);
-        String expire_token = result.getString(ApiHelper.EXPIRES_TOKEN);
-        String salt = result.getString(ApiHelper.SALT);
+        TokenInformations result = helper.getAccessToken("john.always@test.fr", "johnjohn", null);
 
-        assertEquals(salt, "122464189958aa180f6c1748.82167168");
-        assertNotNull(access_token);
-        assertNotNull(expire_token);
+        assertNotNull(result);
+        assertNotNull(result.getAccessToken());
+        assertNotNull(result.getExpiresToken());
 
+        result = null;
         result = helper.getAccessToken("john.always@test.fr", "fb1b0ce9e5e4183eeb800f73b01c6189", ApiHelper.FLAG_SALT);
-        access_token = result.getString(ApiHelper.ACCESS_TOKEN);
-        expire_token = result.getString(ApiHelper.EXPIRES_TOKEN);
 
-        assertNotNull(access_token);
-        assertNotNull(expire_token);
+        assertNotNull(result);
+        assertNotNull(result.getAccessToken());
+        assertNotNull(result.getExpiresToken());
     }
 
     @Test
     public void getPictures() throws  Exception{
         ApiHelper helper = new ApiHelper();
 
-        JSONObject result = helper.getPictures(ApplicationHelper.convertStringToDate("2017-03-06"), null);
-        JSONObject picture1 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(0);
-        JSONObject picture2 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(1);
+        JSONObject result = helper.getPictures(Calendar.getInstance(), null);
+        JSONObject picture1 = result.getJSONArray(ApiHelper.ENTITY_PICTURES).getJSONObject(0);
+        JSONObject picture2 = result.getJSONArray(ApiHelper.ENTITY_PICTURES).getJSONObject(1);
 
-        assertEquals(result.getJSONArray(ApiHelper.PICTURES).length(), 2);
+        assertEquals(result.getJSONArray(ApiHelper.ENTITY_PICTURES).length(), 2);
         assertEquals(picture1.getInt(ApiHelper.ID), 1);
         assertEquals(picture1.getString(ApiHelper.THEME_NAME), "Fire");
         assertEquals(picture1.getString(ApiHelper.PSEUDO), "");
@@ -89,10 +88,10 @@ public class ApiHelperTest {
         assertEquals(picture2.getInt(ApiHelper.POSITIVE_VOTE), 0);
         assertEquals(picture2.getInt(ApiHelper.NEGATIVE_VOTE), 2);
 
-        result = helper.getPictures(ApplicationHelper.convertStringToDate("2017-03-06"), ApiHelper.FLAG_POTD);
-        picture1 = result.getJSONArray(ApiHelper.PICTURES).getJSONObject(0);
+        result = helper.getPictures(Calendar.getInstance(), ApiHelper.FLAG_POTD);
+        picture1 = result.getJSONArray(ApiHelper.ENTITY_PICTURES).getJSONObject(0);
 
-        assertEquals(result.getJSONArray(ApiHelper.PICTURES).length(), 1);
+        assertEquals(result.getJSONArray(ApiHelper.ENTITY_PICTURES).length(), 1);
         assertEquals(picture1.getInt(ApiHelper.ID), 1);
         assertEquals(picture1.getString(ApiHelper.THEME_NAME), "Fire");
         assertEquals(picture1.getString(ApiHelper.PSEUDO), "");
@@ -100,5 +99,20 @@ public class ApiHelperTest {
         assertEquals(picture1.getInt(ApiHelper.NEGATIVE_VOTE), 1);
 
         assertNotNull(result);
+    }
+
+    @Test
+    public void getThemes() throws  Exception{
+        ApiHelper helper = new ApiHelper();
+
+        JSONArray result = helper.getThemes(Calendar.getInstance()).getJSONArray(ApiHelper.ENTITY_THEMES);
+
+        String themeName1 = result.getJSONObject(0).getString(ApiHelper.THEME_NAME);
+        String themeName2 = result.getJSONObject(1).getString(ApiHelper.THEME_NAME);
+
+
+        assertEquals(result.length(), 2);
+        assertEquals(themeName1, "Fire");
+        assertEquals(themeName2, "Ice");
     }
 }

@@ -4,13 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
-
-import org.json.JSONObject;
 
 import java.security.InvalidParameterException;
 
@@ -51,16 +49,10 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
         String errorMessage = null;
         try {
             ApiHelper helper = new ApiHelper();
-            JSONObject result = helper.createUser(tokensInfos.getPseudo(), tokensInfos.getPassword());
+            this.tokensInfos = helper.createUser(tokensInfos.getPseudo(), tokensInfos.getPassword());
 
-            if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
-                this.tokensInfos.setAccessToken(result.getString(ApiHelper.ACCESS_TOKEN));
-                this.tokensInfos.setExpiresToken(result.getString(ApiHelper.EXPIRES_TOKEN));
-                this.tokensInfos.setPassword(ApplicationHelper.hashPassword(this.tokensInfos.getPassword()+result.getString(ApiHelper.SALT)));
-                this.tokensInfos.setPasswordSalted(true);
-
-            }else{
-                errorMessage = context.getResources().getString(R.string.registration_fail);
+            if(this.tokensInfos == null){
+                errorMessage = context.getResources().getString(R.string.network_unavalaible);
             }
         }catch (InvalidParameterException ipe){
             errorMessage = context.getResources().getString(R.string.registration_fail);

@@ -15,9 +15,17 @@
         <ImageView
             android:id="@+id/home_potd"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             android:background="@color/lightGrey"
-            android:adjustViewBounds="true" />
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:src="@drawable/loading"/>
+        <View
+            android:id="@+id/home_potd_loadbar"
+            android:layout_width="0dp"
+            android:layout_height="5dp"
+            android:background="@color/colorPrimary"
+            android:layout_gravity="bottom|left"/>
         <TextView
             android:id="@+id/home_potd_theme"
             android:layout_marginBottom="@dimen/little_space"
@@ -78,7 +86,6 @@
             android:id="@+id/home_theme_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Thème de Jeudi"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/home_profil"/>
         <LinearLayout
@@ -92,15 +99,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="@dimen/button_min_width"
-                android:text="Montagnes"
-                />
+                android:enabled="false"/>
             <android.support.v7.widget.AppCompatButton
                 android:theme="@style/ColoredButtonBase"
                 android:id="@+id/home_theme_2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:minWidth="@dimen/button_min_width"
-                android:text="Ciel" />
+                android:enabled="false"/>
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

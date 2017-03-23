@@ -1,13 +1,10 @@
-package com.jessy_barthelemy.pictothemo.Api;
+package com.jessy_barthelemy.pictothemo.ApiObjects;
 
-import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
-
-import java.text.ParseException;
-import java.util.Date;
+import java.util.Calendar;
 
 public class TokenInformations {
     private String accessToken;
-    private Date expiresToken;
+    private Calendar expiresToken;
     private String pseudo;
     private String password;
     private boolean isPasswordSalted;
@@ -20,24 +17,20 @@ public class TokenInformations {
         this.isPasswordSalted = false;
     }
 
-    public TokenInformations(String accessToken,String expireToken, String pseudo, String password, boolean isPasswordSalted) {
+    public TokenInformations(String accessToken,Calendar expiresToken, String pseudo, String password, boolean isPasswordSalted) {
         this.accessToken = accessToken;
         this.pseudo = pseudo;
         this.password = password;
-        this.setExpiresToken(expireToken);
+        this.expiresToken = expiresToken;
         this.isPasswordSalted = isPasswordSalted;
     }
 
-    public Date getExpiresToken() {
+    public Calendar getExpiresToken() {
         return expiresToken;
     }
 
-    public void setExpiresToken(String expiresToken){
-        try {
-            this.expiresToken = ApplicationHelper.convertStringToDate(expiresToken);
-        } catch (ParseException e) {
-            this.expiresToken = null;
-        }
+    public void setExpiresToken(Calendar expiresToken){
+        this.expiresToken = expiresToken;
     }
 
     public String getAccessToken() {

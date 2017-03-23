@@ -3,8 +3,8 @@ package com.jessy_barthelemy.pictothemo.Helpers;
 import android.content.Context;
 import android.net.Uri;
 
-import com.jessy_barthelemy.pictothemo.Api.HttpVerb;
-import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.HttpVerb;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 
@@ -19,50 +19,73 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.InvalidMarkException;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Calendar;
 
 public class ApiHelper {
-    public static final String URL_API = "http://ptapi.esy.es/api/test";
+    private static final String URL_API = "http://ptapi.esy.es/api/test";
     public static final SimpleDateFormat RES_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+
+    //Entity
+    public static final String ENTITY_PICTURES = "pictures";
+    public static final String ENTITY_THEMES = "themes";
 
     //Authentication fields
     public static final String ID = "id";
     public static final String PSEUDO = "pseudo";
-    public static final String PASSWORD = "password";
     public static final String ACCESS_TOKEN = "access_token";
     public static final String EXPIRES_TOKEN = "expires_token";
     public static final String THEME_NAME = "name";
-    public static final String PICTURES = "pictures";
+
     public static final String POSITIVE_VOTE = "positive";
     public static final String NEGATIVE_VOTE = "negative";
     public static final String SALT = "salt";
     public static final String FLAG_SALT = "SALTED";
     public static final String FLAG_POTD = "POTD";
-    public static final String FLAG_COMMENTS = "COMMENTS";
 
     /*endpoint*/
     public static final String URL_POTD = URL_API+"/POTD/";
-    public static final String URL_PICTURES = URL_API+"/Pictures";
+    private static final String URL_PICTURES = URL_API+"/Pictures";
+    private static final String URL_THEMES = URL_API+"/Themes";
     private final String URL_AUTHENTICATION = URL_API+"/Authentication";
     private final String URL_USERS = URL_API+"/Users";
 
-    public JSONObject getAccessToken(String pseudo, String password, String flags) throws IOException, JSONException, InvalidParameterException {
+    private TokenInformations tokensInfos;
+
+    public ApiHelper(){
+        this.tokensInfos = null;
+    }
+
+    public ApiHelper(TokenInformations tokensInfos){
+        this.tokensInfos = tokensInfos;
+    }
+
+    public TokenInformations getAccessToken(String pseudo, String password, String flags) throws IOException, JSONException, InvalidParameterException, ParseException {
         Uri.Builder parameters = new Uri.Builder()
                 .appendQueryParameter("pseudo", pseudo)
                 .appendQueryParameter("password", password);
 
         if(flags != null)
             parameters.appendQueryParameter("flags", flags);
-        HttpURLConnection http = this.createHttpConnection(URL_AUTHENTICATION, HttpVerb.POST.toString(), parameters);
+        boolean isPasswordSalted = flags == FLAG_SALT;
+        HttpURLConnection http = this.createHttpConnection(URL_AUTHENTICATION, HttpVerb.POST.toString(), parameters, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-            return this.getJSONResponse(http);
+            JSONObject result = this.getJSONResponse(http);
+            password = (isPasswordSalted)?password:ApplicationHelper.hashPassword(password + result.getString(ApiHelper.SALT));
+
+            if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
+
+                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN)),
+                                                         pseudo, password, isPasswordSalted);
+                return this.tokensInfos;
+            }else{
+                return null;
+            }
         }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
-            throw new InvalidMarkException();
+            throw new InvalidParameterException();
         }
 
         http.disconnect();
@@ -70,8 +93,7 @@ public class ApiHelper {
     }
 
     public void validateToken(Context context, TokenInformations tokenInfos, IAsyncResponse delegate){
-        Date t = new Date();
-        if(new Date().after(tokenInfos.getExpiresToken())){
+        if(Calendar.getInstance().after(tokenInfos.getExpiresToken())){
             this.refreshToken(context, tokenInfos, delegate);
         }else{
             delegate.asyncTaskSuccess();
@@ -84,14 +106,18 @@ public class ApiHelper {
         login.execute();
     }
 
-    public JSONObject createUser(String pseudo, String password) throws IOException, JSONException{
+    public TokenInformations createUser(String pseudo, String password) throws IOException, JSONException, ParseException {
         Uri.Builder parameter = new Uri.Builder()
                 .appendQueryParameter("pseudo", pseudo)
                 .appendQueryParameter("password", password);
-        HttpURLConnection http = this.createHttpConnection(URL_USERS, HttpVerb.PUT.toString(), parameter);
-
+        HttpURLConnection http = this.createHttpConnection(URL_USERS, HttpVerb.PUT.toString(), parameter, false);
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-            return this.getJSONResponse(http);
+            JSONObject result = this.getJSONResponse(http);
+            if(result.has(ApiHelper.ACCESS_TOKEN) && result.has(ApiHelper.EXPIRES_TOKEN) && result.has(ApiHelper.SALT)){
+                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN)),
+                    pseudo, ApplicationHelper.hashPassword(password+result.getString(ApiHelper.SALT)), true);
+                return this.tokensInfos;
+            }
         }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
             throw new InvalidParameterException();
         }
@@ -103,15 +129,15 @@ public class ApiHelper {
     public boolean deleteUser(String pseudo, String password) throws IOException{
         boolean result;
         String parameters = String.format("?pseudo=%s&password=%s", pseudo, password);
-        HttpURLConnection http = this.createHttpConnection(URL_USERS+parameters, HttpVerb.DELETE.toString(), null);
+        HttpURLConnection http = this.createHttpConnection(URL_USERS+parameters, HttpVerb.DELETE.toString(), null, true);
 
         result = http.getResponseCode() == HttpURLConnection.HTTP_OK;
         http.disconnect();
         return result;
     }
 
-    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters) throws IOException{
-        URL url = null;
+    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters, boolean authorization) throws IOException{
+        URL url;
         if(method.equals(HttpVerb.GET.toString()) && parameters != null)
             url = new URL(Url+parameters.toString());
         else
@@ -119,6 +145,9 @@ public class ApiHelper {
 
         HttpURLConnection http = (HttpURLConnection)url.openConnection();
         http.setRequestMethod(method);
+
+        if(authorization && this.tokensInfos != null)
+            http.addRequestProperty("Authorization", this.tokensInfos.getAccessToken());
 
         if(method.equals(HttpVerb.POST.toString()) || method.equals(HttpVerb.PUT.toString())){
             http.setDoOutput(true);
@@ -149,23 +178,42 @@ public class ApiHelper {
         return new JSONObject(response.toString());
     }
 
-    public JSONObject getPictures(Date candidateDate, String flags) throws IOException, JSONException, ParseException {
+    public JSONObject getPictures(Calendar candidateDate, String flags) throws IOException, JSONException, ParseException {
         Uri.Builder parameter = null;
         if(flags != null)
             parameter = new Uri.Builder().appendQueryParameter("flags", flags);
 
         String date = ApplicationHelper.convertDateToString(candidateDate);
-        HttpURLConnection http = this.createHttpConnection(URL_PICTURES+"/"+date, HttpVerb.GET.toString(), parameter);
+        HttpURLConnection http = this.createHttpConnection(URL_PICTURES+"/"+date, HttpVerb.GET.toString(), parameter, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
             return this.getJSONResponse(http);
         }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
-            throw new InvalidParameterException("Invalid parameters");
+            throw new InvalidParameterException();
         }
 
         http.disconnect();
         return null;
     }
+
+    public JSONObject getThemes(Calendar candidateDate) throws IOException, JSONException, ParseException {
+        String date = ApplicationHelper.convertDateToString(candidateDate);
+        HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+date, HttpVerb.GET.toString(), null, false);
+
+        if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
+            return this.getJSONResponse(http);
+        }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
+            throw new InvalidParameterException();
+        }
+
+        http.disconnect();
+        return null;
+    }
+
+    public boolean voteForTheme(int theme) throws IOException, JSONException, ParseException {
+        HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+theme, HttpVerb.PUT.toString(), null, true);
+        int resultCode = http.getResponseCode();
+        http.disconnect();
+        return resultCode == HttpURLConnection.HTTP_OK;
+    }
 }
-
-

@@ -4,13 +4,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.Api.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
-
-import org.json.JSONObject;
 
 import java.security.InvalidParameterException;
 
@@ -65,18 +63,9 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         try {
             String flags = (tokensInfos.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
             ApiHelper helper = new ApiHelper();
-            JSONObject result = helper.getAccessToken(tokensInfos.getPseudo(), tokensInfos.getPassword(), flags);
+            this.tokensInfos = helper.getAccessToken(tokensInfos.getPseudo(), tokensInfos.getPassword(), flags);
 
-            if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
-                this.tokensInfos.setAccessToken(result.getString(ApiHelper.ACCESS_TOKEN));
-                this.tokensInfos.setExpiresToken(result.getString(ApiHelper.EXPIRES_TOKEN));
-
-                if(!tokensInfos.isPasswordSalted()){
-                    this.tokensInfos.setPassword(ApplicationHelper.hashPassword(this.tokensInfos.getPassword()+result.getString(ApiHelper.SALT)));
-                    this.tokensInfos.setPasswordSalted(true);
-                }
-
-            }else{
+            if(this.tokensInfos == null){
                 errorMessage = context.getResources().getString(R.string.login_fail);
             }
         }catch (InvalidParameterException ipe){
@@ -98,7 +87,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
                 delegate.asyncTaskFail(errorMessage);
             if(isNetworkAvailable){
                 ApplicationHelper.resetPreferences(this.context);
-                if(this.tokensInfos.isPasswordSalted())
+                if(this.tokensInfos != null && this.tokensInfos.isPasswordSalted())
                     ApplicationHelper.restartApp(this.context);
             }
 
