@@ -6,6 +6,7 @@
     <string name="picture_of_the_day">Image du jour</string>
     <string name="my_profile">Mon profil</string>
     <string name="gallery">Gallerie</string>
+    <string name="logout">Déconnexion</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_password">Mot de passe</string>

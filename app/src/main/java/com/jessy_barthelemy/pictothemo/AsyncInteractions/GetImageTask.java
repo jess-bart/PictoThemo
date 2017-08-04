@@ -116,6 +116,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         this.progressBar.requestLayout();
     }
 
+    @Override
     protected void onPostExecute(final Bitmap image) {
         this.progressBar.setVisibility(View.GONE);
         Animation fadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);

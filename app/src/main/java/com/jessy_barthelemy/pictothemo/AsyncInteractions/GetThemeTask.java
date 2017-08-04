@@ -51,6 +51,7 @@ public class GetThemeTask extends AsyncTask<String, Void, ThemeList> {
         return new ThemeList(themeList);
     }
 
+    @Override
     protected void onPostExecute(ThemeList themes) {
         delegate.asyncTaskSuccess(themes);
     }

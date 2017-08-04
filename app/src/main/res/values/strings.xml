@@ -6,6 +6,7 @@
     <string name="picture_of_the_day">Picture of the day</string>
     <string name="my_profile">My profile</string>
     <string name="gallery">Gallery</string>
+    <string name="logout">Logout</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_pseudo">Pseudo</string>

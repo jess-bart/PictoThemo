@@ -45,7 +45,7 @@ public class ApiHelper {
     public static final String FLAG_SALT = "SALTED";
     public static final String FLAG_POTD = "POTD";
 
-    /*endpoint*/
+    //endpoint
     public static final String URL_POTD = URL_API+"/POTD/";
     private static final String URL_PICTURES = URL_API+"/Pictures";
     private static final String URL_THEMES = URL_API+"/Themes";

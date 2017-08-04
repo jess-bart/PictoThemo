@@ -16,15 +16,16 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class ApplicationHelper {
-    private static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
     private static final String USER_PSEUDO_PREF = "USER_PSEUDO";
     private static final String USER_PASSWORD_PREF = "USER_PASSWORD";
     private static final String USER_TOKEN_PREF = "USER_TOKEN";
     private static final String USER_EXPIRES_TOKEN_PREF = "USER_EXPIRES_TOKEN";
-    static final int PSEUDO_MAX_LENGTH = 4;
-    static final int PASSWORD_MAX_LENGTH = 6;
-    private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
+    public static final int PSEUDO_MAX_LENGTH = 4;
+    public static final int PASSWORD_MAX_LENGTH = 6;
+    public static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
+    public static final String THEME_PREFS_PREFIX = "theme";
 
+    private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
     //Static helper methods
     public static String hashPassword(String password) throws ParseException {
         if(password == null || password.isEmpty()) return "";

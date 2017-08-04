@@ -1,5 +1,7 @@
 package com.jessy_barthelemy.pictothemo.Activities;
 
+import android.app.Application;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -12,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.R;
 
 public class BaseActivity extends AppCompatActivity
@@ -60,7 +63,9 @@ public class BaseActivity extends AppCompatActivity
         switch(id){
             case R.id.nav_send:
                 Toast.makeText(this, "Sending", Toast.LENGTH_LONG).show();
-                finish();
+            case R.id.nav_logout:
+                ApplicationHelper.resetPreferences(this);
+                ApplicationHelper.restartApp(this);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

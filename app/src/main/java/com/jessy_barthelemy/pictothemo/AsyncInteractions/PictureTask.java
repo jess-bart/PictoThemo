@@ -52,6 +52,7 @@ public class PictureTask extends AsyncTask<String, Void, Picture> {
         return picture;
     }
 
+    @Override
     protected void onPostExecute(Picture picture) {
         delegate.asyncTaskSuccess(picture);
     }

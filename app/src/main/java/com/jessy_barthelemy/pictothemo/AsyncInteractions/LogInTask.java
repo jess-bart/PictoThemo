@@ -78,6 +78,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         return errorMessage;
     }
 
+    @Override
     protected void onPostExecute(String errorMessage) {
         if(showLoading)
             waitDialog.dismiss();

@@ -57,13 +57,14 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
         }catch (InvalidParameterException ipe){
             errorMessage = context.getResources().getString(R.string.registration_fail);
         }catch (Exception e){
-            errorMessage = e.getMessage();//context.getResources().getString(R.string.network_unavalaible);
+            errorMessage = context.getResources().getString(R.string.network_unavalaible);
             e.printStackTrace();
         }
 
         return errorMessage;
     }
 
+    @Override
     protected void onPostExecute(String errorMessage) {
         waitDialog.dismiss();
 

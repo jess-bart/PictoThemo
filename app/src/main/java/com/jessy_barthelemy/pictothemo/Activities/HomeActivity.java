@@ -1,10 +1,14 @@
 package com.jessy_barthelemy.pictothemo.Activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -12,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
+import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetThemeTask;
@@ -54,7 +59,7 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.potd_theme = (TextView)findViewById(R.id.home_potd_theme);
         this.potd_positive_vote = (TextView)findViewById(R.id.home_potd_positive_vote);
         this.potd_negative_vote = (TextView)findViewById(R.id.home_potd_negative_vote);
-        this.potd_loadbar = (View)findViewById(R.id.home_potd_loadbar);
+        this.potd_loadbar = findViewById(R.id.home_potd_loadbar);
         TextView theme_title = (TextView)findViewById(R.id.home_theme_title);
 
         Point wSize = new Point();
@@ -67,21 +72,17 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.theme1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            theme1Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorAccent));
-            theme2Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorDisabled));
-
-            VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme1,HomeActivity.this.theme1Button.getText().toString(), HomeActivity.this, HomeActivity.this);
-            voteTask.execute();
+                HomeActivity.this.setThemeButtonColor(true);
+                VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme1, HomeActivity.this, HomeActivity.this);
+                voteTask.execute();
             }
         });
 
         this.theme2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                theme1Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorDisabled));
-                theme2Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorPrimary));
-
-                VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme2,HomeActivity.this.theme2Button.getText().toString(), HomeActivity.this, HomeActivity.this);
+                HomeActivity.this.setThemeButtonColor(false);
+                VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme2, HomeActivity.this, HomeActivity.this);
                 voteTask.execute();
             }
         });
@@ -93,6 +94,17 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         GetThemeTask themeTask = new GetThemeTask(today, this);
         themeTask.execute();
         theme_title.setText(getResources().getString(R.string.theme_title, this.getThemeDay()));
+    }
+
+    private void setThemeButtonColor(boolean theme1){
+        ColorStateList disabled = ContextCompat.getColorStateList(HomeActivity.this, R.color.colorDisabled);
+        if(theme1){
+            theme1Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorAccent));
+            theme2Button.setSupportBackgroundTintList(disabled);
+        }else{
+            theme1Button.setSupportBackgroundTintList(disabled);
+            theme2Button.setSupportBackgroundTintList(ContextCompat.getColorStateList(HomeActivity.this, R.color.colorPrimary));
+        }
     }
 
     private String getThemeDay(){
@@ -125,7 +137,24 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
 
                 this.theme1Button.setEnabled(true);
                 this.theme2Button.setEnabled(true);
+
+                SharedPreferences settings = this.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
+                boolean theme1enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme1, false);
+                boolean theme2enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme2, false);
+
+                if(theme1enabled || theme2enabled)
+                    HomeActivity.this.setThemeButtonColor(theme1enabled || (!theme1enabled && !theme2enabled));
             }
+        }else if(response instanceof Theme){
+            Theme theme = (Theme)response;
+
+            SharedPreferences settings = this.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = settings.edit();
+
+            editor.putBoolean(ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(theme.getId()), true);
+
+            editor.remove((theme1 == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1));
+            editor.apply();
         }
     }
 
