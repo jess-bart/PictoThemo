@@ -25,8 +25,11 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <!-- POTD -->
+    <!-- Picture -->
     <string name="user_unknow">Anonymous</string>
     <string name="theme_title">Theme of %1$s</string>
+    <string name="theme_name">#%1$s</string>
     <string name="theme_vote_error">Cannot vote for theme %1$s</string>
+    <string name="title_activity_pictures">Pictures</string>
+    <string name="comment">Comments</string>
 </resources>

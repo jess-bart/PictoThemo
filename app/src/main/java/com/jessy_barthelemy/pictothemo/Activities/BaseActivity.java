@@ -1,8 +1,7 @@
 package com.jessy_barthelemy.pictothemo.Activities;
 
-import android.app.Application;
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,7 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.R;
@@ -56,13 +54,10 @@ public class BaseActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
 
         switch(id){
-            case R.id.nav_send:
-                Toast.makeText(this, "Sending", Toast.LENGTH_LONG).show();
             case R.id.nav_logout:
                 ApplicationHelper.resetPreferences(this);
                 ApplicationHelper.restartApp(this);

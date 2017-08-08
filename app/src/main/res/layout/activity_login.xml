@@ -10,15 +10,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.jessy_barthelemy.pictothemo.Activities.LoginActivity">
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <ImageView
+        android:id="@+id/loader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@mipmap/logo_transparent"
+        android:layout_centerInParent="true"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:id="@+id/login_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
 
         android:orientation="vertical"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:id="@+id/linearLayoutCompat">
+        android:layout_alignParentStart="true">
 
         <android.support.v7.widget.AppCompatImageView
             android:layout_width="100dp"
@@ -57,7 +65,7 @@
                 android:inputType="textPassword" />
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.v7.widget.LinearLayoutCompat
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center">
@@ -76,6 +84,6 @@
                 android:text="@string/login_registration"
                 android:layout_gravity="center_horizontal"
                 />
-        </android.support.v7.widget.LinearLayoutCompat>
-    </android.support.v7.widget.LinearLayoutCompat>
+        </LinearLayout>
+    </LinearLayout>
 </RelativeLayout>

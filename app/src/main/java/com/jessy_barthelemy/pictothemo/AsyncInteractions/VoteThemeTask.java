@@ -1,9 +1,7 @@
 package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -38,8 +36,8 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if(success)
-            delegate.asyncTaskSuccess(new Theme(this.themeID, null));
+            this.delegate.asyncTaskSuccess(new Theme(this.themeID, null));
         else
-            delegate.asyncTaskFail(this.context.getResources().getString(R.string.theme_vote_error));
+            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.theme_vote_error));
     }
 }

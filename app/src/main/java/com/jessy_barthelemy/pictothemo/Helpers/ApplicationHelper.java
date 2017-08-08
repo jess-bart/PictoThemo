@@ -14,18 +14,24 @@ import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class ApplicationHelper {
     private static final String USER_PSEUDO_PREF = "USER_PSEUDO";
     private static final String USER_PASSWORD_PREF = "USER_PASSWORD";
     private static final String USER_TOKEN_PREF = "USER_TOKEN";
     private static final String USER_EXPIRES_TOKEN_PREF = "USER_EXPIRES_TOKEN";
-    public static final int PSEUDO_MAX_LENGTH = 4;
-    public static final int PASSWORD_MAX_LENGTH = 6;
+    static final int PSEUDO_MAX_LENGTH = 4;
+    static final int PASSWORD_MAX_LENGTH = 6;
     public static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
     public static final String THEME_PREFS_PREFIX = "theme";
+    public static final String EXTRA_PICTURES_LIST = "pictures";
+
+    public static final String DEFAULT_PICTURE_FORMAT = ".png";
 
     private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
+    private static final String MYSQL_DATE_LONG_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     //Static helper methods
     public static String hashPassword(String password) throws ParseException {
         if(password == null || password.isEmpty()) return "";
@@ -59,7 +65,7 @@ public class ApplicationHelper {
         editor.putString(ApplicationHelper.USER_PASSWORD_PREF, tokenInfos.getPassword());
         editor.putString(ApplicationHelper.USER_TOKEN_PREF, tokenInfos.getAccessToken());
         if(tokenInfos.getExpiresToken() != null){
-            SimpleDateFormat df = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
+            SimpleDateFormat df = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT, Locale.getDefault());
             editor.putString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, df.format(tokenInfos.getExpiresToken().getTime()));
         }
         editor.apply();
@@ -73,7 +79,7 @@ public class ApplicationHelper {
         String password = settings.getString(ApplicationHelper.USER_PASSWORD_PREF, "");
         Calendar expiresDate;
         try {
-            expiresDate = ApplicationHelper.convertStringToDate(expiresToken);
+            expiresDate = ApplicationHelper.convertStringToDate(expiresToken, false);
         } catch (ParseException e) {
             return null;
         }
@@ -92,15 +98,15 @@ public class ApplicationHelper {
         context.startActivity(i);
     }
 
-    public static Calendar convertStringToDate(String date) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
+    public static Calendar convertStringToDate(String date, boolean longFormat) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(formatter.parse(date));
         return calendar;
     }
 
-    public static String convertDateToString(Calendar date) throws ParseException {
-        SimpleDateFormat formatter = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT);
+    public static String convertDateToString(Calendar date, boolean longFormat) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
         return formatter.format(date.getTime());
     }
 

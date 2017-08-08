@@ -24,8 +24,9 @@
     <string name="navigation_drawer_open">Ouvrir le menu</string>
     <string name="navigation_drawer_close">Fermer le menu</string>
 
-    <!-- POTD -->
+    <!-- Picture -->
     <string name="user_unknow">Anonyme</string>
-    <string name="theme_title">Theme du %1$s</string>
+    <string name="theme_title">Thème du %1$s</string>
     <string name="theme_vote_error">Impossible de voter pour le theme %1$s</string>
+    <string name="comment">Commentaires</string>
 </resources>

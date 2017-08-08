@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
@@ -24,14 +26,12 @@ import com.jessy_barthelemy.pictothemo.R;
 
 public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
-    private final int PERMISSION_READ_ACCOUNT = 100;
-
     private TextInputLayout pseudo;
     private TextInputLayout password;
     private Resources resources;
     private FormHelper formHelper;
-    private Button loginAction;
-    private Button registerAction;
+    private ImageView loader;
+    private LinearLayout loginContainer;
     private TokenInformations tokenInfos;
     /*Keep the last action to execute on password IME action (login or register)*/
     private boolean attemptRegitration;
@@ -41,22 +41,28 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        pseudo = (TextInputLayout) findViewById(R.id.login_pseudo);
-        password = (TextInputLayout) findViewById(R.id.login_password);
-        loginAction = (Button) findViewById(R.id.login_action);
-        registerAction = (Button) findViewById(R.id.login_register_action);
+        this.pseudo = (TextInputLayout) this.findViewById(R.id.login_pseudo);
+        this.password = (TextInputLayout) this.findViewById(R.id.login_password);
+        this.loader = (ImageView) this.findViewById(R.id.loader);
+        this.loginContainer = (LinearLayout) this.findViewById(R.id.login_container);
 
-        tokenInfos = ApplicationHelper.getTokenInformations(this);
-        if(tokenInfos != null && !tokenInfos.getAccessToken().isEmpty()){
+        Button loginAction = (Button) this.findViewById(R.id.login_action);
+        Button registerAction = (Button) findViewById(R.id.login_register_action);
+
+        this.tokenInfos = ApplicationHelper.getTokenInformations(this);
+        if(this.tokenInfos != null && !this.tokenInfos.getAccessToken().isEmpty()){
             ApiHelper helper = new ApiHelper();
-            helper.validateToken(this, tokenInfos, this);
+            helper.validateToken(this, this.tokenInfos, this);
+
+            this.loginContainer.setVisibility(View.GONE);
+            this.loader.setVisibility(View.VISIBLE);
         }
 
-        attemptRegitration = true;
-        formHelper = new FormHelper();
-        resources = getResources();
+        this.attemptRegitration = true;
+        this.formHelper = new FormHelper();
+        this.resources = getResources();
 
-        password.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        this.password.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
@@ -69,7 +75,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
                     InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(LoginActivity.this.getCurrentFocus().getWindowToken(), 0);
 
-                    if(attemptRegitration)
+                    if(LoginActivity.this.attemptRegitration)
                         attemptRegistration();
                     else
                         attemptLogin();
@@ -94,30 +100,30 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     }
 
     private void attemptRegistration(){
-        attemptRegitration = true;
+        this.attemptRegitration = true;
 
         ApplicationHelper.resetPreferences(this);
-        tokenInfos = new TokenInformations();
+        this.tokenInfos = new TokenInformations();
 
         if(this.isFormValid()){
             /*Database verification*/
             this.tokenInfos.setPseudo(pseudo.getEditText().getText().toString());
             this.tokenInfos.setPassword(password.getEditText().getText().toString());
-            RegistrationTask registration = new RegistrationTask(this, tokenInfos, this);
+            RegistrationTask registration = new RegistrationTask(this, this.tokenInfos, this);
             registration.execute();
         }
     }
 
     private void attemptLogin(){
-        attemptRegitration = false;
+        this.attemptRegitration = false;
 
         ApplicationHelper.resetPreferences(this);
-        tokenInfos = new TokenInformations();
+        this.tokenInfos = new TokenInformations();
 
         if(this.isFormValid()){
-            this.tokenInfos.setPseudo(pseudo.getEditText().getText().toString());
-            this.tokenInfos.setPassword(password.getEditText().getText().toString());
-            LogInTask login = new LogInTask(this, tokenInfos, true);
+            this.tokenInfos.setPseudo(this.pseudo.getEditText().getText().toString());
+            this.tokenInfos.setPassword(this.password.getEditText().getText().toString());
+            LogInTask login = new LogInTask(this, this.tokenInfos, true);
             login.setDelegate(this);
             login.execute();
         }
@@ -125,32 +131,32 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
     private boolean isFormValid(){
         //Pseudo verification
-        if(!formHelper.validatePseudo(pseudo.getEditText().getText().toString())){
-            pseudo.setErrorEnabled(true);
-            pseudo.setError(resources.getString(R.string.login_pseudo_verification));
+        if(!this.formHelper.validatePseudo(this.pseudo.getEditText().getText().toString())){
+            this.pseudo.setErrorEnabled(true);
+            this.pseudo.setError(resources.getString(R.string.login_pseudo_verification));
             return false;
         }
 
-        pseudo.setError(null);
-        pseudo.setErrorEnabled(false);
+        this.pseudo.setError(null);
+        this.pseudo.setErrorEnabled(false);
 
         //Password verification
-        if(!formHelper.validatePassword(password.getEditText().getText().toString())){
-            password.setErrorEnabled(true);
-            password.setError(resources.getString(R.string.login_password_verification));
+        if(!this.formHelper.validatePassword(this.password.getEditText().getText().toString())){
+            this.password.setErrorEnabled(true);
+            this.password.setError(resources.getString(R.string.login_password_verification));
             return false;
         }
 
-        password.setError(null);
-        password.setErrorEnabled(false);
+        this.password.setError(null);
+        this.password.setErrorEnabled(false);
 
         return true;
     }
 
     @Override
     public void asyncTaskSuccess() {
-        password.setErrorEnabled(false);
-        password.setError(null);
+        this.password.setErrorEnabled(false);
+        this.password.setError(null);
 
         Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -160,7 +166,10 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
     @Override
     public void asyncTaskFail(String errorMessage) {
-        password.setErrorEnabled(true);
-        password.setError(errorMessage);
+        this.loginContainer.setVisibility(View.VISIBLE);
+        this.loader.setVisibility(View.GONE);
+
+        this.password.setErrorEnabled(true);
+        this.password.setError(errorMessage);
     }
 }

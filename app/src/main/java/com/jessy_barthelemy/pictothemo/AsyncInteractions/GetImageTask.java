@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.R;
 
@@ -36,34 +37,46 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     private int screenWidth;
     private File cache;
 
-    public GetImageTask(Context context, ImageView imageView, View progressBar, String url){
-        this.url = url;
+    public GetImageTask(Context context, ImageView imageView, View progressBar){
         this.imageView = imageView;
         this.progressBar = progressBar;
         this.context = context;
         this.screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+    }
+
+    public GetImageTask(Context context, ImageView imageView, View progressBar, Calendar date){
+        this(context, imageView, progressBar);
+        this.url = ApiHelper.URL_POTD+ApiHelper.RES_FORMAT.format(date.getTime());
 
         try {
-            this.name = ApplicationHelper.convertDateToString(Calendar.getInstance())+".png";
+            this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
             this.cache = new File(context.getExternalCacheDir(), this.name);
         } catch (ParseException e) {
             this.name = "";
         }
     }
 
+    public GetImageTask(Context context, ImageView imageView, View progressBar, int id){
+        this(context, imageView, progressBar);
+        this.url = ApiHelper.URL_PICTURE+ id;
+
+        this.name = id+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
+        this.cache = new File(context.getExternalCacheDir(), this.name);
+    }
+
     @Override
     protected Bitmap doInBackground(Void... params) {
-        Bitmap result = null;
+        Bitmap result;
 
         try {
             //attempting to get cached file
-            if(this.cache != null && !cache.isFile())
+            if(this.cache == null || !cache.isFile())
                 throw new FileNotFoundException();
-            result = this.decodeBitmap(new FileInputStream(cache), cache.length());
 
+            result = this.decodeBitmap(new FileInputStream(cache), cache.length());
             if(result == null)
                 throw new IOException();
-        } catch (Exception c) {
+        } catch (Exception e) {
             result = this.getImageFromInternet();
         }
 
@@ -72,6 +85,8 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
     private Bitmap getImageFromInternet(){
         HttpURLConnection connection = null;
+        this.cache.delete();
+
         try {
             connection = (HttpURLConnection)new URL(this.url).openConnection();
             connection.connect();
@@ -86,13 +101,11 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     }
 
     private Bitmap decodeBitmap(InputStream input, long length) throws IOException {
-
         Bitmap result;
         try{
             byte data[] = new byte[8192];
             InputStream bufferedInput = new BufferedInputStream(input, 1024);
             ByteArrayOutputStream outStream = new ByteArrayOutputStream();
-
             int count;
             long read = 0;
             while ((count = bufferedInput.read(data)) != -1) {
@@ -103,6 +116,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
             result = BitmapFactory.decodeByteArray(outStream.toByteArray(), 0, outStream.size());
         }catch (Exception e){
+            e.printStackTrace();
             result = null;
         }
 
@@ -131,7 +145,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
                 if(image != null){
                     GetImageTask.this.imageView.setImageBitmap(image);
                 }else{
-                    GetImageTask.this.imageView.setImageDrawable(ContextCompat.getDrawable(GetImageTask.this.context, R.drawable.ic_account_circle));
+                    GetImageTask.this.imageView.setImageDrawable(ContextCompat.getDrawable(GetImageTask.this.context, R.drawable.error));
                 }
 
                 Animation anim = AnimationUtils.loadAnimation(GetImageTask.this.context, R.anim.fade_in);

@@ -6,11 +6,11 @@ import android.os.AsyncTask;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
-public class SaveImageCacheTask extends AsyncTask<Void, Void, Void> {
+class SaveImageCacheTask extends AsyncTask<Void, Void, Void> {
     private Bitmap image;
     private String path;
 
-    public SaveImageCacheTask(Bitmap image, String path){
+    SaveImageCacheTask(Bitmap image, String path){
         this.image = image;
         this.path = path;
     }
@@ -18,8 +18,9 @@ public class SaveImageCacheTask extends AsyncTask<Void, Void, Void> {
     @Override
     protected Void doInBackground(Void... params) {
         try {
-            FileOutputStream stream = new FileOutputStream(path);
-            image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            FileOutputStream stream = new FileOutputStream(this.path);
+            if(this.image != null)
+                this.image.compress(Bitmap.CompressFormat.PNG, 100, stream);
         } catch (FileNotFoundException e) {
         }
         return null;

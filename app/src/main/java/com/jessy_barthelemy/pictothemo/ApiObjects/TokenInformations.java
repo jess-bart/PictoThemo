@@ -29,17 +29,10 @@ public class TokenInformations {
         return expiresToken;
     }
 
-    public void setExpiresToken(Calendar expiresToken){
-        this.expiresToken = expiresToken;
-    }
-
     public String getAccessToken() {
         return accessToken;
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
 
     public String getPseudo() {
         return pseudo;
@@ -59,9 +52,5 @@ public class TokenInformations {
 
     public boolean isPasswordSalted() {
         return isPasswordSalted;
-    }
-
-    public void setPasswordSalted(boolean passwordSalted) {
-        isPasswordSalted = passwordSalted;
     }
 }

@@ -23,10 +23,11 @@ import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class ApiHelper {
     private static final String URL_API = "http://ptapi.esy.es/api/test";
-    public static final SimpleDateFormat RES_FORMAT = new SimpleDateFormat("dd-MM-yyyy");
+    public static final SimpleDateFormat RES_FORMAT = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
     //Entity
     public static final String ENTITY_PICTURES = "pictures";
@@ -34,20 +35,24 @@ public class ApiHelper {
 
     //Authentication fields
     public static final String ID = "id";
+    public static final String USER_ID = "userID";
     public static final String PSEUDO = "pseudo";
-    public static final String ACCESS_TOKEN = "access_token";
-    public static final String EXPIRES_TOKEN = "expires_token";
+    private static final String ACCESS_TOKEN = "access_token";
+    private static final String EXPIRES_TOKEN = "expires_token";
     public static final String THEME_NAME = "name";
 
+    public static final String COMMENTS = "comments";
     public static final String POSITIVE_VOTE = "positive";
     public static final String NEGATIVE_VOTE = "negative";
-    public static final String SALT = "salt";
+    private static final String SALT = "salt";
     public static final String FLAG_SALT = "SALTED";
     public static final String FLAG_POTD = "POTD";
+    public static final String FLAG_COMMENTS = "COMMENTS";
 
     //endpoint
     public static final String URL_POTD = URL_API+"/POTD/";
-    private static final String URL_PICTURES = URL_API+"/Pictures";
+    public static final String URL_PICTURE = URL_API+"/Picture/";
+    private static final String URL_PICTURE_INFO = URL_API+"/PictureInfos";
     private static final String URL_THEMES = URL_API+"/Themes";
     private final String URL_AUTHENTICATION = URL_API+"/Authentication";
     private final String URL_USERS = URL_API+"/Users";
@@ -78,7 +83,7 @@ public class ApiHelper {
 
             if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
 
-                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN)),
+                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
                                                          pseudo, password, isPasswordSalted);
                 return this.tokensInfos;
             }else{
@@ -101,7 +106,7 @@ public class ApiHelper {
     }
 
     private void refreshToken(Context context, TokenInformations tokenInfos, IAsyncResponse delegate){
-        LogInTask login = new LogInTask(context, tokenInfos, true);
+        LogInTask login = new LogInTask(context, tokenInfos, false);
         login.setDelegate(delegate);
         login.execute();
     }
@@ -114,7 +119,7 @@ public class ApiHelper {
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
             JSONObject result = this.getJSONResponse(http);
             if(result.has(ApiHelper.ACCESS_TOKEN) && result.has(ApiHelper.EXPIRES_TOKEN) && result.has(ApiHelper.SALT)){
-                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN)),
+                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
                     pseudo, ApplicationHelper.hashPassword(password+result.getString(ApiHelper.SALT)), true);
                 return this.tokensInfos;
             }
@@ -178,13 +183,15 @@ public class ApiHelper {
         return new JSONObject(response.toString());
     }
 
-    public JSONObject getPictures(Calendar candidateDate, String flags) throws IOException, JSONException, ParseException {
+    public JSONObject getPictures(String selector, String flags) throws IOException, JSONException, ParseException {
         Uri.Builder parameter = null;
+
+        String url = URL_PICTURE_INFO+"/"+selector;
+
         if(flags != null)
             parameter = new Uri.Builder().appendQueryParameter("flags", flags);
 
-        String date = ApplicationHelper.convertDateToString(candidateDate);
-        HttpURLConnection http = this.createHttpConnection(URL_PICTURES+"/"+date, HttpVerb.GET.toString(), parameter, false);
+        HttpURLConnection http = this.createHttpConnection(url, HttpVerb.GET.toString(), parameter, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
             return this.getJSONResponse(http);
@@ -197,7 +204,7 @@ public class ApiHelper {
     }
 
     public JSONObject getThemes(Calendar candidateDate) throws IOException, JSONException, ParseException {
-        String date = ApplicationHelper.convertDateToString(candidateDate);
+        String date = ApplicationHelper.convertDateToString(candidateDate, false);
         HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+date, HttpVerb.GET.toString(), null, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){

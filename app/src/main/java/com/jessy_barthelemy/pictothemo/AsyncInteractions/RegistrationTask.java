@@ -24,10 +24,10 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
         this.context = ctx;
         this.tokensInfos = tokenInfos;
 
-        waitDialog = new ProgressDialog(ctx);
-        waitDialog.setMessage(context.getResources().getString(R.string.login_verification));
-        waitDialog.setIndeterminate(false);
-        waitDialog.setCancelable(false);
+        this.waitDialog = new ProgressDialog(ctx);
+        this.waitDialog.setMessage(context.getResources().getString(R.string.login_verification));
+        this.waitDialog.setIndeterminate(false);
+        this.waitDialog.setCancelable(false);
 
         if(delegate != null)
             this.delegate = delegate;
@@ -36,7 +36,7 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        waitDialog.show();
+        this.waitDialog.show();
     }
 
     /*
@@ -58,7 +58,6 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
             errorMessage = context.getResources().getString(R.string.registration_fail);
         }catch (Exception e){
             errorMessage = context.getResources().getString(R.string.network_unavalaible);
-            e.printStackTrace();
         }
 
         return errorMessage;
@@ -66,15 +65,15 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String errorMessage) {
-        waitDialog.dismiss();
+        this.waitDialog.dismiss();
 
         if(errorMessage != null && !errorMessage.isEmpty()){
             ApplicationHelper.resetPreferences(this.context);
-            delegate.asyncTaskFail(errorMessage);
+            this.delegate.asyncTaskFail(errorMessage);
             return;
         }
 
         ApplicationHelper.savePreferences(this.context, this.tokensInfos);
-        delegate.asyncTaskSuccess();
+        this.delegate.asyncTaskSuccess();
     }
 }

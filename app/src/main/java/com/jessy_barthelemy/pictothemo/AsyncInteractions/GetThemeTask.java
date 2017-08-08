@@ -28,10 +28,10 @@ public class GetThemeTask extends AsyncTask<String, Void, ThemeList> {
 
     @Override
     protected ThemeList doInBackground(String... params) {
-        ArrayList<Theme> themeList = new ArrayList<Theme>();
+        ArrayList<Theme> themeList = new ArrayList<>();
         ApiHelper helper = new ApiHelper();
         try {
-            JSONObject response = null;
+            JSONObject response;
             response = helper.getThemes(this.date);
 
             if(response.length() == 0)
@@ -53,6 +53,6 @@ public class GetThemeTask extends AsyncTask<String, Void, ThemeList> {
 
     @Override
     protected void onPostExecute(ThemeList themes) {
-        delegate.asyncTaskSuccess(themes);
+        this.delegate.asyncTaskSuccess(themes);
     }
 }

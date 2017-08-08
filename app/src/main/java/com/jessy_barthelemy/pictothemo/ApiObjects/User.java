@@ -1,9 +1,13 @@
 package com.jessy_barthelemy.pictothemo.ApiObjects;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
+    private int id;
     private String pseudo;
 
-    public User(String pseudo){
+    public User(int id, String pseudo){
+        this.id = id;
         this.pseudo = pseudo;
     }
 

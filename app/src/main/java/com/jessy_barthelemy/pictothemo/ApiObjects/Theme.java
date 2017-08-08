@@ -8,21 +8,9 @@ public class Theme {
     private Calendar candidateDate;
     private boolean won;
 
-    public Theme(String name) {
-        this.name = name;
-    }
-
     public Theme(int id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public Theme(int id, Calendar candidateDate, String name, boolean won) {
-
-        this.id = id;
-        this.candidateDate = candidateDate;
-        this.name = name;
-        this.won = won;
     }
 
     public int getId() {

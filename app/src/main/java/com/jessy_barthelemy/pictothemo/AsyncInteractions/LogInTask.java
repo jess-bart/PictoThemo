@@ -25,7 +25,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     /*Constructor without ui*/
     public LogInTask(Context ctx, TokenInformations tokenInfos, boolean showLoading){
         this.context = ctx;
-        this.showLoading = true;
+        this.showLoading = showLoading;
         this.tokensInfos = tokenInfos;
 
         if(showLoading){
@@ -47,8 +47,8 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
-        if(showLoading)
-            waitDialog.show();
+        if(this.showLoading)
+            this.waitDialog.show();
     }
 
     /*
@@ -59,11 +59,11 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
         String errorMessage = null;
-        isNetworkAvailable = true;
+        this.isNetworkAvailable = true;
         try {
-            String flags = (tokensInfos.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
+            String flags = (this.tokensInfos.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
             ApiHelper helper = new ApiHelper();
-            this.tokensInfos = helper.getAccessToken(tokensInfos.getPseudo(), tokensInfos.getPassword(), flags);
+            this.tokensInfos = helper.getAccessToken(this.tokensInfos.getPseudo(), this.tokensInfos.getPassword(), flags);
 
             if(this.tokensInfos == null){
                 errorMessage = context.getResources().getString(R.string.login_fail);
@@ -73,19 +73,18 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         }catch (Exception e){
             isNetworkAvailable = false;
             errorMessage = context.getResources().getString(R.string.network_unavalaible);
-            e.printStackTrace();
         }
         return errorMessage;
     }
 
     @Override
     protected void onPostExecute(String errorMessage) {
-        if(showLoading)
-            waitDialog.dismiss();
+        if(this.showLoading)
+            this.waitDialog.dismiss();
         //Error handling
         if(errorMessage != null && !errorMessage.isEmpty()){
-            if(delegate != null)
-                delegate.asyncTaskFail(errorMessage);
+            if(this.delegate != null)
+                this.delegate.asyncTaskFail(errorMessage);
             if(isNetworkAvailable){
                 ApplicationHelper.resetPreferences(this.context);
                 if(this.tokensInfos != null && this.tokensInfos.isPasswordSalted())
@@ -94,8 +93,8 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
 
         }else{
             ApplicationHelper.savePreferences(this.context, this.tokensInfos);
-            if(delegate != null)
-                delegate.asyncTaskSuccess();
+            if(this.delegate != null)
+                this.delegate.asyncTaskSuccess();
         }
     }
 }
