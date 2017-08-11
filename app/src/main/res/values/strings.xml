@@ -2,11 +2,13 @@
     <string name="app_name">PictoThemo</string>
 
     <!-- Global -->
-    <string name="network_unavalaible">Please enable internet connection</string>
+    <string name="network_unavalaible">Please enable internet connection.</string>
     <string name="picture_of_the_day">Picture of the day</string>
     <string name="my_profile">My profile</string>
     <string name="gallery">Gallery</string>
     <string name="logout">Logout</string>
+    <string name="delete">Delete</string>
+    <string name="picture">Picture</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_pseudo">Pseudo</string>
@@ -15,9 +17,9 @@
     <string name="login_login">Log in</string>
     <string name="login_verification">Verifying the information</string>
     <string name="login_pseudo_verification">Invalid pseudo</string>
-    <string name="login_password_verification">Password must contains 6 characters minimum</string>
+    <string name="login_password_verification">Password must contains 6 characters minimum.</string>
     <string name="login_fail">Bad Credentials</string>
-    <string name="registration_fail">This pseudo is already taken</string>
+    <string name="registration_fail">This pseudo is already taken.</string>
 
     <!-- Menu -->
     <string name="nav_send">Send your picture</string>
@@ -29,7 +31,23 @@
     <string name="user_unknow">Anonymous</string>
     <string name="theme_title">Theme of %1$s</string>
     <string name="theme_name">#%1$s</string>
-    <string name="theme_vote_error">Cannot vote for theme %1$s</string>
+    <string name="theme_vote_error">Cannot vote for theme %1$s.</string>
     <string name="title_activity_pictures">Pictures</string>
-    <string name="comment">Comments</string>
+    <string name="picture_vote_error">Cannot vote for picture.</string>
+    <string name="comments">Comments</string>
+    <string name="vote">Vote</string>
+    <string name="save_picture">Save picture to Image directory</string>
+
+    <string name="save_picture_success">Picture correcty saved.</string>
+    <string name="save_picture_error">Error saving picture.</string>
+
+    <!-- Comment -->
+    <string name="comment">Comment</string>
+    <string name="comment_placeholder">Type your comment...</string>
+    <string name="comment_add">Send</string>
+    <string name="comment_cancel">Cancel</string>
+    <string name="already_commented">Only one comment per image.</string>
+    <string name="comment_add_error">Cannot add comment.</string>
+    <string name="comment_remove_error">Cannot remove comment.</string>
+
 </resources>

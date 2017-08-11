@@ -20,19 +20,22 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
-import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfosTask;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetThemeTask;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.VoteThemeTask;
+import com.jessy_barthelemy.pictothemo.Dialogs.VoteDialog;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
+import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class HomeActivity extends BaseActivity implements IAsyncApiObjectResponse {
+public class HomeActivity extends BaseActivity implements IAsyncApiObjectResponse, IVoteResponse {
 
     private ImageView potdView;
     private AppCompatButton theme1Button;
@@ -43,8 +46,10 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     private TextView potdTheme;
     private TextView potdPositiveVote;
     private TextView potdNegativeVote;
+    private View potdVote;
     private TextView potdCommentCount;
     private Picture potd;
+    private Point wSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,16 +62,18 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.potdTheme = (TextView)findViewById(R.id.picture_theme);
         this.potdPositiveVote = (TextView)findViewById(R.id.picture_positive_vote);
         this.potdNegativeVote = (TextView)findViewById(R.id.picture_negative_vote);
-        View potdLoadbar = findViewById(R.id.picture_loadbar);
+        this.potdVote = findViewById(R.id.vote);
         this.potdCommentCount = (TextView)findViewById(R.id.picture_comment_count);
 
         this.theme1Button = (AppCompatButton) findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)findViewById(R.id.home_theme_2);
+
+        View potdLoadbar = findViewById(R.id.picture_loadbar);
         TextView theme_title = (TextView)findViewById(R.id.home_theme_title);
 
-        Point wSize = new Point();
-        getWindowManager().getDefaultDisplay().getSize(wSize);
-        this.potdView.setMaxHeight(wSize.x);
+        this.wSize = new Point();
+        getWindowManager().getDefaultDisplay().getSize(this.wSize);
+        this.potdView.setMaxHeight(this.wSize.x);
 
         GetImageTask imageTask = new GetImageTask(this, this.potdView, potdLoadbar, Calendar.getInstance());
         imageTask.execute();
@@ -90,12 +97,13 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         });
 
         Calendar today = Calendar.getInstance();
-        GetPicturesInfosTask getPicturesInfosTask = new GetPicturesInfosTask(today, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+        GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(today, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
         getPicturesInfosTask.execute();
 
         GetThemeTask themeTask = new GetThemeTask(today, this);
         themeTask.execute();
         theme_title.setText(getResources().getString(R.string.theme_title, this.getThemeDay()));
+        this.registerForContextMenu(this.potdView);
     }
 
     private void setThemeButtonColor(boolean theme1){
@@ -143,6 +151,15 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                 HomeActivity.this.openPOTD();
                 }
             });
+
+            this.potdVote.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                VoteDialog dialog = new VoteDialog(HomeActivity.this, HomeActivity.this);
+                dialog.show();
+                }
+            });
+
         }else if(response instanceof ThemeList){
             ThemeList themeList = (ThemeList) response;
             if(themeList.getThemes() != null && themeList.getThemes().size() > 1){
@@ -183,11 +200,30 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         Bundle args = new Bundle();
         args.putSerializable(ApplicationHelper.EXTRA_PICTURES_LIST, pictures);
         intent.putExtra(ApplicationHelper.EXTRA_PICTURES_LIST, args);
-        startActivity(intent);
+        startActivityForResult(intent, ApplicationHelper.UPDATE_PICTURE);
+    }
+
+    @Override
+    public void asyncTaskSuccess(boolean positive) {
+        VotePictureTask voteTask = new VotePictureTask(this.potd, positive, this, this);
+        voteTask.execute();
     }
 
     @Override
     public void asyncTaskFail(String errorMessage) {
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == ApplicationHelper.UPDATE_PICTURE){
+            Bundle args = data.getBundleExtra(ApplicationHelper.EXTRA_PICTURES_LIST);
+            if(args == null)
+                return;
+
+            this.potd = (Picture) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
+            this.asyncTaskSuccess(this.potd);
+        }
     }
 }

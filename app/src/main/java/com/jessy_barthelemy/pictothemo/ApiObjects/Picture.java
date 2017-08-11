@@ -1,10 +1,12 @@
 package com.jessy_barthelemy.pictothemo.ApiObjects;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class Picture implements Serializable{
+public class Picture implements Serializable, Comparable<Picture>{
     private int id ;
     private String theme;
     private User user;
@@ -25,15 +27,6 @@ public class Picture implements Serializable{
 
     public ArrayList<Comment> getComments() {
         return comments;
-    }
-
-    public int getNegativeVote() {
-        return negativeVote;
-    }
-
-
-    public int getPositiveVote() {
-        return positiveVote;
     }
 
     public User getUser() {
@@ -62,5 +55,26 @@ public class Picture implements Serializable{
 
     public void setDate(Calendar date) {
         this.date = date;
+    }
+
+    public int getPositiveVote() {
+        return positiveVote;
+    }
+
+    public void setPositiveVote(int positiveVote) {
+        this.positiveVote = positiveVote;
+    }
+
+    public int getNegativeVote() {
+        return negativeVote;
+    }
+
+    public void setNegativeVote(int negativeVote) {
+        this.negativeVote = negativeVote;
+    }
+
+    @Override
+    public int compareTo(@NonNull Picture picture) {
+        return picture.getDate().compareTo(this.date);
     }
 }

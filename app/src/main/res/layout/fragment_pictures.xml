@@ -6,12 +6,31 @@
 
     <include layout="@layout/picture_layout"/>
 
-    <TextView
-        style="@style/TitleTheme"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/comment"
-        android:layout_gravity="center_horizontal"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/comment_add"
+            android:layout_width="@dimen/circle_button"
+            android:layout_height="@dimen/circle_button"
+            android:background="@drawable/circle_button"
+            android:text="+"
+            android:textColor="@android:color/white"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="@dimen/little_space"
+            />
+
+        <TextView
+            style="@style/TitleTheme"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/comment"
+            android:layout_centerHorizontal="true"/>
+
+    </RelativeLayout>
 
     <ListView
         android:id="@+id/picture_comments"

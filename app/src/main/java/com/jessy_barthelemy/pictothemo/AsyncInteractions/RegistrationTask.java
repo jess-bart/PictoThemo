@@ -49,7 +49,7 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
         String errorMessage = null;
         try {
             ApiHelper helper = new ApiHelper();
-            this.tokensInfos = helper.createUser(tokensInfos.getPseudo(), tokensInfos.getPassword());
+            this.tokensInfos = helper.createUser(tokensInfos.getUser().getPseudo(), tokensInfos.getPassword());
 
             if(this.tokensInfos == null){
                 errorMessage = context.getResources().getString(R.string.network_unavalaible);

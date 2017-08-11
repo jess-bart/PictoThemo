@@ -1,9 +1,11 @@
 package com.jessy_barthelemy.pictothemo.ApiObjects;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
 import java.util.Calendar;
 
-public class Comment implements Serializable {
+public class Comment implements Serializable, Comparable<Comment> {
     private User user;
     private String text;
     private Calendar date;
@@ -28,5 +30,10 @@ public class Comment implements Serializable {
 
     public Calendar getDate() {
         return date;
+    }
+
+    @Override
+    public int compareTo(@NonNull Comment comment) {
+        return comment.getDate().compareTo(this.date);
     }
 }

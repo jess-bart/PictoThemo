@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -157,7 +158,10 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         });
 
         if(this.cache != null && !this.cache.isFile()){
-            SaveImageCacheTask saveTask = new SaveImageCacheTask(image, this.cache.getAbsolutePath());
+            SaveImageToDiskTask saveTask = null;
+            try {
+                saveTask = new SaveImageToDiskTask(image, new FileOutputStream(this.cache.getAbsolutePath()));
+            } catch (FileNotFoundException e) {}
             saveTask.execute();
         }
     }

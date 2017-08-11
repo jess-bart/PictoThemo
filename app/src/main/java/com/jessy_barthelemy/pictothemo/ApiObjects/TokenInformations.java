@@ -5,21 +5,21 @@ import java.util.Calendar;
 public class TokenInformations {
     private String accessToken;
     private Calendar expiresToken;
-    private String pseudo;
+    private User user;
     private String password;
     private boolean isPasswordSalted;
 
     public TokenInformations() {
         this.accessToken = "";
-        this.pseudo = "";
         this.password = "";
+        this.user = new User();
         this.expiresToken = null;
         this.isPasswordSalted = false;
     }
 
-    public TokenInformations(String accessToken,Calendar expiresToken, String pseudo, String password, boolean isPasswordSalted) {
+    public TokenInformations(String accessToken,Calendar expiresToken, User user, String password, boolean isPasswordSalted) {
         this.accessToken = accessToken;
-        this.pseudo = pseudo;
+        this.user = user;
         this.password = password;
         this.expiresToken = expiresToken;
         this.isPasswordSalted = isPasswordSalted;
@@ -33,15 +33,6 @@ public class TokenInformations {
         return accessToken;
     }
 
-
-    public String getPseudo() {
-        return pseudo;
-    }
-
-    public void setPseudo(String pseudo) {
-        this.pseudo = pseudo;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -52,5 +43,13 @@ public class TokenInformations {
 
     public boolean isPasswordSalted() {
         return isPasswordSalted;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

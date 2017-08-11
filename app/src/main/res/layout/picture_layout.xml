@@ -73,24 +73,30 @@
                 android:paddingRight="15dp"
                 android:paddingLeft="@dimen/little_space"/>
 
-            <TextView
-                android:id="@+id/picture_positive_vote"
+            <LinearLayout
+                android:id="@+id/vote"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="@color/colorAccent"/>
-            <ImageView
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:src="@mipmap/logo_transparent"
-                android:paddingRight="@dimen/little_space"
-                android:paddingLeft="@dimen/little_space"/>
-            <TextView
-                android:id="@+id/picture_negative_vote"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="0"
-                android:textColor="@color/colorPrimary"/>
+                android:gravity="center">
+                <TextView
+                    android:id="@+id/picture_positive_vote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/colorAccent"/>
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@mipmap/logo_transparent"
+                    android:paddingRight="@dimen/little_space"
+                    android:paddingLeft="@dimen/little_space"/>
+                <TextView
+                    android:id="@+id/picture_negative_vote"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textColor="@color/colorPrimary"/>
+            </LinearLayout>
         </LinearLayout>
     </RelativeLayout>
 </RelativeLayout>

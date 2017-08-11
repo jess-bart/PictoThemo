@@ -1,22 +1,40 @@
 package com.jessy_barthelemy.pictothemo.Activities;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.provider.DocumentFile;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.ContextMenu;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.SaveImageToDiskTask;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
+import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.io.IOException;
+import java.io.OutputStream;
+
 public class BaseActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, IAsyncResponse {
+
+    public static final int SAVE_PICTURE_MENU = 2;
+    public static final int SAVE_PICTURE_DESTINATION = 3;
+    private ImageView pictureToSave;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,5 +84,66 @@ public class BaseActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+
+        switch(v.getId()){
+            case R.id.picture:
+                this.pictureToSave = (ImageView)v;
+                menu.setHeaderTitle(R.string.picture);
+                menu.add(Menu.NONE, SAVE_PICTURE_MENU, Menu.NONE, R.string.save_picture);
+                break;
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case SAVE_PICTURE_MENU:
+
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/png");
+                startActivityForResult(intent, SAVE_PICTURE_DESTINATION);
+
+                return true;
+            default:
+                return super.onContextItemSelected(item);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode,
+                                 Intent resultData) {
+        if (requestCode == SAVE_PICTURE_DESTINATION && resultCode == Activity.RESULT_OK) {
+            if (resultData != null) {
+                Uri picturePath = resultData.getData();
+                BitmapDrawable pictureDrawable = (BitmapDrawable) this.pictureToSave.getDrawable();
+
+                try {
+                    DocumentFile pictureFolder = DocumentFile.fromSingleUri(this, picturePath);
+                    OutputStream out = getContentResolver().openOutputStream(pictureFolder.getUri());
+                    SaveImageToDiskTask saveTask = new SaveImageToDiskTask(pictureDrawable.getBitmap(), out, this, this);
+                    saveTask.execute();
+
+                } catch (IOException e) {}
+                this.pictureToSave = null;
+            }
+        }
+    }
+
+    //used for image saving
+    @Override
+    public void asyncTaskSuccess() {
+        Toast.makeText(this, this.getResources().getString(R.string.save_picture_success), Toast.LENGTH_LONG).show();
+
+    }
+
+    @Override
+    public void asyncTaskFail(String errorMessage) {
+        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 }

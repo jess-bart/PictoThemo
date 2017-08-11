@@ -33,7 +33,9 @@
             android:id="@+id/comment_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/lightGrey">
+            android:textColor="@color/colorDate"
+            android:textStyle="italic"
+            android:textSize="@dimen/date_size">
         </TextView>
     </LinearLayout>
 </LinearLayout>

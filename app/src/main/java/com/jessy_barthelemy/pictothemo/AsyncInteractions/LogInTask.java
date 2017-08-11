@@ -63,7 +63,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         try {
             String flags = (this.tokensInfos.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
             ApiHelper helper = new ApiHelper();
-            this.tokensInfos = helper.getAccessToken(this.tokensInfos.getPseudo(), this.tokensInfos.getPassword(), flags);
+            this.tokensInfos = helper.getAccessToken(this.tokensInfos.getUser().getPseudo(), this.tokensInfos.getPassword(), flags);
 
             if(this.tokensInfos == null){
                 errorMessage = context.getResources().getString(R.string.login_fail);
@@ -93,7 +93,6 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
 
         }else{
             ApplicationHelper.savePreferences(this.context, this.tokensInfos);
-            if(this.delegate != null)
                 this.delegate.asyncTaskSuccess();
         }
     }

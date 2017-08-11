@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#0d47a1</color>
     <color name="colorAccent">#ff80ab</color>
     <color name="colorDisabled">#DEDCDC</color>
+    <color name="colorDate">#d3d1d1</color>
     <color name="lightGrey">#f0eded</color>
     <color name="textShadow">#555454</color>
 </resources>

@@ -6,8 +6,15 @@ public class User implements Serializable {
     private int id;
     private String pseudo;
 
+    public User(){}
+
     public User(int id, String pseudo){
         this.id = id;
+        this.pseudo = pseudo;
+    }
+
+    public User(String pseudo){
+        this.id = -1;
         this.pseudo = pseudo;
     }
 
@@ -17,5 +24,7 @@ public class User implements Serializable {
         this.pseudo = pseudo;
     }
 
-
+    public int getId() {
+        return id;
+    }
 }

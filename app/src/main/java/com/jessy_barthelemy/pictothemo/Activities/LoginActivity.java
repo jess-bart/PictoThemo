@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.RegistrationTask;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -107,7 +108,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
         if(this.isFormValid()){
             /*Database verification*/
-            this.tokenInfos.setPseudo(pseudo.getEditText().getText().toString());
+            this.tokenInfos.setUser(new User(pseudo.getEditText().getText().toString()));
             this.tokenInfos.setPassword(password.getEditText().getText().toString());
             RegistrationTask registration = new RegistrationTask(this, this.tokenInfos, this);
             registration.execute();
@@ -121,7 +122,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.tokenInfos = new TokenInformations();
 
         if(this.isFormValid()){
-            this.tokenInfos.setPseudo(this.pseudo.getEditText().getText().toString());
+            this.tokenInfos.setUser(new User(pseudo.getEditText().getText().toString()));
             this.tokenInfos.setPassword(this.password.getEditText().getText().toString());
             LogInTask login = new LogInTask(this, this.tokenInfos, true);
             login.setDelegate(this);

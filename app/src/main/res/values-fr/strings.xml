@@ -2,21 +2,23 @@
 <resources>
 
     <!-- Global -->
-    <string name="network_unavalaible">Veuillez activer internet</string>
+    <string name="network_unavalaible">Veuillez activer internet.</string>
     <string name="picture_of_the_day">Image du jour</string>
     <string name="my_profile">Mon profil</string>
     <string name="gallery">Gallerie</string>
     <string name="logout">Déconnexion</string>
+    <string name="delete">Supprimer</string>
+    <string name="picture">Image</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_password">Mot de passe</string>
     <string name="login_registration">Inscription</string>
     <string name="login_login">Connexion</string>
     <string name="login_verification">Vérification des informations</string>
-    <string name="login_pseudo_verification">Pseudo invalide</string>
-    <string name="login_password_verification">Le mot de passe doit contenir 6 caractères minimum</string>
-    <string name="login_fail">Identifiants incorrects</string>
-    <string name="registration_fail">Ce pseudo est déjà utilisé</string>
+    <string name="login_pseudo_verification">Pseudo invalide.</string>
+    <string name="login_password_verification">Le mot de passe doit contenir 6 caractères minimum.</string>
+    <string name="login_fail">Identifiants incorrects.</string>
+    <string name="registration_fail">Ce pseudo est déjà utilisé.</string>
 
     <!-- Menu -->
     <string name="nav_send">Propose ton image</string>
@@ -27,6 +29,20 @@
     <!-- Picture -->
     <string name="user_unknow">Anonyme</string>
     <string name="theme_title">Thème du %1$s</string>
-    <string name="theme_vote_error">Impossible de voter pour le theme %1$s</string>
-    <string name="comment">Commentaires</string>
+    <string name="theme_vote_error">Impossible de voter pour le theme %1$s.</string>
+    <string name="picture_vote_error">Impossible de voter pour l\'image.</string>
+    <string name="comments">Commentaires</string>
+    <string name="vote">Vote</string>
+    <string name="save_picture">Enregistrer l\'image dans mes images.</string>
+    <string name="save_picture_success">Image correctement enregistrée.</string>
+    <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
+
+
+    <!-- Comment -->
+    <string name="comment">Commentaire</string>
+    <string name="comment_placeholder">Votre commentaire</string>
+    <string name="comment_add">Envoyer</string>
+    <string name="comment_cancel">Annuler</string>
+    <string name="already_commented">Seulement 1 commentaire par image.</string>
+    <string name="comment_error">Impossible d\'ajouter un commentaire.</string>
 </resources>

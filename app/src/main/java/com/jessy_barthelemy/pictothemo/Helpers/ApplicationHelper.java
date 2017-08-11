@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.math.BigInteger;
@@ -17,12 +18,14 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class ApplicationHelper {
+    private static final String USER_ID_PREF = "USER_ID";
     private static final String USER_PSEUDO_PREF = "USER_PSEUDO";
     private static final String USER_PASSWORD_PREF = "USER_PASSWORD";
     private static final String USER_TOKEN_PREF = "USER_TOKEN";
     private static final String USER_EXPIRES_TOKEN_PREF = "USER_EXPIRES_TOKEN";
     static final int PSEUDO_MAX_LENGTH = 4;
     static final int PASSWORD_MAX_LENGTH = 6;
+    public static final int UPDATE_PICTURE = 1;
     public static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
     public static final String THEME_PREFS_PREFIX = "theme";
     public static final String EXTRA_PICTURES_LIST = "pictures";
@@ -61,7 +64,8 @@ public class ApplicationHelper {
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
-        editor.putString(ApplicationHelper.USER_PSEUDO_PREF, tokenInfos.getPseudo());
+        editor.putInt(ApplicationHelper.USER_ID_PREF, tokenInfos.getUser().getId());
+        editor.putString(ApplicationHelper.USER_PSEUDO_PREF, tokenInfos.getUser().getPseudo());
         editor.putString(ApplicationHelper.USER_PASSWORD_PREF, tokenInfos.getPassword());
         editor.putString(ApplicationHelper.USER_TOKEN_PREF, tokenInfos.getAccessToken());
         if(tokenInfos.getExpiresToken() != null){
@@ -75,6 +79,7 @@ public class ApplicationHelper {
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         String accessToken = settings.getString(ApplicationHelper.USER_TOKEN_PREF, "");
         String expiresToken = settings.getString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, "");
+        int id = settings.getInt(ApplicationHelper.USER_ID_PREF, -1);
         String pseudo = settings.getString(ApplicationHelper.USER_PSEUDO_PREF, "");
         String password = settings.getString(ApplicationHelper.USER_PASSWORD_PREF, "");
         Calendar expiresDate;
@@ -84,7 +89,15 @@ public class ApplicationHelper {
             return null;
         }
 
-        return new TokenInformations(accessToken, expiresDate, pseudo, password, !accessToken.isEmpty());
+        return new TokenInformations(accessToken, expiresDate, new User(id, pseudo), password, !accessToken.isEmpty());
+    }
+
+    public static User getCurrentUser(Context context){
+        SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
+        int id = settings.getInt(ApplicationHelper.USER_ID_PREF, -1);
+        String pseudo = settings.getString(ApplicationHelper.USER_PSEUDO_PREF, "");
+
+        return new User(id, pseudo);
     }
 
     public static void resetPreferences(Context context){
