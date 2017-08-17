@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jessy_barthelemy.pictothemo.Activities.SearchActivity"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@mipmap/logo_transparent"
+            android:layout_gravity="center_horizontal"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search"
+            style="@style/TitleTheme"
+            android:layout_gravity="center_horizontal"/>
+
+        <EditText
+            android:id="@+id/search_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/user"/>
+
+        <EditText
+            android:id="@+id/search_theme"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/theme" />
+
+        <EditText
+            android:id="@+id/search_voteCount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/vote_count"
+            android:inputType="numberSigned"/>
+
+        <CheckBox
+            android:id="@+id/search_potd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/picture_of_the_day" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/starting_date"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/subtitle_size"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/little_space"/>
+
+        <DatePicker
+            android:id="@+id/search_starting_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false"
+            android:background="@color/lightGrey"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ending_date"
+            android:textColor="@color/colorPrimary"
+            android:textSize="@dimen/subtitle_size"
+            android:layout_margin="@dimen/little_space"
+            android:layout_gravity="center_horizontal"/>
+
+        <DatePicker
+            android:id="@+id/search_ending_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:datePickerMode="spinner"
+            android:calendarViewShown="false"
+            android:background="@color/lightGrey"/>
+
+        <Button
+            android:id="@+id/search_action"
+            android:theme="@style/ColoredButtonAccent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/search"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/little_space"/>
+    </LinearLayout>
+</ScrollView>

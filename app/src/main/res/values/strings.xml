@@ -5,7 +5,8 @@
     <string name="network_unavalaible">Please enable internet connection.</string>
     <string name="picture_of_the_day">Picture of the day</string>
     <string name="my_profile">My profile</string>
-    <string name="gallery">Gallery</string>
+    <string name="picture_of_the_month">Pictures of the month</string>
+    <string name="search">Search</string>
     <string name="logout">Logout</string>
     <string name="delete">Delete</string>
     <string name="picture">Picture</string>
@@ -36,6 +37,7 @@
     <string name="picture_vote_error">Cannot vote for picture.</string>
     <string name="comments">Comments</string>
     <string name="vote">Vote</string>
+    <string name="vote_success">Voted.</string>
     <string name="save_picture">Save picture to Image directory</string>
 
     <string name="save_picture_success">Picture correcty saved.</string>
@@ -49,5 +51,13 @@
     <string name="already_commented">Only one comment per image.</string>
     <string name="comment_add_error">Cannot add comment.</string>
     <string name="comment_remove_error">Cannot remove comment.</string>
+    <string name="comment_empty">No comment yet.</string>
+
+    <!-- Search -->
+    <string name="user">User</string>
+    <string name="theme">Theme</string>
+    <string name="starting_date">Starting date</string>
+    <string name="ending_date">Ending date</string>
+    <string name="vote_count">Vote count</string>
 
 </resources>

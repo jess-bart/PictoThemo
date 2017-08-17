@@ -1,8 +1,9 @@
 package com.jessy_barthelemy.pictothemo.ApiObjects;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
-public class Theme {
+public class Theme implements Serializable{
     private int id;
     private String name;
     private Calendar candidateDate;
@@ -10,6 +11,11 @@ public class Theme {
 
     public Theme(int id, String name) {
         this.id = id;
+        this.name = name;
+    }
+
+    public Theme(String name, Calendar candidateDate) {
+        this.candidateDate = candidateDate;
         this.name = name;
     }
 

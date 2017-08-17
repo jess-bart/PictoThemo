@@ -83,11 +83,7 @@ public class ApplicationHelper {
         String pseudo = settings.getString(ApplicationHelper.USER_PSEUDO_PREF, "");
         String password = settings.getString(ApplicationHelper.USER_PASSWORD_PREF, "");
         Calendar expiresDate;
-        try {
-            expiresDate = ApplicationHelper.convertStringToDate(expiresToken, false);
-        } catch (ParseException e) {
-            return null;
-        }
+        expiresDate = ApplicationHelper.convertStringToDate(expiresToken, false);
 
         return new TokenInformations(accessToken, expiresDate, new User(id, pseudo), password, !accessToken.isEmpty());
     }
@@ -111,14 +107,18 @@ public class ApplicationHelper {
         context.startActivity(i);
     }
 
-    public static Calendar convertStringToDate(String date, boolean longFormat) throws ParseException {
+    public static Calendar convertStringToDate(String date, boolean longFormat){
         SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
-        calendar.setTime(formatter.parse(date));
-        return calendar;
+        try {
+            calendar.setTime(formatter.parse(date));
+            return calendar;
+        } catch (ParseException e) {
+            return null;
+        }
     }
 
-    public static String convertDateToString(Calendar date, boolean longFormat) throws ParseException {
+    public static String convertDateToString(Calendar date, boolean longFormat){
         SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
         return formatter.format(date.getTime());
     }

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -14,9 +13,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
+import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
@@ -31,25 +30,30 @@ import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class HomeActivity extends BaseActivity implements IAsyncApiObjectResponse, IVoteResponse {
 
-    private ImageView potdView;
-    private AppCompatButton theme1Button;
-    private AppCompatButton theme2Button;
     private int theme1;
     private int theme2;
-    private TextView potdPseudo;
-    private TextView potdTheme;
-    private TextView potdPositiveVote;
-    private TextView potdNegativeVote;
-    private View potdVote;
-    private TextView potdCommentCount;
-    private Picture potd;
-    private Point wSize;
+    private ImageView pictureView;
+    private AppCompatButton theme1Button;
+    private AppCompatButton theme2Button;
+    private TextView picturePseudo;
+    private TextView pictureTheme;
+    private TextView pictureDate;
+    private TextView picturePositiveVote;
+    private TextView pictureNegativeVote;
+    private View pictureVote;
+    private TextView pictureCommentCount;
+    private Picture picture;
+    private boolean localRequest;
+    private ImageView pictureImg;
+    private View pictureLoadbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,26 +61,47 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         RelativeLayout contentFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
         getLayoutInflater().inflate(R.layout.activity_home, contentFrameLayout);
 
-        this.potdView = (ImageView)findViewById(R.id.picture);
-        this.potdPseudo = (TextView)findViewById(R.id.picture_pseudo);
-        this.potdTheme = (TextView)findViewById(R.id.picture_theme);
-        this.potdPositiveVote = (TextView)findViewById(R.id.picture_positive_vote);
-        this.potdNegativeVote = (TextView)findViewById(R.id.picture_negative_vote);
-        this.potdVote = findViewById(R.id.vote);
-        this.potdCommentCount = (TextView)findViewById(R.id.picture_comment_count);
+        this.pictureView = (ImageView)findViewById(R.id.picture);
+        this.picturePseudo = (TextView)findViewById(R.id.picture_pseudo);
+        this.pictureTheme = (TextView)findViewById(R.id.picture_theme);
+        this.pictureDate = (TextView)findViewById(R.id.picture_date);
+
+        this.picturePositiveVote = (TextView)findViewById(R.id.picture_positive_vote);
+        this.pictureNegativeVote = (TextView)findViewById(R.id.picture_negative_vote);
+        this.pictureVote = findViewById(R.id.vote);
+        this.pictureCommentCount = (TextView)findViewById(R.id.picture_comment_count);
 
         this.theme1Button = (AppCompatButton) findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)findViewById(R.id.home_theme_2);
 
-        View potdLoadbar = findViewById(R.id.picture_loadbar);
-        TextView theme_title = (TextView)findViewById(R.id.home_theme_title);
+        this.pictureImg = (ImageView)findViewById(R.id.is_potd);
+        this.pictureImg.setVisibility(View.VISIBLE);
 
-        this.wSize = new Point();
-        getWindowManager().getDefaultDisplay().getSize(this.wSize);
-        this.potdView.setMaxHeight(this.wSize.x);
+        this.pictureLoadbar = findViewById(R.id.picture_loadbar);
 
-        GetImageTask imageTask = new GetImageTask(this, this.potdView, potdLoadbar, Calendar.getInstance());
+        GetImageTask imageTask = new GetImageTask(this, this.pictureView, pictureLoadbar, Calendar.getInstance());
         imageTask.execute();
+
+        this.localRequest = true;
+        Calendar today = Calendar.getInstance();
+        GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(today, today, null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+        getPicturesInfosTask.execute();
+
+        SimpleDateFormat dateFormat;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            dateFormat = new SimpleDateFormat("EEEE", getResources().getConfiguration().getLocales().get(0));
+        else
+            dateFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+
+        Calendar themeDay = Calendar.getInstance();
+        themeDay.add(Calendar.DAY_OF_YEAR, 2);
+
+        GetThemeTask themeTask = new GetThemeTask(themeDay, this);
+        themeTask.execute();
+        this.theme1Button = (AppCompatButton) findViewById(R.id.home_theme_1);
+        this.theme2Button = (AppCompatButton)findViewById(R.id.home_theme_2);
+        TextView themeTitle = (TextView)findViewById(R.id.home_theme_title);
+        themeTitle.setText(getResources().getString(R.string.theme_title, dateFormat.format(themeDay.getTime())));
 
         this.theme1Button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,15 +120,6 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                 voteTask.execute();
             }
         });
-
-        Calendar today = Calendar.getInstance();
-        GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(today, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
-        getPicturesInfosTask.execute();
-
-        GetThemeTask themeTask = new GetThemeTask(today, this);
-        themeTask.execute();
-        theme_title.setText(getResources().getString(R.string.theme_title, this.getThemeDay()));
-        this.registerForContextMenu(this.potdView);
     }
 
     private void setThemeButtonColor(boolean theme1){
@@ -117,49 +133,61 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         }
     }
 
-    private String getThemeDay(){
-        SimpleDateFormat dateFormat;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            dateFormat = new SimpleDateFormat("EEEE", getResources().getConfiguration().getLocales().get(0));
-        else
-            dateFormat = new SimpleDateFormat("EEEE", getResources().getConfiguration().locale);
-        Calendar themeDay = Calendar.getInstance();
-        themeDay.add(Calendar.DAY_OF_YEAR, 2);
-        return dateFormat.format(themeDay.getTime());
+    protected void updatePicture(){
+        this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this, this.picture.getUser().getPseudo()));
+        this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
+        DateFormat formater = android.text.format.DateFormat.getDateFormat(this);
+        this.pictureDate.setText(formater.format(this.picture.getTheme().getCandidateDate().getTime()));
+
+        this.picturePositiveVote.setText(String.valueOf(this.picture.getPositiveVote()));
+        this.pictureNegativeVote.setText(String.valueOf(this.picture.getNegativeVote()));
+        this.pictureCommentCount.setText(String.valueOf(this.picture.getComments().size()));
+
+        this.pictureVote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                VoteDialog dialog = new VoteDialog(HomeActivity.this, HomeActivity.this);
+                dialog.show();
+            }
+        });
+
+        this.pictureCommentCount.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            HomeActivity.this.openPOTD();
+            }
+        });
+
+        this.pictureView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+            HomeActivity.this.openPOTD();
+            }
+        });
     }
 
     @Override
     public void asyncTaskSuccess(Object response) {
-        if(response instanceof Picture){
-            this.potd = (Picture)response;
-            this.potdPseudo.setText(ApplicationHelper.handleUnknowPseudo(this, this.potd.getUser().getPseudo()));
-            this.potdTheme.setText(String.format(getResources().getString(R.string.theme_name), this.potd.getTheme()));
-            this.potdPositiveVote.setText(String.valueOf(this.potd.getPositiveVote()));
-            this.potdNegativeVote.setText(String.valueOf(this.potd.getNegativeVote()));
-            this.potdCommentCount.setText(String.valueOf(this.potd.getComments().size()));
+        if(response instanceof PictureList){
+            //if the request was not made by HomeActivity lets BaseActivity handle it
+            if(this.localRequest) {
+                this.localRequest = false;
 
-            this.potdCommentCount.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    HomeActivity.this.openPOTD();
-                }
-            });
+                PictureList pictureList = (PictureList) response;
+                ArrayList<Picture> pictures = pictureList.getPictures();
 
-            this.potdView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                HomeActivity.this.openPOTD();
-                }
-            });
+                if (pictures == null || pictures.size() == 0)
+                    return;
 
-            this.potdVote.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                VoteDialog dialog = new VoteDialog(HomeActivity.this, HomeActivity.this);
-                dialog.show();
-                }
-            });
+                this.picture = pictures.get(0);
+                this.updatePicture();
 
+            }else
+                super.asyncTaskSuccess(response);
+
+        }if(response instanceof Picture){
+            this.picture = (Picture)response;
+            this.updatePicture();
         }else if(response instanceof ThemeList){
             ThemeList themeList = (ThemeList) response;
             if(themeList.getThemes() != null && themeList.getThemes().size() > 1){
@@ -193,25 +221,14 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     }
 
     private void openPOTD(){
-        Intent intent = new Intent(HomeActivity.this, PicturesActivity.class);
+        Intent intent = new Intent(this, PicturesActivity.class);
 
         ArrayList<Picture> pictures = new ArrayList<>();
-        pictures.add(HomeActivity.this.potd);
+        pictures.add(this.picture);
         Bundle args = new Bundle();
         args.putSerializable(ApplicationHelper.EXTRA_PICTURES_LIST, pictures);
         intent.putExtra(ApplicationHelper.EXTRA_PICTURES_LIST, args);
         startActivityForResult(intent, ApplicationHelper.UPDATE_PICTURE);
-    }
-
-    @Override
-    public void asyncTaskSuccess(boolean positive) {
-        VotePictureTask voteTask = new VotePictureTask(this.potd, positive, this, this);
-        voteTask.execute();
-    }
-
-    @Override
-    public void asyncTaskFail(String errorMessage) {
-        Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -222,8 +239,14 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
             if(args == null)
                 return;
 
-            this.potd = (Picture) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
-            this.asyncTaskSuccess(this.potd);
+            this.picture = (Picture) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
+            this.updatePicture();
         }
+    }
+
+    @Override
+    public void asyncTaskSuccess(boolean positive) {
+        VotePictureTask voteTask = new VotePictureTask(this.picture, positive, this, this);
+        voteTask.execute();
     }
 }

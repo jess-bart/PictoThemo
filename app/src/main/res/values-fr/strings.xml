@@ -5,7 +5,8 @@
     <string name="network_unavalaible">Veuillez activer internet.</string>
     <string name="picture_of_the_day">Image du jour</string>
     <string name="my_profile">Mon profil</string>
-    <string name="gallery">Gallerie</string>
+    <string name="picture_of_the_month">Images du mois</string>
+    <string name="search">Recherche</string>
     <string name="logout">Déconnexion</string>
     <string name="delete">Supprimer</string>
     <string name="picture">Image</string>
@@ -33,10 +34,10 @@
     <string name="picture_vote_error">Impossible de voter pour l\'image.</string>
     <string name="comments">Commentaires</string>
     <string name="vote">Vote</string>
+    <string name="vote_success">Vote pris en compte.</string>
     <string name="save_picture">Enregistrer l\'image dans mes images.</string>
     <string name="save_picture_success">Image correctement enregistrée.</string>
     <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
-
 
     <!-- Comment -->
     <string name="comment">Commentaire</string>
@@ -45,4 +46,12 @@
     <string name="comment_cancel">Annuler</string>
     <string name="already_commented">Seulement 1 commentaire par image.</string>
     <string name="comment_error">Impossible d\'ajouter un commentaire.</string>
+    <string name="comment_empty">Pas encore de commentaire.</string>
+
+    <!-- Search -->
+    <string name="user">Utilisateur</string>
+    <string name="theme">Theme</string>
+    <string name="starting_date">Date de départ</string>
+    <string name="ending_date">Date de fin</string>
+    <string name="vote_count">Nombre de vote</string>
 </resources>

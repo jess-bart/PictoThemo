@@ -6,7 +6,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.view.GravityCompat;
@@ -21,16 +20,22 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
+import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.SaveImageToDiskTask;
+import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
+import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 
 public class BaseActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, IAsyncResponse {
+        implements NavigationView.OnNavigationItemSelectedListener, IAsyncResponse, IAsyncApiObjectResponse {
 
     public static final int SAVE_PICTURE_MENU = 2;
     public static final int SAVE_PICTURE_DESTINATION = 3;
@@ -42,14 +47,6 @@ public class BaseActivity extends AppCompatActivity
         setContentView(R.layout.activity_base);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //TODO Add picture to the server
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -64,7 +61,7 @@ public class BaseActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
@@ -79,6 +76,15 @@ public class BaseActivity extends AppCompatActivity
             case R.id.nav_logout:
                 ApplicationHelper.resetPreferences(this);
                 ApplicationHelper.restartApp(this);
+                break;
+            case R.id.nav_picture_month:
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(null, null, null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+                getPicturesInfosTask.execute();
+                break;
+            case R.id.nav_search:
+                Intent intent = new Intent(this, SearchActivity.class);
+                startActivity(intent);
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -139,7 +145,24 @@ public class BaseActivity extends AppCompatActivity
     @Override
     public void asyncTaskSuccess() {
         Toast.makeText(this, this.getResources().getString(R.string.save_picture_success), Toast.LENGTH_LONG).show();
+    }
 
+    @Override
+    public void asyncTaskSuccess(Object response) {
+        if(response instanceof PictureList){
+            PictureList pictureList = (PictureList)response;
+            ArrayList<Picture> pictures = pictureList.getPictures();
+
+            if(pictures == null || pictures.size() == 0)
+                return;
+
+            Intent intent = new Intent(this, PicturesActivity.class);
+
+            Bundle args = new Bundle();
+            args.putSerializable(ApplicationHelper.EXTRA_PICTURES_LIST, pictures);
+            intent.putExtra(ApplicationHelper.EXTRA_PICTURES_LIST, args);
+            startActivityForResult(intent, ApplicationHelper.UPDATE_PICTURE);
+        }
     }
 
     @Override

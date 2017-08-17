@@ -28,15 +28,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Locale;
 
 public class ApiHelper {
     private static final String URL_API = "http://ptapi.esy.es/api/test";
-    public static final SimpleDateFormat RES_FORMAT = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
 
     //Entity
     public static final String ENTITY_PICTURES = "pictures";
@@ -46,13 +43,23 @@ public class ApiHelper {
     public static final String THEME_NAME = "name";
     public static final String ID = "id";
     public static final String PSEUDO = "pseudo";
+    public static final String FLAGS = "flags";
+    private static final String PASSWORD = "password";
     private static final String USER_ID = "userID";
+    private static final String THEME = "theme";
+    private static final String POTD = "potd";
+    private static final String VOTE_COUNT = "voteCount";
+
     private static final String ACCESS_TOKEN = "access_token";
     private static final String EXPIRES_TOKEN = "expires_token";
 
     private static final String COMMENTS = "comments";
     private static final String COMMENT_TEXT = "text";
-    private static final String COMMENT_DATE = "publish_date";
+    private static final String STARTING_DATE = "starting_date";
+    private static final String ENDING_DATE = "ending_date";
+    private static final String PUBLISH_DATE = "publish_date";
+    private static final String CANDIDATE_DATE = "candidate_date";
+
     private static final String SUCCESS = "success";
     private static final String ALREADY_COMMENTED = "already_commented";
 
@@ -85,18 +92,24 @@ public class ApiHelper {
 
     public TokenInformations getAccessToken(String pseudo, String password, String flags) throws IOException, JSONException, InvalidParameterException, ParseException {
         Uri.Builder parameters = new Uri.Builder()
-                .appendQueryParameter("pseudo", pseudo)
-                .appendQueryParameter("password", password);
+                .appendQueryParameter(PSEUDO, pseudo)
+                .appendQueryParameter(PASSWORD, password);
 
         if(flags != null)
-            parameters.appendQueryParameter("flags", flags);
-        boolean isPasswordSalted = flags == FLAG_SALT;
+            parameters.appendQueryParameter(FLAGS, flags);
+        boolean isPasswordSalted = flags != null && flags.equals(FLAG_SALT);
         HttpURLConnection http = this.createHttpConnection(URL_AUTHENTICATION, HttpVerb.POST.toString(), parameters, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
             JSONObject result = this.getJSONResponse(http);
-            password = (isPasswordSalted)?password:ApplicationHelper.hashPassword(password + result.getString(ApiHelper.SALT));
-            if(result.getString(ApiHelper.ACCESS_TOKEN) != null && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
+            if(result.has(ApiHelper.ACCESS_TOKEN) && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
+
+                if(!isPasswordSalted){
+                    if(result.has(ApiHelper.SALT))
+                        password = ApplicationHelper.hashPassword(password + result.getString(ApiHelper.SALT));
+                    else
+                        return null;
+                }
 
                 int id = result.has(ApiHelper.ID)?result.getInt(ApiHelper.ID):-1;
                 this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
@@ -129,12 +142,12 @@ public class ApiHelper {
 
     public TokenInformations createUser(String pseudo, String password) throws IOException, JSONException, ParseException {
         Uri.Builder parameter = new Uri.Builder()
-                .appendQueryParameter("pseudo", pseudo)
-                .appendQueryParameter("password", password);
+                .appendQueryParameter(PSEUDO, pseudo)
+                .appendQueryParameter(PASSWORD, password);
         HttpURLConnection http = this.createHttpConnection(URL_USERS, HttpVerb.PUT.toString(), parameter, false);
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
             JSONObject result = this.getJSONResponse(http);
-            if(result.has(ApiHelper.ACCESS_TOKEN) && result.has(ApiHelper.EXPIRES_TOKEN) && result.has(ApiHelper.SALT)){
+            if(result.has(ApiHelper.ACCESS_TOKEN) && result.has(ApiHelper.EXPIRES_TOKEN) && result.has(ApiHelper.SALT) && result.has(ApiHelper.ID)){
                 User user = new User(result.getInt(ApiHelper.ID), pseudo);
                 this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
                     user, ApplicationHelper.hashPassword(password+result.getString(ApiHelper.SALT)), true);
@@ -197,20 +210,32 @@ public class ApiHelper {
             response.append(inputLine);
         }
         in.close();
+        String temp = response.toString();
         return new JSONObject(response.toString());
     }
 
-    public Picture getPictureInfo(String selector, String flags) {
-        Uri.Builder parameter = null;
+    public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, String flags) {
+        Uri.Builder parameter = new Uri.Builder().appendQueryParameter(FLAGS, flags);
 
-        String url = URL_PICTURE_INFO+"/"+selector;
+        ArrayList<Picture> pictures = null;
+        if(startingDate != null)
+            parameter.appendQueryParameter(STARTING_DATE, ApplicationHelper.convertDateToString(startingDate, false));
 
-        if(flags != null)
-            parameter = new Uri.Builder().appendQueryParameter("flags", flags);
+        if(endingDate != null)
+            parameter.appendQueryParameter(ENDING_DATE, ApplicationHelper.convertDateToString(endingDate, false));
+
+        if(theme != null)
+            parameter.appendQueryParameter(THEME, theme);
+
+        if(user != null)
+            parameter.appendQueryParameter(PSEUDO, user);
+
+        if(voteCount != null)
+            parameter.appendQueryParameter(VOTE_COUNT, String.valueOf(voteCount));
 
         HttpURLConnection http = null;
         try{
-            http = this.createHttpConnection(url, HttpVerb.GET.toString(), parameter, false);
+            http = this.createHttpConnection(URL_PICTURE_INFO, HttpVerb.GET.toString(), parameter, false);
 
             if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
                 JSONObject result = this.getJSONResponse(http);
@@ -218,54 +243,67 @@ public class ApiHelper {
                 if(result.length() == 0)
                     return null;
 
-                JSONObject pictureObj = result.getJSONArray(ApiHelper.ENTITY_PICTURES).getJSONObject(0);
-                int id = pictureObj.has(ApiHelper.ID)?pictureObj.getInt(ApiHelper.ID):0;
-                String theme = pictureObj.has(ApiHelper.THEME_NAME)?pictureObj.getString(ApiHelper.THEME_NAME):"";
+                pictures = new ArrayList<>();
+                JSONArray picturesObj = result.getJSONArray(ApiHelper.ENTITY_PICTURES);
 
-                int userID = pictureObj.has(ApiHelper.USER_ID)?pictureObj.getInt(ApiHelper.USER_ID):0;
-                String pseudo = pictureObj.has(ApiHelper.PSEUDO)?pictureObj.getString(ApiHelper.PSEUDO):"";
+                JSONObject commentObj, pictureObj;
+                JSONArray comments;
+                boolean potd;
+                int id, userID, positiveVote, negativeVote;
+                Picture picture;
+                String textComment, pictureTheme;
+                User pictureUser;
+                Calendar date;
+                for(int i = 0, length = picturesObj.length(); i < length; ++i){
+                    pictureObj = picturesObj.getJSONObject(i);
 
-                int positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE)?pictureObj.getInt(ApiHelper.POSITIVE_VOTE):0;
-                int negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE)?pictureObj.getInt(ApiHelper.NEGATIVE_VOTE):0;
-                Picture picture = new Picture(id, theme, new User(userID, pseudo), null, positiveVote, negativeVote);
+                    id = pictureObj.has(ApiHelper.ID)?pictureObj.getInt(ApiHelper.ID):0;
+                    pictureTheme = pictureObj.has(ApiHelper.THEME_NAME)?pictureObj.getString(ApiHelper.THEME_NAME):"";
 
-                //comments
-                String textComment;
-                User user;
-                if(pictureObj.has(ApiHelper.COMMENTS)){
-                    JSONArray comments = pictureObj.getJSONArray(ApiHelper.COMMENTS);
-                    for(int i = 0, length = comments.length(); i < length; ++i){
-                        JSONObject commentObj = comments.getJSONObject(i);
+                    userID = pictureObj.has(ApiHelper.USER_ID)?pictureObj.getInt(ApiHelper.USER_ID):0;
+                    String pseudo = pictureObj.has(ApiHelper.PSEUDO)?pictureObj.getString(ApiHelper.PSEUDO):"";
 
-                        textComment=  commentObj.getString(COMMENT_TEXT);
-                        user = new User(commentObj.getInt(ApiHelper.ID), commentObj.getString(ApiHelper.PSEUDO));
-                        Comment comment = new Comment(user, textComment, ApplicationHelper.convertStringToDate(commentObj.getString(COMMENT_DATE), true));
-                        picture.getComments().add(comment);
+                    date = null;
+                    if(pictureObj.has(ApiHelper.CANDIDATE_DATE))
+                        date = ApplicationHelper.convertStringToDate(pictureObj.getString(ApiHelper.CANDIDATE_DATE), false);
+
+                    positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE)?pictureObj.getInt(ApiHelper.POSITIVE_VOTE):0;
+                    negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE)?pictureObj.getInt(ApiHelper.NEGATIVE_VOTE):0;
+                    potd = pictureObj.has(ApiHelper.POTD)?pictureObj.getInt(ApiHelper.POTD) > 0:false;
+
+                    picture = new Picture(id, new Theme(pictureTheme, date), new User(userID, pseudo), positiveVote, negativeVote, potd);
+
+                    //comments
+                    if(pictureObj.has(ApiHelper.COMMENTS)){
+                        comments = pictureObj.getJSONArray(ApiHelper.COMMENTS);
+                        for(int j = 0, commentLength = comments.length(); j < commentLength; ++j){
+                            commentObj = comments.getJSONObject(j);
+
+                            textComment=  commentObj.getString(COMMENT_TEXT);
+                            pictureUser = new User(commentObj.getInt(ApiHelper.ID), commentObj.getString(ApiHelper.PSEUDO));
+                            Comment comment = new Comment(pictureUser, textComment, ApplicationHelper.convertStringToDate(commentObj.getString(PUBLISH_DATE), true));
+                            picture.getComments().add(comment);
+                        }
+
+                        Collections.sort(picture.getComments());
                     }
 
-                    Collections.sort(picture.getComments());
+                    pictures.add(picture);
                 }
-
-                return picture;
-
             }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
                 throw new InvalidParameterException();
             }
-
-            return null;
-        }catch (IOException | JSONException | ParseException e) {
-            return null;
+        }catch (IOException | JSONException e) {
+            //bugfix, sometimes catch fired with null exception...
+            if(e != null)
+                return null;
         } finally {
             if(http != null)
                 http.disconnect();
         }
+
+        return pictures;
     }
-
-    /*public ArrayList<Picture> getPicturesInfo(boolean potd, String theme, String user, Calendar date, String flags){
-
-        //todo transform getPictureInfo to accept more args + task
-        return;
-    }*/
 
     public ThemeList getThemes(Calendar candidateDate) {
 
@@ -295,7 +333,7 @@ public class ApiHelper {
                 throw new InvalidParameterException();
             }
 
-        } catch (IOException | JSONException | ParseException e) {
+        } catch (IOException | JSONException e) {
             return null;
         } finally {
             if(http != null)

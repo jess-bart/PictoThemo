@@ -4,25 +4,24 @@ import android.support.annotation.NonNull;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class Picture implements Serializable, Comparable<Picture>{
     private int id ;
-    private String theme;
+    private Theme theme;
     private User user;
     private int positiveVote;
     private int negativeVote;
-    private Calendar date;
     private ArrayList<Comment> comments;
+    private boolean potd;
 
-    public Picture(int id, String theme, User user, Calendar date, int positiveVote, int negativeVote) {
+    public Picture(int id, Theme theme, User user, int positiveVote, int negativeVote, boolean potd) {
         this.id = id;
         this.theme = theme;
         this.user = user;
         this.positiveVote = positiveVote;
         this.negativeVote = negativeVote;
-        this.date = date;
         this.comments = new ArrayList<>();
+        this.potd = potd;
     }
 
     public ArrayList<Comment> getComments() {
@@ -33,11 +32,11 @@ public class Picture implements Serializable, Comparable<Picture>{
         return user;
     }
 
-    public String getTheme() {
+    public Theme getTheme() {
         return theme;
     }
 
-    public void setTheme(String theme) {
+    public void setTheme(Theme theme) {
         this.theme = theme;
     }
 
@@ -47,14 +46,6 @@ public class Picture implements Serializable, Comparable<Picture>{
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public Calendar getDate() {
-        return date;
-    }
-
-    public void setDate(Calendar date) {
-        this.date = date;
     }
 
     public int getPositiveVote() {
@@ -73,8 +64,12 @@ public class Picture implements Serializable, Comparable<Picture>{
         this.negativeVote = negativeVote;
     }
 
+    public boolean isPotd() {
+        return potd;
+    }
+
     @Override
     public int compareTo(@NonNull Picture picture) {
-        return picture.getDate().compareTo(this.date);
+        return picture.getTheme().getCandidateDate().compareTo(this.getTheme().getCandidateDate());
     }
 }

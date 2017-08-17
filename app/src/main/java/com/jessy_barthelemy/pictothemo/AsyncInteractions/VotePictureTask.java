@@ -2,6 +2,7 @@ package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -35,9 +36,11 @@ public class VotePictureTask extends AsyncTask<Void, Object, Void> {
 
     @Override
     protected void onPostExecute(Void v) {
-        if(this.picture != null)
+        if(this.picture != null){
             this.delegate.asyncTaskSuccess(this.picture);
-        else
+            Toast.makeText(this.context, R.string.vote_success, Toast.LENGTH_LONG).show();
+        }
+         else
             this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.picture_vote_error));
     }
 }

@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,10 +14,10 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -39,6 +40,7 @@ import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 
 public class PicturesActivity extends BaseActivity {
@@ -76,14 +78,17 @@ public class PicturesActivity extends BaseActivity {
         private final int DELETE_COMMENT_MENU = 1;
         private Picture picture;
         private ImageView pictureView;
+        private ImageView pictureIsPotd;
         private TextView picturePseudo;
         private TextView pictureTheme;
+        private TextView pictureDate;
         private TextView picturePositiveVote;
         private TextView pictureNegativeVote;
         private TextView pictureCommentCount;
+        private TextView pictureCommentEmpty;
         private View pictureLoadbar;
         private ListView comments;
-        private Button addComment;
+        private FloatingActionButton addComment;
         private View pictureVote;
         private User me;
         private CommentArrayAdapter commentAdapter;
@@ -107,18 +112,35 @@ public class PicturesActivity extends BaseActivity {
             this.pictureView = (ImageView)rootView.findViewById(R.id.picture);
             this.picturePseudo = (TextView)rootView.findViewById(R.id.picture_pseudo);
             this.pictureTheme = (TextView)rootView.findViewById(R.id.picture_theme);
+            this.pictureDate = (TextView)rootView.findViewById(R.id.picture_date);
             this.picturePositiveVote = (TextView)rootView.findViewById(R.id.picture_positive_vote);
             this.pictureNegativeVote = (TextView)rootView.findViewById(R.id.picture_negative_vote);
             this.pictureLoadbar = rootView.findViewById(R.id.picture_loadbar);
             this.pictureCommentCount = (TextView)rootView.findViewById(R.id.picture_comment_count);
+            this.pictureCommentEmpty = (TextView)rootView.findViewById(R.id.picture_comment_empty);
             this.comments = (ListView) rootView.findViewById(R.id.picture_comments);
-            this.addComment = (Button) rootView.findViewById(R.id.comment_add);
+            this.addComment = (FloatingActionButton) rootView.findViewById(R.id.fab);
+            this.pictureIsPotd = (ImageView)rootView.findViewById(R.id.is_potd);
 
             this.pictureVote = rootView.findViewById(R.id.vote);
+
+            if(this.picture.isPotd())
+                this.pictureIsPotd.setVisibility(View.VISIBLE);
 
             this.me = ApplicationHelper.getCurrentUser(this.getContext());
             this.commentAdapter = new CommentArrayAdapter(this.getContext(), R.layout.comment_row, this.picture.getComments());
             this.comments.setAdapter(this.commentAdapter);
+
+            this.comments.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    return false;
+                }
+            });
+
+            if(this.picture.getComments().size() == 0)
+                this.pictureCommentEmpty.setVisibility(View.VISIBLE);
 
             this.pictureVote.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -143,22 +165,19 @@ public class PicturesActivity extends BaseActivity {
                 LayoutInflater inflater = PictureFragment.this.getActivity().getLayoutInflater();
                 View alertLayout = inflater.inflate(R.layout.add_comment, null);
                 final EditText commentText = (EditText) alertLayout.findViewById(R.id.add_comment_text);
-
-                //commentText.setHint(R.string.comment_placeholder);
-
                 new AlertDialog.Builder(PictureFragment.this.getContext())
-                        .setTitle(R.string.comment)
-                        .setView(R.layout.add_comment)
-                        .setPositiveButton(R.string.comment_add, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                AddCommentTask addComment = new AddCommentTask(PictureFragment.this.picture.getId(), commentText.getText().toString(), PictureFragment.this.getContext(), PictureFragment.this);
-                                addComment.execute();
-                            }
-                        })
-                        .setNegativeButton(R.string.comment_cancel, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {}
-                        })
-                        .show();
+                    .setTitle(R.string.comment)
+                    .setView(alertLayout)
+                    .setPositiveButton(R.string.comment_add, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {
+                            AddCommentTask addComment = new AddCommentTask(PictureFragment.this.picture.getId(), commentText.getText().toString(), PictureFragment.this.getContext(), PictureFragment.this);
+                            addComment.execute();
+                        }
+                    })
+                    .setNegativeButton(R.string.comment_cancel, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int whichButton) {}
+                    })
+                    .show();
                 }
             });
 
@@ -169,7 +188,12 @@ public class PicturesActivity extends BaseActivity {
 
         private void updateImage(){
             this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getContext(), this.picture.getUser().getPseudo()));
-            this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme()));
+            this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
+
+            DateFormat formater = android.text.format.DateFormat.getDateFormat(getContext());
+            this.pictureDate.setText(formater.format(this.picture.getTheme().getCandidateDate().getTime()));
+            this.pictureIsPotd.setVisibility(this.picture.isPotd()?View.VISIBLE:View.GONE);
+
             this.picturePositiveVote.setText(String.valueOf(this.picture.getPositiveVote()));
             this.pictureNegativeVote.setText(String.valueOf(this.picture.getNegativeVote()));
             this.updateCommentCount();
@@ -190,7 +214,7 @@ public class PicturesActivity extends BaseActivity {
                 Comment comment = (Comment) response;
                 this.picture.getComments().add(0, comment);
                 this.commentAdapter.notifyDataSetChanged();
-
+                this.updateCommentCount();
             }
         }
 
@@ -221,8 +245,6 @@ public class PicturesActivity extends BaseActivity {
             super.onCreateContextMenu(menu, v, menuInfo);
 
             switch(v.getId()){
-                case R.id.picture:
-                break;
                 case R.id.picture_comments:
                     AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
                     Comment comment = this.commentAdapter.getItem(info.position);
@@ -248,6 +270,25 @@ public class PicturesActivity extends BaseActivity {
 
         private void updateCommentCount(){
             this.pictureCommentCount.setText(String.valueOf(this.picture.getComments().size()));
+            this.pictureCommentEmpty.setVisibility((this.picture.getComments().size() > 0)?View.GONE:View.VISIBLE);
+            this.setListViewHeightBasedOnChildren(this.comments);
+        }
+
+        public void setListViewHeightBasedOnChildren(ListView listView) {
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+            int totalHeight = 0;
+            View view = null;
+            for (int i = 0; i < this.commentAdapter.getCount(); i++) {
+                view = this.commentAdapter.getView(i, view, listView);
+                if (i == 0)
+                    view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, ViewPager.LayoutParams.WRAP_CONTENT));
+
+                view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                totalHeight += view.getMeasuredHeight();
+            }
+            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            params.height = totalHeight + (listView.getDividerHeight() * (this.commentAdapter.getCount() - 1));
+            listView.setLayoutParams(params);
         }
     }
 
@@ -274,7 +315,7 @@ public class PicturesActivity extends BaseActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return this.pictures.get(0).getTheme();
+            return this.pictures.get(0).getTheme().getName();
         }
     }
 }

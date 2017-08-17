@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.text.ParseException;
 import java.util.Calendar;
 
 
@@ -47,14 +46,10 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
     public GetImageTask(Context context, ImageView imageView, View progressBar, Calendar date){
         this(context, imageView, progressBar);
-        this.url = ApiHelper.URL_POTD+ApiHelper.RES_FORMAT.format(date.getTime());
+        this.url = ApiHelper.URL_POTD+ApplicationHelper.convertDateToString(date, false);
 
-        try {
-            this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
-            this.cache = new File(context.getExternalCacheDir(), this.name);
-        } catch (ParseException e) {
-            this.name = "";
-        }
+        this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
+        this.cache = new File(context.getExternalCacheDir(), this.name);
     }
 
     public GetImageTask(Context context, ImageView imageView, View progressBar, int id){
@@ -62,7 +57,9 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         this.url = ApiHelper.URL_PICTURE+ id;
 
         this.name = id+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
-        this.cache = new File(context.getExternalCacheDir(), this.name);
+
+        File[] dirs = context.getExternalCacheDirs();
+        this.cache = new File(dirs[dirs.length -1].getPath(), this.name);
     }
 
     @Override
@@ -94,6 +91,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
             InputStream input = connection.getInputStream();
             return this.decodeBitmap(input, connection.getContentLength());
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         } finally {
             if(connection != null)

@@ -1,43 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_home"
+<ScrollView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context="com.jessy_barthelemy.pictothemo.Activities.HomeActivity">
-
-    <LinearLayout
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <RelativeLayout
+        android:id="@+id/activity_home"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/layout_pictures">
-        <include layout="@layout/picture_layout"/>
-    </LinearLayout>
+        android:layout_height="wrap_content">
 
-    <TextView
-        style="@style/TitleTheme"
-        android:id="@+id/home_theme_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/layout_pictures"/>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/home_theme_title">
-        <android.support.v7.widget.AppCompatButton
-            android:theme="@style/ColoredButtonAccent"
-            android:id="@+id/home_theme_1"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/layout_pictures">
+            <include layout="@layout/picture_layout"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/TitleTheme"
+            android:id="@+id/home_theme_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/button_min_width"
-            android:enabled="false"/>
-        <android.support.v7.widget.AppCompatButton
-            android:theme="@style/ColoredButtonBase"
-            android:id="@+id/home_theme_2"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/layout_pictures"/>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/button_min_width"
-            android:enabled="false"/>
-    </LinearLayout>
-</RelativeLayout>
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/home_theme_title">
+            <android.support.v7.widget.AppCompatButton
+                android:theme="@style/ColoredButtonAccent"
+                android:id="@+id/home_theme_1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/button_min_width"
+                android:enabled="false"/>
+            <android.support.v7.widget.AppCompatButton
+                android:theme="@style/ColoredButtonBase"
+                android:id="@+id/home_theme_2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="@dimen/button_min_width"
+                android:enabled="false"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true">
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_margin="@dimen/fab_margin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                app:srcCompat="@drawable/ic_menu_camera"
+                app:backgroundTint="#ffffff" />
+        </LinearLayout>
+    </RelativeLayout>
+</ScrollView>

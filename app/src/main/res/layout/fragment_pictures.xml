@@ -1,41 +1,55 @@
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/picture_layout"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <LinearLayout
+        android:id="@+id/picture_layout"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+        <include layout="@layout/picture_layout"/>
+    </LinearLayout>
 
-        <Button
-            android:id="@+id/comment_add"
-            android:layout_width="@dimen/circle_button"
-            android:layout_height="@dimen/circle_button"
-            android:background="@drawable/circle_button"
-            android:text="+"
-            android:textColor="@android:color/white"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="@dimen/little_space"
-            />
+    <TextView
+        style="@style/TitleTheme"
+        android:id="@+id/picture_comment_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/comment"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/picture_layout"/>
 
-        <TextView
-            style="@style/TitleTheme"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/comment"
-            android:layout_centerHorizontal="true"/>
-
-    </RelativeLayout>
+    <TextView
+        android:id="@+id/picture_comment_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pas encore de commentaire"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/picture_comment_title"
+        android:visibility="gone"/>
 
     <ListView
         android:id="@+id/picture_comments"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:layout_below="@id/picture_comment_title">
     </ListView>
 
-</LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_margin="@dimen/fab_margin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            app:srcCompat="@drawable/ic_add"
+            app:backgroundTint="#ffffff" />
+    </LinearLayout>
+
+</RelativeLayout>
