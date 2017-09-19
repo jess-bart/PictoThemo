@@ -45,19 +45,29 @@
                 android:enabled="false"/>
         </LinearLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true">
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fab"
-                android:layout_margin="@dimen/fab_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|end"
                 app:srcCompat="@drawable/ic_menu_camera"
-                app:backgroundTint="#ffffff" />
-        </LinearLayout>
+                app:backgroundTint="#ffffff"
+                android:layout_margin="@dimen/fab_margin"/>
+
+            <ProgressBar
+                android:id="@+id/upload_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"
+                android:visibility="gone"
+                android:layout_margin="@dimen/fab_margin"
+                />
+        </FrameLayout>
     </RelativeLayout>
 </ScrollView>

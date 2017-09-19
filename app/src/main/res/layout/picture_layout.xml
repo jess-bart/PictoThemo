@@ -15,12 +15,14 @@
             android:scaleType="centerCrop"
             android:adjustViewBounds="true"
             android:src="@drawable/loading"/>
+
         <View
-            android:id="@+id/picture_loadbar"
+            android:id="@+id/loadbar"
             android:layout_width="0dp"
             android:layout_height="5dp"
             android:background="@color/colorPrimary"
             android:layout_gravity="bottom|left"/>
+
         <TextView
             android:id="@+id/picture_theme"
             android:layout_marginBottom="@dimen/little_space"

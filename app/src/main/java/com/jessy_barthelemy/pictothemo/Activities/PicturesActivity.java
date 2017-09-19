@@ -115,7 +115,7 @@ public class PicturesActivity extends BaseActivity {
             this.pictureDate = (TextView)rootView.findViewById(R.id.picture_date);
             this.picturePositiveVote = (TextView)rootView.findViewById(R.id.picture_positive_vote);
             this.pictureNegativeVote = (TextView)rootView.findViewById(R.id.picture_negative_vote);
-            this.pictureLoadbar = rootView.findViewById(R.id.picture_loadbar);
+            this.pictureLoadbar = rootView.findViewById(R.id.loadbar);
             this.pictureCommentCount = (TextView)rootView.findViewById(R.id.picture_comment_count);
             this.pictureCommentEmpty = (TextView)rootView.findViewById(R.id.picture_comment_empty);
             this.comments = (ListView) rootView.findViewById(R.id.picture_comments);

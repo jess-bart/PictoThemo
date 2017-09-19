@@ -60,4 +60,10 @@
     <string name="ending_date">Ending date</string>
     <string name="vote_count">Vote count</string>
 
+    <!-- Upload -->
+    <string name="upload_success">Picture successfully uploaded.</string>
+    <string name="upload_error">Cannot upload picture.</string>
+    <string name="upload_format_error">Picture format not allowed.</string>
+    <string name="upload_size_error">Picture too big (max 10mo).</string>
+
 </resources>

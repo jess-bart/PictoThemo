@@ -37,8 +37,8 @@ import java.util.ArrayList;
 public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IAsyncResponse, IAsyncApiObjectResponse {
 
-    public static final int SAVE_PICTURE_MENU = 2;
-    public static final int SAVE_PICTURE_DESTINATION = 3;
+    private static final int SAVE_PICTURE_MENU = 2;
+    private static final int SAVE_PICTURE_DESTINATION = 3;
     private ImageView pictureToSave;
 
     @Override
@@ -109,12 +109,10 @@ public class BaseActivity extends AppCompatActivity
     public boolean onContextItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case SAVE_PICTURE_MENU:
-
                 Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/png");
                 startActivityForResult(intent, SAVE_PICTURE_DESTINATION);
-
                 return true;
             default:
                 return super.onContextItemSelected(item);

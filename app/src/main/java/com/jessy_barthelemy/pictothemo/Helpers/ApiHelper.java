@@ -12,6 +12,7 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Enum.CommentResult;
+import com.jessy_barthelemy.pictothemo.Enum.UploadResult;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 
 import org.json.JSONArray;
@@ -20,7 +21,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -61,6 +64,8 @@ public class ApiHelper {
     private static final String CANDIDATE_DATE = "candidate_date";
 
     private static final String SUCCESS = "success";
+    private static final String FORMAT_ERROR = "format";
+    private static final String SIZE_ERROR = "size";
     private static final String ALREADY_COMMENTED = "already_commented";
 
     public static final String POSITIVE_VOTE = "positive";
@@ -187,14 +192,15 @@ public class ApiHelper {
         if(method.equals(HttpVerb.POST.toString()) || method.equals(HttpVerb.PUT.toString())){
             http.setDoOutput(true);
             http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            OutputStream os = http.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-            if(parameters != null)
-                writer.write(parameters.build().getEncodedQuery());
+             if(parameters != null){
+                 OutputStream os = http.getOutputStream();
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                 writer.write(parameters.build().getEncodedQuery());
 
-            writer.flush();
-            writer.close();
-            os.close();
+                 writer.flush();
+                 writer.close();
+                 os.close();
+             }
         }
 
         http.connect();
@@ -210,7 +216,6 @@ public class ApiHelper {
             response.append(inputLine);
         }
         in.close();
-        String temp = response.toString();
         return new JSONObject(response.toString());
     }
 
@@ -432,5 +437,67 @@ public class ApiHelper {
         }
 
         return result;
+    }
+
+    public UploadResult uploadFile(InputStream fileInputStream, String filename) throws IOException, JSONException, ParseException {
+
+        String lineEnd = "\r\n";
+        String twoHyphens = "--";
+        String boundary =  "*****";
+
+        URL url = new URL(URL_PICTURE);
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod(HttpVerb.POST.toString());
+        http.setReadTimeout(15000);
+        http.setConnectTimeout(15000);
+
+        int read, bytesAvailable, bufferSize;
+        byte[] buffer;
+        int maxBufferSize = 1048576;
+
+        http = (HttpURLConnection) url.openConnection();
+
+        http.setDoInput(true);
+        http.setDoOutput(true);
+        http.setUseCaches(false);
+        http.setRequestProperty("Connection", "Keep-Alive");
+        http.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
+        http.setRequestProperty("Authorization", this.tokensInfos.getAccessToken());
+
+        DataOutputStream dos = new DataOutputStream(http.getOutputStream());
+
+        dos.writeBytes(twoHyphens + boundary + lineEnd);
+        dos.writeBytes("Content-Disposition: form-data; name=\"picture\";filename=\"" + filename +"\"" + lineEnd);
+        dos.writeBytes(lineEnd);
+
+        bytesAvailable = fileInputStream.available();
+        bufferSize = Math.min(bytesAvailable, maxBufferSize);
+        buffer = new byte[bufferSize];
+
+        while ((read = fileInputStream.read(buffer)) != -1) {
+            dos.write(buffer, 0, read);
+        }
+
+        dos.writeBytes(lineEnd);
+        dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+        if(http.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            JSONObject result = this.getJSONResponse(http);
+
+            fileInputStream.close();
+            dos.flush();
+            dos.close();
+
+            if(result != null && result.length() == 0 )
+                return UploadResult.ERROR;
+            else if (result.has(FORMAT_ERROR))
+                return UploadResult.FORMAT_ERROR;
+            else if (result.has(SIZE_ERROR))
+                return UploadResult.SIZE_ERROR;
+            else if (result.has(SUCCESS) && result.getBoolean(SUCCESS))
+                return UploadResult.SUCCESS;
+        }
+
+        return UploadResult.ERROR;
     }
 }

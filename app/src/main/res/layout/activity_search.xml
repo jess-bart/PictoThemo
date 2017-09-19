@@ -86,13 +86,28 @@
             android:calendarViewShown="false"
             android:background="@color/lightGrey"/>
 
-        <Button
-            android:id="@+id/search_action"
-            android:theme="@style/ColoredButtonAccent"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/search"
-            android:layout_gravity="center_horizontal"
-            android:layout_margin="@dimen/little_space"/>
+            android:layout_margin="@dimen/little_space"
+            android:layout_gravity="center_horizontal">
+            <Button
+                android:id="@+id/search_action"
+                android:theme="@style/ColoredButtonAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/search" />
+            <ProgressBar
+                android:id="@+id/search_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minHeight="20dip"
+                android:maxHeight="20dip"
+                android:indeterminate="true"
+                android:layout_centerInParent="true"
+                android:translationZ="3dp"
+                android:visibility="gone"
+                android:indeterminateTint="@android:color/white"/>
+        </RelativeLayout>
     </LinearLayout>
 </ScrollView>

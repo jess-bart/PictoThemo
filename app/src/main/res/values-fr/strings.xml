@@ -54,4 +54,10 @@
     <string name="starting_date">Date de départ</string>
     <string name="ending_date">Date de fin</string>
     <string name="vote_count">Nombre de vote</string>
+
+    <!-- Upload -->
+    <string name="upload_success">Image correctement envoyée</string>
+    <string name="upload_error">Impossible d\'envoyer l\'image.</string>
+    <string name="upload_format_error">Format d\'image non autorisé</string>
+    <string name="upload_size_error">Image trop lourde (max 10mo)</string>
 </resources>

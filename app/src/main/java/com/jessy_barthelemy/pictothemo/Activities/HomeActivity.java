@@ -4,8 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatButton;
@@ -13,6 +17,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
@@ -21,6 +26,7 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetThemeTask;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.UploadPictureTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.VoteThemeTask;
 import com.jessy_barthelemy.pictothemo.Dialogs.VoteDialog;
@@ -30,6 +36,7 @@ import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,6 +44,8 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class HomeActivity extends BaseActivity implements IAsyncApiObjectResponse, IVoteResponse {
+
+    private static final int UPLOAD_PICTURE = 4;
 
     private int theme1;
     private int theme2;
@@ -54,6 +63,8 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     private boolean localRequest;
     private ImageView pictureImg;
     private View pictureLoadbar;
+    private View uploadProgress;
+    private FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +88,10 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.pictureImg = (ImageView)findViewById(R.id.is_potd);
         this.pictureImg.setVisibility(View.VISIBLE);
 
-        this.pictureLoadbar = findViewById(R.id.picture_loadbar);
+        this.pictureLoadbar = findViewById(R.id.loadbar);
+        this.uploadProgress = findViewById(R.id.upload_progress);
+
+        this.fab = (FloatingActionButton) findViewById(R.id.fab);
 
         GetImageTask imageTask = new GetImageTask(this, this.pictureView, pictureLoadbar, Calendar.getInstance());
         imageTask.execute();
@@ -120,6 +134,18 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                 voteTask.execute();
             }
         });
+
+        this.fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("image/*");
+                startActivityForResult(intent, UPLOAD_PICTURE);
+            }
+        });
+
+        this.registerForContextMenu(HomeActivity.this.pictureView);
     }
 
     private void setThemeButtonColor(boolean theme1){
@@ -168,7 +194,9 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
 
     @Override
     public void asyncTaskSuccess(Object response) {
-        if(response instanceof PictureList){
+        if(response instanceof String){
+            Toast.makeText(this, response.toString(), Toast.LENGTH_LONG).show();
+        }else if(response instanceof PictureList){
             //if the request was not made by HomeActivity lets BaseActivity handle it
             if(this.localRequest) {
                 this.localRequest = false;
@@ -185,7 +213,7 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
             }else
                 super.asyncTaskSuccess(response);
 
-        }if(response instanceof Picture){
+        }else if(response instanceof Picture){
             this.picture = (Picture)response;
             this.updatePicture();
         }else if(response instanceof ThemeList){
@@ -234,13 +262,38 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == ApplicationHelper.UPDATE_PICTURE){
-            Bundle args = data.getBundleExtra(ApplicationHelper.EXTRA_PICTURES_LIST);
-            if(args == null)
-                return;
 
-            this.picture = (Picture) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
-            this.updatePicture();
+        switch(requestCode){
+            case  ApplicationHelper.UPDATE_PICTURE:
+                Bundle args = data.getBundleExtra(ApplicationHelper.EXTRA_PICTURES_LIST);
+                if(args == null)
+                    return;
+
+                this.picture = (Picture) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
+                this.updatePicture();
+                break;
+            case UPLOAD_PICTURE:
+                if (data != null) {
+                    Uri picturePath = data.getData();
+
+                    try{
+                        InputStream in = getContentResolver().openInputStream(picturePath);
+                        Cursor filenameCursor = getContentResolver().query(picturePath, null, null, null, null);
+
+                        if(filenameCursor != null && filenameCursor.moveToFirst())
+                        {
+                            this.fab.setVisibility(View.GONE);
+                            this.uploadProgress.setVisibility(View.VISIBLE);
+                            String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this, this);
+                            uploadTask.execute();
+                        }else
+                            Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                    }catch (Exception e){
+                        Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                    }
+                }
+                break;
         }
     }
 

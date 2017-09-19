@@ -1,11 +1,13 @@
 package com.jessy_barthelemy.pictothemo.Activities;
 
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
@@ -24,6 +26,7 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
     private CheckBox potd;
     private DatePicker startingDate;
     private DatePicker endingDate;
+    private ProgressBar searchProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +41,15 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
         this.potd = (CheckBox) this.findViewById(R.id.search_potd);
         this.startingDate = (DatePicker) this.findViewById(R.id.search_starting_date);
         this.endingDate = (DatePicker) this.findViewById(R.id.search_ending_date);
+        this.searchProgress = (ProgressBar) this.findViewById(R.id.search_progress);
 
         this.search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SearchActivity.this.search.setTextColor(ContextCompat.getColor(SearchActivity.this, android.R.color.transparent));
                 SearchActivity.this.search.setEnabled(false);
+                SearchActivity.this.searchProgress.setVisibility(View.VISIBLE);
+
                 Calendar startingCalendar = SearchActivity.this.getDate(SearchActivity.this.startingDate);
                 Calendar endingCalendar = SearchActivity.this.getDate(SearchActivity.this.endingDate);
                 String user = SearchActivity.this.user.getText().toString();
@@ -85,13 +92,16 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
 
     @Override
     public void asyncTaskSuccess(Object response) {
-        SearchActivity.this.search.setEnabled(true);
+        this.search.setEnabled(true);
+        this.searchProgress.setVisibility(View.GONE);
+        this.search.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+
         super.asyncTaskSuccess(response);
     }
 
     @Override
     public void asyncTaskFail(String errorMessage) {
-        SearchActivity.this.search.setEnabled(false);
+        this.search.setEnabled(true);
         super.asyncTaskFail(errorMessage);
     }
 }
