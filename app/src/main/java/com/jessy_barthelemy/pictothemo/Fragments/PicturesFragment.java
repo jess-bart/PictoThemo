@@ -1,13 +1,13 @@
-package com.jessy_barthelemy.pictothemo.Activities;
+package com.jessy_barthelemy.pictothemo.Fragments;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.view.ContextMenu;
@@ -21,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,30 +36,44 @@ import com.jessy_barthelemy.pictothemo.Dialogs.VoteDialog;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.Interfaces.IBackPressedEventHandler;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 
-public class PicturesActivity extends BaseActivity {
+public class PicturesFragment extends BaseFragment implements IBackPressedEventHandler{
 
     private SectionsPagerAdapter sectionsPagerAdapter;
     private ViewPager viewPager;
+    private ArrayList<Picture> pictures;
+    private static PicturesFragment picturesFragment;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        RelativeLayout contentFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
-        getLayoutInflater().inflate(R.layout.activity_pictures, contentFrameLayout);
+    public void setPictures(ArrayList<Picture> pictures){
+        this.pictures = pictures;
+    }
 
-        this.sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-        this.viewPager = (ViewPager) findViewById(R.id.pictures_container);
-        this.viewPager.setAdapter(this.sectionsPagerAdapter);
+    public static PicturesFragment getInstance(){
+        if(picturesFragment == null)
+            picturesFragment = new PicturesFragment();
+
+        return picturesFragment;
     }
 
     @Override
-    public void onBackPressed() {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_pictures_vp, container, false);
+
+        this.sectionsPagerAdapter = new SectionsPagerAdapter(this.getChildFragmentManager(), this.pictures);
+        this.viewPager = (ViewPager) view.findViewById(R.id.pictures_container);
+        this.viewPager.setAdapter(this.sectionsPagerAdapter);
+
+        return view;
+    }
+
+    @Override
+    public void handleBackPress() {
         Picture picture = ((PictureFragment)this.sectionsPagerAdapter.getItem(this.viewPager.getCurrentItem())).getPicture();
 
         Intent intent = new Intent();
@@ -69,8 +82,7 @@ public class PicturesActivity extends BaseActivity {
         intent.putExtra(ApplicationHelper.EXTRA_PICTURES_LIST, args);
 
 
-        this.setResult(ApplicationHelper.UPDATE_PICTURE, intent);
-        super.onBackPressed();
+        this.getActivity().setResult(ApplicationHelper.UPDATE_PICTURE, intent);
     }
 
     public static class PictureFragment extends Fragment implements IAsyncApiObjectResponse, IVoteResponse, IAsyncResponse{
@@ -127,8 +139,8 @@ public class PicturesActivity extends BaseActivity {
             if(this.picture.isPotd())
                 this.pictureIsPotd.setVisibility(View.VISIBLE);
 
-            this.me = ApplicationHelper.getCurrentUser(this.getContext());
-            this.commentAdapter = new CommentArrayAdapter(this.getContext(), R.layout.comment_row, this.picture.getComments());
+            this.me = ApplicationHelper.getCurrentUser(this.getActivity());
+            this.commentAdapter = new CommentArrayAdapter(this.getActivity(), R.layout.comment_row, this.picture.getComments());
             this.comments.setAdapter(this.commentAdapter);
 
             this.comments.setOnTouchListener(new View.OnTouchListener() {
@@ -154,7 +166,7 @@ public class PicturesActivity extends BaseActivity {
             this.getActivity().getWindowManager().getDefaultDisplay().getSize(wSize);
             this.pictureView.setMaxHeight(wSize.x);
 
-            GetImageTask imageTask = new GetImageTask(this.getContext(), this.pictureView, this.pictureLoadbar, this.picture.getId());
+            GetImageTask imageTask = new GetImageTask(this.getActivity(), this.pictureView, this.pictureLoadbar, this.picture.getId(), false);
             imageTask.execute();
 
             this.updateImage();
@@ -165,12 +177,12 @@ public class PicturesActivity extends BaseActivity {
                 LayoutInflater inflater = PictureFragment.this.getActivity().getLayoutInflater();
                 View alertLayout = inflater.inflate(R.layout.add_comment, null);
                 final EditText commentText = (EditText) alertLayout.findViewById(R.id.add_comment_text);
-                new AlertDialog.Builder(PictureFragment.this.getContext())
+                new AlertDialog.Builder(PictureFragment.this.getActivity())
                     .setTitle(R.string.comment)
                     .setView(alertLayout)
                     .setPositiveButton(R.string.comment_add, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int whichButton) {
-                            AddCommentTask addComment = new AddCommentTask(PictureFragment.this.picture.getId(), commentText.getText().toString(), PictureFragment.this.getContext(), PictureFragment.this);
+                            AddCommentTask addComment = new AddCommentTask(PictureFragment.this.picture.getId(), commentText.getText().toString(), PictureFragment.this.getActivity(), PictureFragment.this);
                             addComment.execute();
                         }
                     })
@@ -187,10 +199,10 @@ public class PicturesActivity extends BaseActivity {
         }
 
         private void updateImage(){
-            this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getContext(), this.picture.getUser().getPseudo()));
+            this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getActivity(), this.picture.getUser().getPseudo()));
             this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
 
-            DateFormat formater = android.text.format.DateFormat.getDateFormat(getContext());
+            DateFormat formater = android.text.format.DateFormat.getDateFormat(this.getActivity());
             this.pictureDate.setText(formater.format(this.picture.getTheme().getCandidateDate().getTime()));
             this.pictureIsPotd.setVisibility(this.picture.isPotd()?View.VISIBLE:View.GONE);
 
@@ -201,7 +213,7 @@ public class PicturesActivity extends BaseActivity {
 
         @Override
         public void asyncTaskSuccess(boolean positive) {
-            VotePictureTask voteTask = new VotePictureTask(PictureFragment.this.picture, positive, this.getContext(), this);
+            VotePictureTask voteTask = new VotePictureTask(PictureFragment.this.picture, positive, this.getActivity(), this);
             voteTask.execute();
         }
 
@@ -233,7 +245,7 @@ public class PicturesActivity extends BaseActivity {
 
         @Override
         public void asyncTaskFail(String errorMessage) {
-            Toast.makeText(this.getContext(), errorMessage, Toast.LENGTH_LONG).show();
+            Toast.makeText(this.getActivity(), errorMessage, Toast.LENGTH_LONG).show();
         }
 
         public Picture getPicture(){
@@ -260,7 +272,7 @@ public class PicturesActivity extends BaseActivity {
         public boolean onContextItemSelected(MenuItem item) {
             switch (item.getItemId()) {
                 case DELETE_COMMENT_MENU:
-                    DeleteCommentTask deleteTask = new DeleteCommentTask(this.picture.getId(), this.getContext(), this);
+                    DeleteCommentTask deleteTask = new DeleteCommentTask(this.picture.getId(), this.getActivity(), this);
                     deleteTask.execute();
                     return true;
                 default:
@@ -296,11 +308,9 @@ public class PicturesActivity extends BaseActivity {
 
         private ArrayList<Picture> pictures;
 
-        SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-
-            Bundle args = getIntent().getBundleExtra(ApplicationHelper.EXTRA_PICTURES_LIST);
-            this.pictures = (ArrayList<Picture>) args.getSerializable(ApplicationHelper.EXTRA_PICTURES_LIST);
+        SectionsPagerAdapter(FragmentManager fragmentManager, ArrayList<Picture> pictures) {
+            super(fragmentManager);
+            this.pictures = pictures;
         }
 
         @Override

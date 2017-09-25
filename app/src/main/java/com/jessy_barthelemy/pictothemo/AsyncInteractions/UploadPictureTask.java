@@ -51,8 +51,10 @@ public class UploadPictureTask extends AsyncTask<Void, Integer, UploadResult> {
 
     @Override
     protected void onPostExecute(UploadResult result) {
-        this.progressBar.setVisibility(View.GONE);
-        this.fab.setVisibility(View.VISIBLE);
+        if(this.fab != null && this.progressBar != null){
+            this.progressBar.setVisibility(View.GONE);
+            this.fab.setVisibility(View.VISIBLE);
+        }
 
         if(result == UploadResult.SUCCESS)
             this.delegate.asyncTaskSuccess(this.context.getResources().getString(R.string.upload_success));

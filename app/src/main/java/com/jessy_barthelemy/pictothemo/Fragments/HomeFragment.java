@@ -1,4 +1,4 @@
-package com.jessy_barthelemy.pictothemo.Activities;
+package com.jessy_barthelemy.pictothemo.Fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,12 +13,14 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatButton;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.Activities.BaseActivity;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
@@ -32,7 +34,6 @@ import com.jessy_barthelemy.pictothemo.AsyncInteractions.VoteThemeTask;
 import com.jessy_barthelemy.pictothemo.Dialogs.VoteDialog;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
-import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
@@ -43,7 +44,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
-public class HomeActivity extends BaseActivity implements IAsyncApiObjectResponse, IVoteResponse {
+public class HomeFragment extends BaseFragment implements IVoteResponse {
 
     private static final int UPLOAD_PICTURE = 4;
 
@@ -67,33 +68,31 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     private FloatingActionButton fab;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        RelativeLayout contentFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
-        getLayoutInflater().inflate(R.layout.activity_home, contentFrameLayout);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        this.pictureView = (ImageView)findViewById(R.id.picture);
-        this.picturePseudo = (TextView)findViewById(R.id.picture_pseudo);
-        this.pictureTheme = (TextView)findViewById(R.id.picture_theme);
-        this.pictureDate = (TextView)findViewById(R.id.picture_date);
+        this.pictureView = (ImageView)view.findViewById(R.id.picture);
+        this.picturePseudo = (TextView)view.findViewById(R.id.picture_pseudo);
+        this.pictureTheme = (TextView)view.findViewById(R.id.picture_theme);
+        this.pictureDate = (TextView)view.findViewById(R.id.picture_date);
 
-        this.picturePositiveVote = (TextView)findViewById(R.id.picture_positive_vote);
-        this.pictureNegativeVote = (TextView)findViewById(R.id.picture_negative_vote);
-        this.pictureVote = findViewById(R.id.vote);
-        this.pictureCommentCount = (TextView)findViewById(R.id.picture_comment_count);
+        this.picturePositiveVote = (TextView)view.findViewById(R.id.picture_positive_vote);
+        this.pictureNegativeVote = (TextView)view.findViewById(R.id.picture_negative_vote);
+        this.pictureVote = view.findViewById(R.id.vote);
+        this.pictureCommentCount = (TextView)view.findViewById(R.id.picture_comment_count);
 
-        this.theme1Button = (AppCompatButton) findViewById(R.id.home_theme_1);
-        this.theme2Button = (AppCompatButton)findViewById(R.id.home_theme_2);
+        this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
+        this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
 
-        this.pictureImg = (ImageView)findViewById(R.id.is_potd);
+        this.pictureImg = (ImageView)view.findViewById(R.id.is_potd);
         this.pictureImg.setVisibility(View.VISIBLE);
 
-        this.pictureLoadbar = findViewById(R.id.loadbar);
-        this.uploadProgress = findViewById(R.id.upload_progress);
+        this.pictureLoadbar = view.findViewById(R.id.loadbar);
+        this.uploadProgress = view.findViewById(R.id.upload_progress);
 
-        this.fab = (FloatingActionButton) findViewById(R.id.fab);
+        this.fab = (FloatingActionButton) view.findViewById(R.id.fab);
 
-        GetImageTask imageTask = new GetImageTask(this, this.pictureView, pictureLoadbar, Calendar.getInstance());
+        GetImageTask imageTask = new GetImageTask(this.getActivity(), this.pictureView, pictureLoadbar, Calendar.getInstance(), false);
         imageTask.execute();
 
         this.localRequest = true;
@@ -112,16 +111,16 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
 
         GetThemeTask themeTask = new GetThemeTask(themeDay, this);
         themeTask.execute();
-        this.theme1Button = (AppCompatButton) findViewById(R.id.home_theme_1);
-        this.theme2Button = (AppCompatButton)findViewById(R.id.home_theme_2);
-        TextView themeTitle = (TextView)findViewById(R.id.home_theme_title);
+        this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
+        this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
+        TextView themeTitle = (TextView)view.findViewById(R.id.home_theme_title);
         themeTitle.setText(getResources().getString(R.string.theme_title, dateFormat.format(themeDay.getTime())));
 
         this.theme1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeActivity.this.setThemeButtonColor(true);
-                VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme1, HomeActivity.this, HomeActivity.this);
+                HomeFragment.this.setThemeButtonColor(true);
+                VoteThemeTask voteTask = new VoteThemeTask(HomeFragment.this.theme1, HomeFragment.this.getActivity(), HomeFragment.this);
                 voteTask.execute();
             }
         });
@@ -129,8 +128,8 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.theme2Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeActivity.this.setThemeButtonColor(false);
-                VoteThemeTask voteTask = new VoteThemeTask(HomeActivity.this.theme2, HomeActivity.this, HomeActivity.this);
+                HomeFragment.this.setThemeButtonColor(false);
+                VoteThemeTask voteTask = new VoteThemeTask(HomeFragment.this.theme2, HomeFragment.this.getActivity(), HomeFragment.this);
                 voteTask.execute();
             }
         });
@@ -145,24 +144,26 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
             }
         });
 
-        this.registerForContextMenu(HomeActivity.this.pictureView);
+        this.registerForContextMenu(HomeFragment.this.pictureView);
+
+        return view;
     }
 
     private void setThemeButtonColor(boolean theme1){
-        ColorStateList disabled = ContextCompat.getColorStateList(HomeActivity.this, R.color.colorDisabled);
+        ColorStateList disabled = ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorDisabled);
         if(theme1){
-            ViewCompat.setBackgroundTintList(this.theme1Button, ContextCompat.getColorStateList(HomeActivity.this, R.color.colorAccent));
+            ViewCompat.setBackgroundTintList(this.theme1Button, ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorAccent));
             ViewCompat.setBackgroundTintList(this.theme2Button, disabled);
         }else{
             ViewCompat.setBackgroundTintList(this.theme1Button, disabled);
-            ViewCompat.setBackgroundTintList(this.theme2Button, ContextCompat.getColorStateList(HomeActivity.this, R.color.colorPrimary));
+            ViewCompat.setBackgroundTintList(this.theme2Button, ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorPrimary));
         }
     }
 
     protected void updatePicture(){
-        this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this, this.picture.getUser().getPseudo()));
+        this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getActivity(), this.picture.getUser().getPseudo()));
         this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
-        DateFormat formater = android.text.format.DateFormat.getDateFormat(this);
+        DateFormat formater = android.text.format.DateFormat.getDateFormat(this.getActivity());
         this.pictureDate.setText(formater.format(this.picture.getTheme().getCandidateDate().getTime()));
 
         this.picturePositiveVote.setText(String.valueOf(this.picture.getPositiveVote()));
@@ -172,7 +173,7 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.pictureVote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                VoteDialog dialog = new VoteDialog(HomeActivity.this, HomeActivity.this);
+                VoteDialog dialog = new VoteDialog(HomeFragment.this.getActivity(), HomeFragment.this);
                 dialog.show();
             }
         });
@@ -180,14 +181,14 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
         this.pictureCommentCount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            HomeActivity.this.openPOTD();
+            ((BaseActivity)HomeFragment.this.getActivity()).openPOTD(HomeFragment.this.picture);
             }
         });
 
         this.pictureView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            HomeActivity.this.openPOTD();
+            ((BaseActivity)HomeFragment.this.getActivity()).openPOTD(HomeFragment.this.picture);
             }
         });
     }
@@ -195,9 +196,9 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
     @Override
     public void asyncTaskSuccess(Object response) {
         if(response instanceof String){
-            Toast.makeText(this, response.toString(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this.getActivity(), response.toString(), Toast.LENGTH_LONG).show();
         }else if(response instanceof PictureList){
-            //if the request was not made by HomeActivity lets BaseActivity handle it
+            //if the request was not made by HomeFragment lets BaseActivity handle it
             if(this.localRequest) {
                 this.localRequest = false;
 
@@ -211,7 +212,7 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                 this.updatePicture();
 
             }else
-                super.asyncTaskSuccess(response);
+                ((BaseActivity)getActivity()).asyncTaskSuccess(response);
 
         }else if(response instanceof Picture){
             this.picture = (Picture)response;
@@ -228,17 +229,17 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                 this.theme1Button.setEnabled(true);
                 this.theme2Button.setEnabled(true);
 
-                SharedPreferences settings = this.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
+                SharedPreferences settings = this.getActivity().getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
                 boolean theme1enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme1, false);
                 boolean theme2enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme2, false);
 
                 if(theme1enabled || theme2enabled)
-                    HomeActivity.this.setThemeButtonColor(theme1enabled);
+                    HomeFragment.this.setThemeButtonColor(theme1enabled);
             }
         }else if(response instanceof Theme){
             Theme theme = (Theme)response;
 
-            SharedPreferences settings = this.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
+            SharedPreferences settings = this.getActivity().getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
             SharedPreferences.Editor editor = settings.edit();
 
             editor.putBoolean(ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(theme.getId()), true);
@@ -246,17 +247,6 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
             editor.remove((this.theme1 == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1));
             editor.apply();
         }
-    }
-
-    private void openPOTD(){
-        Intent intent = new Intent(this, PicturesActivity.class);
-
-        ArrayList<Picture> pictures = new ArrayList<>();
-        pictures.add(this.picture);
-        Bundle args = new Bundle();
-        args.putSerializable(ApplicationHelper.EXTRA_PICTURES_LIST, pictures);
-        intent.putExtra(ApplicationHelper.EXTRA_PICTURES_LIST, args);
-        startActivityForResult(intent, ApplicationHelper.UPDATE_PICTURE);
     }
 
     @Override
@@ -277,20 +267,20 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
                     Uri picturePath = data.getData();
 
                     try{
-                        InputStream in = getContentResolver().openInputStream(picturePath);
-                        Cursor filenameCursor = getContentResolver().query(picturePath, null, null, null, null);
+                        InputStream in = getActivity().getContentResolver().openInputStream(picturePath);
+                        Cursor filenameCursor = getActivity().getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
                         {
                             this.fab.setVisibility(View.GONE);
                             this.uploadProgress.setVisibility(View.VISIBLE);
                             String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this, this);
+                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this.getActivity(), this);
                             uploadTask.execute();
                         }else
-                            Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                            Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG);
                     }catch (Exception e){
-                        Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                        Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG);
                     }
                 }
                 break;
@@ -299,7 +289,7 @@ public class HomeActivity extends BaseActivity implements IAsyncApiObjectRespons
 
     @Override
     public void asyncTaskSuccess(boolean positive) {
-        VotePictureTask voteTask = new VotePictureTask(this.picture, positive, this, this);
+        VotePictureTask voteTask = new VotePictureTask(this.picture, positive, this.getActivity(), this);
         voteTask.execute();
     }
 }

@@ -6,6 +6,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="android.permission.SET_WALLPAPER_HINTS" />
 
     <application
         android:allowBackup="true"
@@ -23,20 +25,10 @@
         <activity
             android:name=".Activities.BaseActivity"
             android:label="@string/picture_of_the_day"
-            android:noHistory="true"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Activities.HomeActivity" />
         <activity
-            android:name=".Activities.PicturesActivity"
-            android:screenOrientation="portrait"
-            android:label="@string/title_activity_pictures"
-            android:parentActivityName=".Activities.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.jessy_barthelemy.pictothemo.Activities.HomeActivity" />
-        </activity>
-        <activity android:name=".Activities.SearchActivity"></activity>
+            android:name=".Fragments.SettingsFragment"
+            android:label="@string/title_activity_settings_fragment"></activity>
     </application>
 
 </manifest>

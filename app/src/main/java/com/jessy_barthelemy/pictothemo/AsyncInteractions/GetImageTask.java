@@ -1,5 +1,6 @@
 package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -36,24 +37,26 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     private String name;
     private int screenWidth;
     private File cache;
+    private boolean setAsWallpaper;
 
-    public GetImageTask(Context context, ImageView imageView, View progressBar){
+    public GetImageTask(Context context, ImageView imageView, View progressBar, boolean setAsWallpaper){
         this.imageView = imageView;
         this.progressBar = progressBar;
         this.context = context;
         this.screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
+        this.setAsWallpaper = setAsWallpaper;
     }
 
-    public GetImageTask(Context context, ImageView imageView, View progressBar, Calendar date){
-        this(context, imageView, progressBar);
+    public GetImageTask(Context context, ImageView imageView, View progressBar, Calendar date, boolean setAsWallpaper){
+        this(context, imageView, progressBar, setAsWallpaper);
         this.url = ApiHelper.URL_POTD+ApplicationHelper.convertDateToString(date, false);
 
         this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
         this.cache = new File(context.getExternalCacheDir(), this.name);
     }
 
-    public GetImageTask(Context context, ImageView imageView, View progressBar, int id){
-        this(context, imageView, progressBar);
+    public GetImageTask(Context context, ImageView imageView, View progressBar, int id, boolean setAsWallpaper){
+        this(context, imageView, progressBar, setAsWallpaper);
         this.url = ApiHelper.URL_PICTURE+ id;
 
         this.name = id+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
@@ -131,6 +134,14 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
     @Override
     protected void onPostExecute(final Bitmap image) {
+
+        if(setAsWallpaper){
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(this.context.getApplicationContext());
+            try {
+                wallpaperManager.setBitmap(image);
+            } catch (IOException e) {}
+        }
+
         this.progressBar.setVisibility(View.GONE);
         Animation fadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);
         this.imageView.startAnimation(fadeOut);

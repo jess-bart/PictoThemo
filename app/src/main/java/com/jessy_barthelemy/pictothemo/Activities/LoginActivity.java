@@ -159,7 +159,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.password.setErrorEnabled(false);
         this.password.setError(null);
 
-        Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
+        Intent intent = new Intent(getApplicationContext(), BaseActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

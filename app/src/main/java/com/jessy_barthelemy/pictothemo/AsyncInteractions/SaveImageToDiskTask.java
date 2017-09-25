@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.io.OutputStream;
 public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
     private Bitmap image;
     private OutputStream stream;
-    private IAsyncResponse delegate;
+    private IAsyncApiObjectResponse delegate;
     private Context context;
 
     public SaveImageToDiskTask(Bitmap image, OutputStream stream){
@@ -21,7 +21,7 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
         this.stream = stream;
     }
 
-    public SaveImageToDiskTask(Bitmap image, OutputStream stream, Context context, IAsyncResponse delegate){
+    public SaveImageToDiskTask(Bitmap image, OutputStream stream, Context context, IAsyncApiObjectResponse delegate){
         this.image = image;
         this.stream = stream;
         this.delegate = delegate;
@@ -48,7 +48,7 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
             return;
 
         if(result)
-            this.delegate.asyncTaskSuccess();
+            this.delegate.asyncTaskSuccess(this.context.getResources().getString(R.string.save_picture_success));
         else
             this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.save_picture_error));
     }

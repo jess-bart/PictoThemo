@@ -1,14 +1,15 @@
-package com.jessy_barthelemy.pictothemo.Activities;
+package com.jessy_barthelemy.pictothemo.Fragments;
 
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -17,7 +18,7 @@ import com.jessy_barthelemy.pictothemo.R;
 
 import java.util.Calendar;
 
-public class SearchActivity extends BaseActivity implements IAsyncApiObjectResponse {
+public class SearchFragment extends BaseFragment implements IAsyncApiObjectResponse {
 
     private Button search;
     private EditText user;
@@ -29,40 +30,38 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
     private ProgressBar searchProgress;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        RelativeLayout contentFrameLayout = (RelativeLayout) findViewById(R.id.content_main);
-        getLayoutInflater().inflate(R.layout.activity_search, contentFrameLayout);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_search, container, false);
 
-        this.search = (Button)this.findViewById(R.id.search_action);
-        this.user = (EditText)this.findViewById(R.id.search_user);
-        this.theme = (EditText)this.findViewById(R.id.search_theme);
-        this.voteCount = (EditText)this.findViewById(R.id.search_voteCount);
-        this.potd = (CheckBox) this.findViewById(R.id.search_potd);
-        this.startingDate = (DatePicker) this.findViewById(R.id.search_starting_date);
-        this.endingDate = (DatePicker) this.findViewById(R.id.search_ending_date);
-        this.searchProgress = (ProgressBar) this.findViewById(R.id.search_progress);
+        this.search = (Button)view.findViewById(R.id.search_action);
+        this.user = (EditText)view.findViewById(R.id.search_user);
+        this.theme = (EditText)view.findViewById(R.id.search_theme);
+        this.voteCount = (EditText)view.findViewById(R.id.search_voteCount);
+        this.potd = (CheckBox) view.findViewById(R.id.search_potd);
+        this.startingDate = (DatePicker) view.findViewById(R.id.search_starting_date);
+        this.endingDate = (DatePicker) view.findViewById(R.id.search_ending_date);
+        this.searchProgress = (ProgressBar) view.findViewById(R.id.search_progress);
 
         this.search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SearchActivity.this.search.setTextColor(ContextCompat.getColor(SearchActivity.this, android.R.color.transparent));
-                SearchActivity.this.search.setEnabled(false);
-                SearchActivity.this.searchProgress.setVisibility(View.VISIBLE);
+                SearchFragment.this.search.setTextColor(ContextCompat.getColor(SearchFragment.this.getActivity(), android.R.color.transparent));
+                SearchFragment.this.search.setEnabled(false);
+                SearchFragment.this.searchProgress.setVisibility(View.VISIBLE);
 
-                Calendar startingCalendar = SearchActivity.this.getDate(SearchActivity.this.startingDate);
-                Calendar endingCalendar = SearchActivity.this.getDate(SearchActivity.this.endingDate);
-                String user = SearchActivity.this.user.getText().toString();
-                String theme = SearchActivity.this.theme.getText().toString();
-                String voteCountStr = SearchActivity.this.voteCount.getText().toString();
+                Calendar startingCalendar = SearchFragment.this.getDate(SearchFragment.this.startingDate);
+                Calendar endingCalendar = SearchFragment.this.getDate(SearchFragment.this.endingDate);
+                String user = SearchFragment.this.user.getText().toString();
+                String theme = SearchFragment.this.theme.getText().toString();
+                String voteCountStr = SearchFragment.this.voteCount.getText().toString();
                 Integer voteCount = voteCountStr.isEmpty()? null : Integer.parseInt(voteCountStr);
 
                 String flags = ApiHelper.FLAG_COMMENTS;
-                if(SearchActivity.this.potd.isChecked())
+                if(SearchFragment.this.potd.isChecked())
                     flags += "|"+ApiHelper.FLAG_POTD;
                 GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startingCalendar, endingCalendar,
                                                             theme, user, voteCount, flags
-                                                            , SearchActivity.this);
+                                                            , SearchFragment.this);
                 getPicturesInfosTask.execute();
             }
         });
@@ -72,11 +71,13 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
         this.startingDate.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
-                Calendar date = SearchActivity.this.getDate(datePicker);
-                SearchActivity.this.endingDate.setMinDate(0);
-                SearchActivity.this.endingDate.setMinDate(date.getTimeInMillis());
+                Calendar date = SearchFragment.this.getDate(datePicker);
+                SearchFragment.this.endingDate.setMinDate(0);
+                SearchFragment.this.endingDate.setMinDate(date.getTimeInMillis());
             }
         });
+
+        return view;
     }
 
     private Calendar getDate(DatePicker datePicker){
@@ -94,7 +95,7 @@ public class SearchActivity extends BaseActivity implements IAsyncApiObjectRespo
     public void asyncTaskSuccess(Object response) {
         this.search.setEnabled(true);
         this.searchProgress.setVisibility(View.GONE);
-        this.search.setTextColor(ContextCompat.getColor(this, android.R.color.white));
+        this.search.setTextColor(ContextCompat.getColor(this.getActivity(), android.R.color.white));
 
         super.asyncTaskSuccess(response);
     }
