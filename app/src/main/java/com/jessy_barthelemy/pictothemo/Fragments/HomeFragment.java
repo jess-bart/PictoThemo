@@ -62,8 +62,6 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     private TextView pictureCommentCount;
     private Picture picture;
     private boolean localRequest;
-    private ImageView pictureImg;
-    private View pictureLoadbar;
     private View uploadProgress;
     private FloatingActionButton fab;
 
@@ -84,10 +82,10 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
 
-        this.pictureImg = (ImageView)view.findViewById(R.id.is_potd);
-        this.pictureImg.setVisibility(View.VISIBLE);
+        ImageView pictureImg = (ImageView) view.findViewById(R.id.is_potd);
+        pictureImg.setVisibility(View.VISIBLE);
 
-        this.pictureLoadbar = view.findViewById(R.id.loadbar);
+        View pictureLoadbar = view.findViewById(R.id.loadbar);
         this.uploadProgress = view.findViewById(R.id.upload_progress);
 
         this.fab = (FloatingActionButton) view.findViewById(R.id.fab);
@@ -265,10 +263,10 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
             case UPLOAD_PICTURE:
                 if (data != null) {
                     Uri picturePath = data.getData();
-
+                    Cursor filenameCursor = null;
                     try{
                         InputStream in = getActivity().getContentResolver().openInputStream(picturePath);
-                        Cursor filenameCursor = getActivity().getContentResolver().query(picturePath, null, null, null, null);
+                        filenameCursor = getActivity().getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
                         {
@@ -278,9 +276,12 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                             UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this.getActivity(), this);
                             uploadTask.execute();
                         }else
-                            Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG);
+                            Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG).show();
                     }catch (Exception e){
-                        Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG);
+                        Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG).show();
+                    }finally {
+                        if(filenameCursor != null)
+                            filenameCursor.close();
                     }
                 }
                 break;

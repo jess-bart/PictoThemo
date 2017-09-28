@@ -47,6 +47,8 @@ public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IAsyncApiObjectResponse {
 
     private static final int SAVE_PICTURE_MENU = 2;
+    private static final int SET_WALLPAPER_MENU = 3;
+
     private static final int SAVE_PICTURE_DESTINATION = 3;
     private static final int UPLOAD_PICTURE_MENU = 5;
     private static final String CURRENT_FRAGMENT = "CURRENT";
@@ -141,6 +143,7 @@ public class BaseActivity extends AppCompatActivity
                 this.pictureToSave = (ImageView)v;
                 menu.setHeaderTitle(R.string.picture);
                 menu.add(Menu.NONE, SAVE_PICTURE_MENU, Menu.NONE, R.string.save_picture);
+                menu.add(Menu.NONE, SET_WALLPAPER_MENU, Menu.NONE, R.string.set_as_wallaper);
                 break;
         }
     }
@@ -153,6 +156,10 @@ public class BaseActivity extends AppCompatActivity
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
                 intent.setType("image/png");
                 startActivityForResult(intent, SAVE_PICTURE_DESTINATION);
+                return true;
+            case SET_WALLPAPER_MENU:
+                BitmapDrawable pictureDrawable = (BitmapDrawable) this.pictureToSave.getDrawable();
+                ApplicationHelper.setWallpaper(this, pictureDrawable.getBitmap());
                 return true;
             default:
                 return super.onContextItemSelected(item);

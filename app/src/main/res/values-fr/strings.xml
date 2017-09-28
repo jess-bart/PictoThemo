@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Global -->
     <string name="network_unavalaible">Veuillez activer internet.</string>
     <string name="picture_of_the_day">Image du jour</string>
@@ -26,6 +25,7 @@
     <string name="nav_preferences">Préférences</string>
     <string name="navigation_drawer_open">Ouvrir le menu</string>
     <string name="navigation_drawer_close">Fermer le menu</string>
+    <string name="set_as_wallaper">Definir comme fond d\'écran</string>
 
     <!-- Picture -->
     <string name="user_unknow">Anonyme</string>
@@ -60,4 +60,8 @@
     <string name="upload_error">Impossible d\'envoyer l\'image.</string>
     <string name="upload_format_error">Format d\'image non autorisé</string>
     <string name="upload_size_error">Image trop lourde (max 10mo)</string>
+
+    <!-- Settings -->
+    <string name="settings_wallpaper_title">Fond d\'ecran</string>
+    <string name="settings_wallpaper_summary">Change votre fond ecran avec l\'image du jour dès qu\'internet est allumé.</string>
 </resources>

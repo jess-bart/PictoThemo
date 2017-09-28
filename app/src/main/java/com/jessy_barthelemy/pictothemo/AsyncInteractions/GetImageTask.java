@@ -1,11 +1,12 @@
 package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
-import android.app.WallpaperManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.animation.Animation;
@@ -26,7 +27,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 
 public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
@@ -128,6 +132,8 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
+        if(this.progressBar == null)
+            return;
         this.progressBar.getLayoutParams().width = (values[0]*this.screenWidth)/100;
         this.progressBar.requestLayout();
     }
@@ -135,36 +141,42 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     @Override
     protected void onPostExecute(final Bitmap image) {
 
-        if(setAsWallpaper){
-            WallpaperManager wallpaperManager = WallpaperManager.getInstance(this.context.getApplicationContext());
-            try {
-                wallpaperManager.setBitmap(image);
-            } catch (IOException e) {}
+        if(this.setAsWallpaper){
+            ApplicationHelper.setWallpaper(context, image);
+            SimpleDateFormat dateFormat = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT, Locale.getDefault());
+            String today = dateFormat.format(new Date());
+
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(GetImageTask.this.context);
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(ApplicationHelper.PREF_WALLPAPER_DATE, today);
+            editor.apply();
         }
 
-        this.progressBar.setVisibility(View.GONE);
-        Animation fadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);
-        this.imageView.startAnimation(fadeOut);
+        if(this.progressBar != null){
+            this.progressBar.setVisibility(View.GONE);
+            Animation fadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);
+            this.imageView.startAnimation(fadeOut);
 
-        fadeOut.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {}
+            fadeOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if(image != null){
-                    GetImageTask.this.imageView.setImageBitmap(image);
-                }else{
-                    GetImageTask.this.imageView.setImageDrawable(ContextCompat.getDrawable(GetImageTask.this.context, R.drawable.error));
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    if(image != null){
+                        GetImageTask.this.imageView.setImageBitmap(image);
+                    }else{
+                        GetImageTask.this.imageView.setImageDrawable(ContextCompat.getDrawable(GetImageTask.this.context, R.drawable.error));
+                    }
+
+                    Animation anim = AnimationUtils.loadAnimation(GetImageTask.this.context, R.anim.fade_in);
+                    GetImageTask.this.imageView.startAnimation(anim);
                 }
 
-                Animation anim = AnimationUtils.loadAnimation(GetImageTask.this.context, R.anim.fade_in);
-                GetImageTask.this.imageView.startAnimation(anim);
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {}
-        });
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+        }
 
         if(this.cache != null && !this.cache.isFile()){
             SaveImageToDiskTask saveTask = null;
@@ -174,4 +186,6 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
             saveTask.execute();
         }
     }
+
+
 }

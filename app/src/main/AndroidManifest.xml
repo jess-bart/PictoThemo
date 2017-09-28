@@ -26,9 +26,13 @@
             android:name=".Activities.BaseActivity"
             android:label="@string/picture_of_the_day"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Fragments.SettingsFragment"
-            android:label="@string/title_activity_settings_fragment"></activity>
+
+        <receiver
+            android:name=".BroadcastReceiver.NetworkReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

@@ -1,20 +1,29 @@
 package com.jessy_barthelemy.pictothemo.Helpers;
 
+import android.app.WallpaperInfo;
+import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class ApplicationHelper {
@@ -29,10 +38,11 @@ public class ApplicationHelper {
     public static final String PICTOTHEMO_PREFS = "PICTOTHEMO_PREFS";
     public static final String THEME_PREFS_PREFIX = "theme";
     public static final String EXTRA_PICTURES_LIST = "pictures";
+    public static final String PREF_WALLPAPER_DATE = "wallpaperLastChange";
 
     public static final String DEFAULT_PICTURE_FORMAT = ".png";
 
-    private static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
+    public static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
     private static final String MYSQL_DATE_LONG_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     //Static helper methods
@@ -128,5 +138,56 @@ public class ApplicationHelper {
             return ctx.getResources().getString(R.string.user_unknow);
         else
             return pseudo;
+    }
+
+    /*wallpaper*/
+    private static void refreshWallpaper(Context context) {
+        try {
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
+            WallpaperInfo wallpaperInfo = wallpaperManager.getWallpaperInfo();
+
+            if (wallpaperInfo == null) {
+                Drawable wallpaper = wallpaperManager.getDrawable();
+                Bitmap wallpaperBitmap = drawableToBitmap(wallpaper);
+                wallpaperManager.setBitmap(wallpaperBitmap);
+            }
+        } catch (Exception e) {}
+    }
+
+    private static Bitmap drawableToBitmap(Drawable drawable) {
+        if (drawable instanceof BitmapDrawable)
+            return ((BitmapDrawable) drawable).getBitmap();
+
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+        drawable.draw(canvas);
+
+        return bitmap;
+    }
+
+    public static boolean hasToChangeBackgroundToday(Context context, boolean wallpaperPreference){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String lastWallpaperDate = prefs.getString(PREF_WALLPAPER_DATE, null);
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat(MYSQL_DATE_FORMAT, Locale.getDefault());
+        String today = dateFormat.format(new Date());
+
+        return (prefs.getBoolean(context.getString(R.string.settings_wallpaper_key), false) || wallpaperPreference) && !today.equals(lastWallpaperDate);
+    }
+
+    public static void setWallpaper(final Context context, final Bitmap image){
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+            WallpaperManager wallpaperManager = WallpaperManager.getInstance(context.getApplicationContext());
+            try {
+                wallpaperManager.setBitmap(image);
+                refreshWallpaper(context);
+            } catch (IOException e) {}
+            }
+        };
+
+        thread.start();
     }
 }
