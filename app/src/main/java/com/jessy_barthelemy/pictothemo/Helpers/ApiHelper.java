@@ -4,7 +4,6 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Comment;
-import com.jessy_barthelemy.pictothemo.ApiObjects.HttpVerb;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
@@ -12,6 +11,7 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Enum.CommentResult;
+import com.jessy_barthelemy.pictothemo.Enum.HttpVerb;
 import com.jessy_barthelemy.pictothemo.Enum.UploadResult;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 
@@ -46,7 +46,7 @@ public class ApiHelper {
     public static final String THEME_NAME = "name";
     public static final String ID = "id";
     public static final String PSEUDO = "pseudo";
-    public static final String FLAGS = "flags";
+    private static final String FLAGS = "flags";
     private static final String PASSWORD = "password";
     private static final String USER_ID = "userID";
     private static final String THEME = "theme";
@@ -81,9 +81,9 @@ public class ApiHelper {
     private static final String URL_PICTURE_INFO = URL_API+"/PictureInfo";
     private static final String URL_PICTURE_VOTE = URL_API+"/PictureVote";
     private static final String URL_THEMES = URL_API+"/Theme";
-    private final String URL_AUTHENTICATION = URL_API+"/Authentication";
-    private final String URL_COMMENT = URL_API+"/Comment";
-    private final String URL_USERS = URL_API+"/User";
+    private static final String URL_AUTHENTICATION = URL_API+"/Authentication";
+    private static final String URL_COMMENT = URL_API+"/Comment";
+    private static final String URL_USERS = URL_API+"/User";
 
     private TokenInformations tokensInfos;
 
@@ -274,7 +274,7 @@ public class ApiHelper {
 
                     positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE)?pictureObj.getInt(ApiHelper.POSITIVE_VOTE):0;
                     negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE)?pictureObj.getInt(ApiHelper.NEGATIVE_VOTE):0;
-                    potd = pictureObj.has(ApiHelper.POTD)?pictureObj.getInt(ApiHelper.POTD) > 0:false;
+                    potd = pictureObj.has(ApiHelper.POTD) && pictureObj.getInt(ApiHelper.POTD) > 0;
 
                     picture = new Picture(id, new Theme(pictureTheme, date), new User(userID, pseudo), positiveVote, negativeVote, potd);
 
@@ -299,9 +299,7 @@ public class ApiHelper {
                 throw new InvalidParameterException();
             }
         }catch (IOException | JSONException e) {
-            //bugfix, sometimes catch fired with null exception...
-            if(e != null)
-                return null;
+            return null;
         } finally {
             if(http != null)
                 http.disconnect();
@@ -324,12 +322,14 @@ public class ApiHelper {
                 if(response.length() == 0)
                     return null;
 
+                String name;
                 JSONArray themes = response.getJSONArray(ApiHelper.ENTITY_THEMES);
                 for (int i = 0, len = themes.length();i < len; i++) {
                     JSONObject theme = themes.getJSONObject(i);
                     int id = theme.has(ApiHelper.ID)?theme.getInt(ApiHelper.ID):0;
-                    String name = theme.has(ApiHelper.THEME_NAME)?theme.getString(ApiHelper.THEME_NAME):"";
-                    themeList.add(new Theme(id, name));
+                    name = theme.has(ApiHelper.THEME_NAME)?theme.getString(ApiHelper.THEME_NAME):"";
+                    date = theme.has(ApiHelper.CANDIDATE_DATE)?theme.getString(ApiHelper.CANDIDATE_DATE):"";
+                    themeList.add(new Theme(id, name, ApplicationHelper.convertStringToDate(date, false)));
                 }
 
                 return new ThemeList(themeList);
@@ -484,11 +484,14 @@ public class ApiHelper {
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK) {
             JSONObject result = this.getJSONResponse(http);
 
+            if(result == null)
+                return UploadResult.ERROR;
+
             fileInputStream.close();
             dos.flush();
             dos.close();
 
-            if(result != null && result.length() == 0 )
+            if(result.length() == 0 )
                 return UploadResult.ERROR;
             else if (result.has(FORMAT_ERROR))
                 return UploadResult.FORMAT_ERROR;

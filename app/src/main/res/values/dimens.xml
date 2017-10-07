@@ -12,6 +12,7 @@
     <dimen name="nav_header_height">160dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="little_space">6dp</dimen>
+    <dimen name="options_hor_padding">16dp</dimen>
     <dimen name="button_min_width">140dp</dimen>
     <dimen name="appbar_padding_top">8dp</dimen>
 

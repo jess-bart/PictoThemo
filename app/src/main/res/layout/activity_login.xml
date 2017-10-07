@@ -11,6 +11,7 @@
     tools:context="com.jessy_barthelemy.pictothemo.Activities.LoginActivity">
 
     <ImageView
+        android:contentDescription="@string/content_loading"
         android:id="@+id/loader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,7 +26,6 @@
 
         android:orientation="vertical"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
 
         <android.support.v7.widget.AppCompatImageView

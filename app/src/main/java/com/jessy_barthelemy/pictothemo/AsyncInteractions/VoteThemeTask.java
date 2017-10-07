@@ -14,10 +14,10 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
     private Context context;
     /*reference to the class that want a success callback*/
     private IAsyncApiObjectResponse delegate;
-    private int themeID;
+    private Theme theme;
 
-    public VoteThemeTask(int themeID, Context context, IAsyncApiObjectResponse delegate){
-        this.themeID = themeID;
+    public VoteThemeTask(Theme theme, Context context, IAsyncApiObjectResponse delegate){
+        this.theme = theme;
         this.context = context;
         if(delegate != null)
             this.delegate = delegate;
@@ -27,7 +27,7 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
     protected Boolean doInBackground(String... params) {
         ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
         try {
-            return helper.voteForTheme(this.themeID);
+            return helper.voteForTheme(this.theme.getId());
         } catch (Exception e) {
             return false;
         }
@@ -36,8 +36,8 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
     @Override
     protected void onPostExecute(Boolean success) {
         if(success)
-            this.delegate.asyncTaskSuccess(new Theme(this.themeID, null));
+            this.delegate.asyncTaskSuccess(new Theme(this.theme.getId(), null));
         else
-            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.theme_vote_error));
+            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.theme_vote_error, this.theme.getName()));
     }
 }

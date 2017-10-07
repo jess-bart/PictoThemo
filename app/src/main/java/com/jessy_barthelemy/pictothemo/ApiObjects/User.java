@@ -6,7 +6,7 @@ public class User implements Serializable {
     private int id;
     private String pseudo;
 
-    public User(){}
+    User(){}
 
     public User(int id, String pseudo){
         this.id = id;

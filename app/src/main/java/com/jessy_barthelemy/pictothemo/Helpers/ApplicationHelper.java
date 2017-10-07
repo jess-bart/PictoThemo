@@ -86,6 +86,9 @@ public class ApplicationHelper {
     }
 
     public static TokenInformations getTokenInformations(Context context){
+        if(context == null)
+            return null;
+
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         String accessToken = settings.getString(ApplicationHelper.USER_TOKEN_PREF, "");
         String expiresToken = settings.getString(ApplicationHelper.USER_EXPIRES_TOKEN_PREF, "");
@@ -117,7 +120,7 @@ public class ApplicationHelper {
         context.startActivity(i);
     }
 
-    public static Calendar convertStringToDate(String date, boolean longFormat){
+    static Calendar convertStringToDate(String date, boolean longFormat){
         SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
         Calendar calendar = Calendar.getInstance();
         try {
@@ -151,7 +154,7 @@ public class ApplicationHelper {
                 Bitmap wallpaperBitmap = drawableToBitmap(wallpaper);
                 wallpaperManager.setBitmap(wallpaperBitmap);
             }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
     }
 
     private static Bitmap drawableToBitmap(Drawable drawable) {
@@ -184,7 +187,7 @@ public class ApplicationHelper {
             try {
                 wallpaperManager.setBitmap(image);
                 refreshWallpaper(context);
-            } catch (IOException e) {}
+            } catch (IOException ignored) {}
             }
         };
 

@@ -16,7 +16,7 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
     private IAsyncApiObjectResponse delegate;
     private Context context;
 
-    public SaveImageToDiskTask(Bitmap image, OutputStream stream){
+    SaveImageToDiskTask(Bitmap image, OutputStream stream){
         this.image = image;
         this.stream = stream;
     }
@@ -37,7 +37,7 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
 
         try {
             this.stream.close();
-        } catch (IOException e) {}
+        } catch (IOException ignored) {}
 
         return false;
     }

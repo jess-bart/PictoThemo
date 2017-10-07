@@ -8,6 +8,7 @@
         android:background="@color/colorPrimary"
         android:layout_marginBottom="@dimen/little_space">
         <ImageView
+            android:contentDescription="@string/content_loading"
             android:id="@+id/picture"
             android:layout_width="match_parent"
             android:layout_height="@dimen/picture_height"
@@ -21,16 +22,16 @@
             android:layout_width="0dp"
             android:layout_height="5dp"
             android:background="@color/colorPrimary"
-            android:layout_gravity="bottom|left"/>
+            android:layout_gravity="bottom|start"/>
 
         <TextView
             android:id="@+id/picture_theme"
             android:layout_marginBottom="@dimen/little_space"
-            android:layout_marginLeft="@dimen/little_space"
+            android:layout_marginStart="@dimen/little_space"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             style="@style/ThemeOverlay"
-            android:layout_gravity="bottom|left"/>
+            android:layout_gravity="bottom|start"/>
     </FrameLayout>
     <RelativeLayout
         android:layout_width="match_parent"
@@ -45,41 +46,42 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_toStartOf="@+id/picture_stats">
             <ImageView
+                android:contentDescription="@string/content_user_picture"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_account_circle"
-                android:layout_marginRight="@dimen/little_space"/>
+                android:layout_marginEnd="@dimen/little_space"/>
             <TextView
                 android:id="@+id/picture_pseudo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorAccent"
                 android:ellipsize="end"
-                android:maxLines="1"
-                android:layout_alignParentLeft="true" />
+                android:maxLines="1"/>
         </LinearLayout>
         <LinearLayout
             android:id="@+id/picture_stats"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:gravity="center">
 
             <TextView
                 android:id="@+id/picture_comment_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0"
+                android:text="@string/default_int_value"
                 android:textColor="@color/colorPrimary"/>
             <ImageView
+                android:contentDescription="@string/content_comment_count"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@mipmap/comment"
-                android:paddingRight="15dp"
-                android:paddingLeft="@dimen/little_space"/>
+                android:paddingEnd="15dp"
+                android:paddingStart="@dimen/little_space"/>
 
             <LinearLayout
                 android:id="@+id/vote"
@@ -90,9 +92,10 @@
                     android:id="@+id/picture_positive_vote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/default_int_value"
                     android:textColor="@color/colorAccent"/>
                 <ImageView
+                    android:contentDescription="@string/content_negative_count"
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:src="@mipmap/logo_transparent"
@@ -102,7 +105,7 @@
                     android:id="@+id/picture_negative_vote"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
+                    android:text="@string/default_int_value"
                     android:textColor="@color/colorPrimary"/>
             </LinearLayout>
         </LinearLayout>
@@ -111,11 +114,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/profil"
-            android:layout_alignParentLeft="true"
-            android:paddingLeft="@dimen/little_space"
+            android:layout_alignParentStart="true"
+            android:paddingStart="@dimen/little_space"
+            android:paddingEnd="@dimen/little_space"
             android:gravity="center_vertical">
 
             <ImageView
+                android:contentDescription="@string/content_is_potd"
                 android:id="@+id/is_potd"
                 android:layout_width="20dp"
                 android:layout_height="20dp"

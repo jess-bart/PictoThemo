@@ -7,4 +7,5 @@
     <color name="colorDate">#d3d1d1</color>
     <color name="lightGrey">#f0eded</color>
     <color name="textShadow">#555454</color>
+    <color name="optionsFilter">#80D9D2D2</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.jessy_barthelemy.pictothemo.ApiObjects;
+package com.jessy_barthelemy.pictothemo.Enum;
 
 public enum HttpVerb {
     GET("GET"), PUT("PUT"), POST("POST"), DELETE("DELETE");

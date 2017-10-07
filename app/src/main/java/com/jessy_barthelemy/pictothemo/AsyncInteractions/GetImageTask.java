@@ -43,7 +43,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     private File cache;
     private boolean setAsWallpaper;
 
-    public GetImageTask(Context context, ImageView imageView, View progressBar, boolean setAsWallpaper){
+    private GetImageTask(Context context, ImageView imageView, View progressBar, boolean setAsWallpaper){
         this.imageView = imageView;
         this.progressBar = progressBar;
         this.context = context;
@@ -56,7 +56,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         this.url = ApiHelper.URL_POTD+ApplicationHelper.convertDateToString(date, false);
 
         this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
-        this.cache = new File(context.getExternalCacheDir(), this.name);
+        this.cache = this.getCacheDir();
     }
 
     public GetImageTask(Context context, ImageView imageView, View progressBar, int id, boolean setAsWallpaper){
@@ -64,9 +64,15 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         this.url = ApiHelper.URL_PICTURE+ id;
 
         this.name = id+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
+        this.cache = this.getCacheDir();
+    }
 
+    private File getCacheDir(){
         File[] dirs = context.getExternalCacheDirs();
-        this.cache = new File(dirs[dirs.length -1].getPath(), this.name);
+        if(dirs[dirs.length -1] != null){
+            return new File(dirs[dirs.length -1].getPath(), this.name);
+        }else
+            return new File(context.getExternalCacheDir(), this.name);
     }
 
     @Override
@@ -90,7 +96,8 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
     private Bitmap getImageFromInternet(){
         HttpURLConnection connection = null;
-        this.cache.delete();
+        if(this.cache != null)
+            this.cache.delete();
 
         try {
             connection = (HttpURLConnection)new URL(this.url).openConnection();
@@ -179,11 +186,10 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         }
 
         if(this.cache != null && !this.cache.isFile()){
-            SaveImageToDiskTask saveTask = null;
             try {
-                saveTask = new SaveImageToDiskTask(image, new FileOutputStream(this.cache.getAbsolutePath()));
-            } catch (FileNotFoundException e) {}
-            saveTask.execute();
+                SaveImageToDiskTask saveTask = new SaveImageToDiskTask(image, new FileOutputStream(this.cache.getAbsolutePath()));
+                saveTask.execute();
+            } catch (FileNotFoundException ignored) {}
         }
     }
 

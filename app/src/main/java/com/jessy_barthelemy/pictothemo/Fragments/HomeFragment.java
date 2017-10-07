@@ -3,15 +3,14 @@ package com.jessy_barthelemy.pictothemo.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.ColorStateList;
 import android.database.Cursor;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -48,9 +47,10 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
     private static final int UPLOAD_PICTURE = 4;
 
-    private int theme1;
-    private int theme2;
+    private Theme theme1;
+    private Theme theme2;
     private ImageView pictureView;
+    private AppCompatButton voteThemeButton;
     private AppCompatButton theme1Button;
     private AppCompatButton theme2Button;
     private TextView picturePseudo;
@@ -79,6 +79,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.pictureVote = view.findViewById(R.id.vote);
         this.pictureCommentCount = (TextView)view.findViewById(R.id.picture_comment_count);
 
+        this.voteThemeButton = (AppCompatButton)view.findViewById(R.id.home_vote);
         this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
 
@@ -114,6 +115,16 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         TextView themeTitle = (TextView)view.findViewById(R.id.home_theme_title);
         themeTitle.setText(getResources().getString(R.string.theme_title, dateFormat.format(themeDay.getTime())));
 
+        this.voteThemeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Calendar tomorrow = Calendar.getInstance();
+                tomorrow.add(Calendar.DATE, 1);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, ApiHelper.FLAG_COMMENTS, HomeFragment.this);
+                getPicturesInfosTask.execute();
+            }
+        });
+
         this.theme1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -148,13 +159,13 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     }
 
     private void setThemeButtonColor(boolean theme1){
-        ColorStateList disabled = ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorDisabled);
+        int disabled = ContextCompat.getColor(HomeFragment.this.getActivity(), R.color.colorDisabled);
         if(theme1){
-            ViewCompat.setBackgroundTintList(this.theme1Button, ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorAccent));
-            ViewCompat.setBackgroundTintList(this.theme2Button, disabled);
+            this.theme1Button.getBackground().setColorFilter(ContextCompat.getColor(HomeFragment.this.getActivity(), R.color.colorAccent), PorterDuff.Mode.SRC);
+            this.theme2Button.getBackground().setColorFilter(disabled, PorterDuff.Mode.SRC);
         }else{
-            ViewCompat.setBackgroundTintList(this.theme1Button, disabled);
-            ViewCompat.setBackgroundTintList(this.theme2Button, ContextCompat.getColorStateList(HomeFragment.this.getActivity(), R.color.colorPrimary));
+            this.theme1Button.getBackground().setColorFilter(disabled, PorterDuff.Mode.SRC);
+            this.theme2Button.getBackground().setColorFilter(ContextCompat.getColor(HomeFragment.this.getActivity(), R.color.colorPrimary), PorterDuff.Mode.SRC);
         }
     }
 
@@ -218,12 +229,14 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         }else if(response instanceof ThemeList){
             ThemeList themeList = (ThemeList) response;
             if(themeList.getThemes() != null && themeList.getThemes().size() > 1){
-                this.theme1 = themeList.getThemes().get(0).getId();
-                this.theme2 = themeList.getThemes().get(1).getId();
+                this.theme1 = themeList.getThemes().get(1);
+                this.theme2 = themeList.getThemes().get(2);
 
-                this.theme1Button.setText(themeList.getThemes().get(0).getName());
-                this.theme2Button.setText(themeList.getThemes().get(1).getName());
+                this.voteThemeButton.setText(themeList.getThemes().get(0).getName());
+                this.theme1Button.setText(themeList.getThemes().get(1).getName());
+                this.theme2Button.setText(themeList.getThemes().get(2).getName());
 
+                this.voteThemeButton.setEnabled(true);
                 this.theme1Button.setEnabled(true);
                 this.theme2Button.setEnabled(true);
 
@@ -242,7 +255,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
             editor.putBoolean(ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(theme.getId()), true);
 
-            editor.remove((this.theme1 == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1));
+            editor.remove((this.theme1.getId() == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1));
             editor.apply();
         }
     }

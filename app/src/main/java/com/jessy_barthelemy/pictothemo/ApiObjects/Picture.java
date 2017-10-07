@@ -72,4 +72,17 @@ public class Picture implements Serializable, Comparable<Picture>{
     public int compareTo(@NonNull Picture picture) {
         return picture.getTheme().getCandidateDate().compareTo(this.getTheme().getCandidateDate());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof Picture)) return false;
+        Picture other = (Picture) o;
+
+        return this.getId() == other.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hashCode(this.id);
+    }
 }

@@ -63,28 +63,31 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.formHelper = new FormHelper();
         this.resources = getResources();
 
-        this.password.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+        if(this.password != null && this.password.getEditText() != null){
+            this.password.getEditText().setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                if (actionId == EditorInfo.IME_ACTION_GO
-                        || actionId == EditorInfo.IME_ACTION_DONE
-                        || event.getAction() == KeyEvent.ACTION_DOWN
-                        && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    if (actionId == EditorInfo.IME_ACTION_GO
+                            || actionId == EditorInfo.IME_ACTION_DONE
+                            || event.getAction() == KeyEvent.ACTION_DOWN
+                            && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
 
-                    //Hide keyboard
-                    InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(LoginActivity.this.getCurrentFocus().getWindowToken(), 0);
+                        //Hide keyboard
+                        InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+                        if(LoginActivity.this.getCurrentFocus() != null)
+                            imm.hideSoftInputFromWindow(LoginActivity.this.getCurrentFocus().getWindowToken(), 0);
 
-                    if(LoginActivity.this.attemptRegitration)
-                        attemptRegistration();
-                    else
-                        attemptLogin();
-                    return true;
+                        if(LoginActivity.this.attemptRegitration)
+                            attemptRegistration();
+                        else
+                            attemptLogin();
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
+        }
 
         registerAction.setOnClickListener(new View.OnClickListener() {
             @Override

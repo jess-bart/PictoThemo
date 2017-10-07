@@ -24,9 +24,7 @@ public class GetThemeTask extends AsyncTask<String, Void, ThemeList> {
     @Override
     protected ThemeList doInBackground(String... params) {
         ApiHelper helper = new ApiHelper();
-        ThemeList response = helper.getThemes(this.date);
-
-        return response;
+        return helper.getThemes(this.date);
     }
 
     @Override

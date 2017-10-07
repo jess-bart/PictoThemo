@@ -16,6 +16,7 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
         <ImageView
+            android:contentDescription="@string/content_logo"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@mipmap/logo_transparent"
@@ -65,7 +66,6 @@
             android:id="@+id/search_starting_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:datePickerMode="spinner"
             android:calendarViewShown="false"
             android:background="@color/lightGrey"/>
 
@@ -82,7 +82,6 @@
             android:id="@+id/search_ending_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:datePickerMode="spinner"
             android:calendarViewShown="false"
             android:background="@color/lightGrey"/>
 
@@ -105,9 +104,7 @@
                 android:maxHeight="20dip"
                 android:indeterminate="true"
                 android:layout_centerInParent="true"
-                android:translationZ="3dp"
-                android:visibility="gone"
-                android:indeterminateTint="@android:color/white"/>
+                android:visibility="gone"/>
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>

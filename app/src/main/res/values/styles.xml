@@ -10,7 +10,6 @@
     </style>
 
     <!-- Button -->
-
     <style name="ColoredButtonAccent" parent="Widget.AppCompat.Button.Colored">
         <item name="android:textColor">@android:color/white</item>
         <item name="colorButtonNormal">@color/colorAccent</item>
@@ -26,8 +25,17 @@
         <item name="android:textAppearance">@style/TitleAppearance</item>
     </style>
 
+    <style name="TitleThemeBase" parent="Theme.AppCompat.Light">
+        <item name="android:textAppearance">@style/TitleAppearanceBase</item>
+    </style>
+
     <style name="TitleAppearance" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:textSize">@dimen/title_size</item>
+    </style>
+
+    <style name="TitleAppearanceBase" parent="TextAppearance.AppCompat">
+        <item name="android:textColor">@color/colorPrimary</item>
         <item name="android:textSize">@dimen/title_size</item>
     </style>
 
@@ -39,6 +47,16 @@
         <item name="android:textColor">@color/colorAccent</item>
         <item name="android:textSize">@dimen/title_size</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="MenuOptionsText" parent="TextAppearance.AppCompat">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:background">@drawable/rounded_corners</item>
+        <item name="android:paddingBottom">@dimen/little_space</item>
+        <item name="android:paddingTop">@dimen/little_space</item>
+        <item name="android:paddingLeft">@dimen/options_hor_padding</item>
+        <item name="android:paddingRight">@dimen/options_hor_padding</item>
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="ThemeOverlay" parent="Theme.AppCompat.Light">

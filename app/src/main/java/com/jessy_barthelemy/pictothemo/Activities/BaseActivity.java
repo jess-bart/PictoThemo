@@ -30,6 +30,7 @@ import com.jessy_barthelemy.pictothemo.AsyncInteractions.SaveImageToDiskTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.UploadPictureTask;
 import com.jessy_barthelemy.pictothemo.Fragments.HomeFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.PicturesFragment;
+import com.jessy_barthelemy.pictothemo.Fragments.ProfilFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.SearchFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.SettingsFragment;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -42,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class BaseActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, IAsyncApiObjectResponse {
@@ -53,7 +55,6 @@ public class BaseActivity extends AppCompatActivity
     private static final int UPLOAD_PICTURE_MENU = 5;
     private static final String CURRENT_FRAGMENT = "CURRENT";
     private ImageView pictureToSave;
-    private int test = 1;
 
     protected NavigationView navigationView;
 
@@ -104,6 +105,9 @@ public class BaseActivity extends AppCompatActivity
             case R.id.nav_potd:
                 fragment = new HomeFragment();
                 break;
+            case R.id.nav_profil:
+                fragment = new ProfilFragment();
+                break;
             case R.id.nav_logout:
                 ApplicationHelper.resetPreferences(this);
                 ApplicationHelper.restartApp(this);
@@ -115,7 +119,9 @@ public class BaseActivity extends AppCompatActivity
                 startActivityForResult(intent, UPLOAD_PICTURE_MENU);
                 break;
             case R.id.nav_picture_month:
-                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(null, null, null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+                Calendar startOfMonth = Calendar.getInstance();
+                startOfMonth.set(Calendar.DAY_OF_MONTH, 1);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startOfMonth, Calendar.getInstance(), null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
                 getPicturesInfosTask.execute();
                 break;
             case R.id.nav_search:
@@ -181,17 +187,17 @@ public class BaseActivity extends AppCompatActivity
                         SaveImageToDiskTask saveTask = new SaveImageToDiskTask(pictureDrawable.getBitmap(), out, this, this);
                         saveTask.execute();
 
-                    } catch (IOException e) {}
+                    } catch (IOException ignored) {}
                     this.pictureToSave = null;
                 }
                 break;
             case UPLOAD_PICTURE_MENU:
                 if (resultData != null) {
                     Uri picturePath = resultData.getData();
-
+                    Cursor filenameCursor = null;
                     try{
                         InputStream in = this.getContentResolver().openInputStream(picturePath);
-                        Cursor filenameCursor = this.getContentResolver().query(picturePath, null, null, null, null);
+                        filenameCursor = this.getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
                         {
@@ -199,9 +205,12 @@ public class BaseActivity extends AppCompatActivity
                             UploadPictureTask uploadTask = new UploadPictureTask(in, filename, null, null, this, this);
                             uploadTask.execute();
                         }else
-                            Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                            Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG).show();
                     }catch (Exception e){
-                        Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG);
+                        Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG).show();
+                    }finally {
+                        if(filenameCursor != null)
+                            filenameCursor.close();
                     }
                 }
                 break;
@@ -217,10 +226,12 @@ public class BaseActivity extends AppCompatActivity
             PictureList pictureList = (PictureList)response;
             ArrayList<Picture> pictures = pictureList.getPictures();
 
-            if(pictures == null || pictures.size() == 0)
+            if(pictures == null || pictures.size() == 0){
+                Toast.makeText(this, R.string.save_picture_empty, Toast.LENGTH_LONG).show();
                 return;
+            }
 
-            PicturesFragment picturesFragment = PicturesFragment.getInstance();
+            PicturesFragment picturesFragment = new PicturesFragment();
             picturesFragment.setPictures(pictures);
             this.setCurrentFragment(picturesFragment);
         }
@@ -235,16 +246,15 @@ public class BaseActivity extends AppCompatActivity
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer,  fragment, CURRENT_FRAGMENT)
-                .addToBackStack(fragment.getClass().getName()+test)
+                .addToBackStack(fragment.getClass().getName())
                 .commit();
-        test++;
     }
 
     public void openPOTD(Picture picture){
         ArrayList<Picture> pictures = new ArrayList<>();
         pictures.add(picture);
 
-        PicturesFragment picturesFragment = PicturesFragment.getInstance();
+        PicturesFragment picturesFragment = new PicturesFragment();
         picturesFragment.setPictures(pictures);
 
         this.setCurrentFragment(picturesFragment);

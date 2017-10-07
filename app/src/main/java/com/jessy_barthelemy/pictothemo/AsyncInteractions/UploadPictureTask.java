@@ -44,9 +44,8 @@ public class UploadPictureTask extends AsyncTask<Void, Integer, UploadResult> {
         try {
             return helper.uploadFile(this.inputStream, this.filename);
         } catch (IOException | JSONException | ParseException e) {
+            return UploadResult.ERROR;
         }
-
-        return UploadResult.ERROR;
     }
 
     @Override

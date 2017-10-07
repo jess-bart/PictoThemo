@@ -29,31 +29,38 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="set_as_wallaper">Set as wallpaper</string>
 
-
     <!-- Picture -->
     <string name="user_unknow">Anonymous</string>
     <string name="theme_title">Theme of %1$s</string>
     <string name="theme_name">#%1$s</string>
     <string name="theme_vote_error">Cannot vote for theme %1$s.</string>
+    <string name="vote_tomorrow_picture">Tomorrow picture</string>
     <string name="title_activity_pictures">Pictures</string>
     <string name="picture_vote_error">Cannot vote for picture.</string>
     <string name="comments">Comments</string>
     <string name="vote">Vote</string>
     <string name="vote_success">Voted.</string>
     <string name="save_picture">Save picture to Image directory</string>
-
     <string name="save_picture_success">Picture correcty saved.</string>
     <string name="save_picture_error">Error saving picture.</string>
+    <string name="save_picture_empty">No picture to show.</string>
 
     <!-- Comment -->
     <string name="comment">Comment</string>
-    <string name="comment_placeholder">Type your comment...</string>
+    <string name="comment_placeholder">Type your comment…</string>
     <string name="comment_add">Send</string>
     <string name="comment_cancel">Cancel</string>
     <string name="already_commented">Only one comment per image.</string>
     <string name="comment_add_error">Cannot add comment.</string>
     <string name="comment_remove_error">Cannot remove comment.</string>
     <string name="comment_empty">No comment yet.</string>
+
+    <!-- Sort options -->
+    <string name="sort_by_vote_plus">Order by positive vote</string>
+    <string name="sort_by_vote_minus">Order by negative vote</string>
+    <string name="sort_by_date">Order by date</string>
+    <string name="sort_by_comment">Order by comments</string>
+    <string name="add_comment">Add a comment</string>
 
     <!-- Search -->
     <string name="user">User</string>
@@ -74,4 +81,14 @@
     <string name="settings_wallpaper_title">Wallpaper</string>
     <string name="settings_wallpaper_summary">Change your wallpaper when internet is swicthed on.</string>
 
+    <!-- Content description -->
+    <string name="content_logo">Pictothemo\'s logo</string>
+    <string name="content_loading">Loading</string>
+    <string name="content_user_picture">User"s profil picture</string>
+    <string name="content_comment_count">Comments count</string>
+    <string name="content_negative_count">Positive votes count</string>
+    <string name="content_positive_count">Negative votes count</string>
+    <string name="content_is_potd">Indicator for picture of the day</string>
+
+    <string name="default_int_value">0</string>
 </resources>

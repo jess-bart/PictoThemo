@@ -31,6 +31,7 @@
     <string name="user_unknow">Anonyme</string>
     <string name="theme_title">Thème du %1$s</string>
     <string name="theme_vote_error">Impossible de voter pour le theme %1$s.</string>
+    <string name="vote_tomorrow_picture">L\'image de demain</string>
     <string name="picture_vote_error">Impossible de voter pour l\'image.</string>
     <string name="comments">Commentaires</string>
     <string name="vote">Vote</string>
@@ -38,6 +39,13 @@
     <string name="save_picture">Enregistrer l\'image dans mes images.</string>
     <string name="save_picture_success">Image correctement enregistrée.</string>
     <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
+
+    <!-- Picture options -->
+    <string name="sort_by_vote_plus">Trie par vote positif</string>
+    <string name="sort_by_vote_minus">Trie par vote négatif</string>
+    <string name="sort_by_date">Trie par date</string>
+    <string name="sort_by_comment">Trie par commentaires</string>
+    <string name="add_comment">Ajouter un commentaire</string>
 
     <!-- Comment -->
     <string name="comment">Commentaire</string>
@@ -47,6 +55,7 @@
     <string name="already_commented">Seulement 1 commentaire par image.</string>
     <string name="comment_error">Impossible d\'ajouter un commentaire.</string>
     <string name="comment_empty">Pas encore de commentaire.</string>
+    <string name="save_picture_empty">Aucune image à afficher.</string>
 
     <!-- Search -->
     <string name="user">Utilisateur</string>
@@ -64,4 +73,14 @@
     <!-- Settings -->
     <string name="settings_wallpaper_title">Fond d\'ecran</string>
     <string name="settings_wallpaper_summary">Change votre fond ecran avec l\'image du jour dès qu\'internet est allumé.</string>
+
+    <!-- Content description -->
+    <string name="content_logo">Logo de pictothemo</string>
+    <string name="content_loading">Chargement</string>
+    <string name="content_user_picture">Image de l\'utilisateur</string>
+    <string name="content_comment_count">Nombre de commentaires</string>
+    <string name="content_negative_count">Nombre de votes positifs</string>
+    <string name="content_positive_count">Nombre de votes negatifs</string>
+    <string name="content_is_potd">Indicateur pour l\'image du jour</string>
+
 </resources>
