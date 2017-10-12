@@ -61,6 +61,7 @@ public class SearchFragment extends BaseFragment implements IAsyncApiObjectRespo
                     flags += "|"+ApiHelper.FLAG_POTD;
                 GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startingCalendar, endingCalendar,
                                                             theme, user, voteCount, flags
+                                                            , SearchFragment.this.getActivity()
                                                             , SearchFragment.this);
                 getPicturesInfosTask.execute();
             }
@@ -93,16 +94,20 @@ public class SearchFragment extends BaseFragment implements IAsyncApiObjectRespo
 
     @Override
     public void asyncTaskSuccess(Object response) {
-        this.search.setEnabled(true);
-        this.searchProgress.setVisibility(View.GONE);
-        this.search.setTextColor(ContextCompat.getColor(this.getActivity(), android.R.color.white));
-
+        this.searchCompleted();
         super.asyncTaskSuccess(response);
     }
 
     @Override
     public void asyncTaskFail(String errorMessage) {
-        this.search.setEnabled(true);
+        this.searchCompleted();
         super.asyncTaskFail(errorMessage);
+    }
+
+    private void searchCompleted(){
+        this.search.setEnabled(true);
+        this.searchProgress.setVisibility(View.GONE);
+        this.search.setTextColor(ContextCompat.getColor(this.getActivity(), android.R.color.white));
+
     }
 }

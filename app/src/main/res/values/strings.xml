@@ -44,6 +44,7 @@
     <string name="save_picture_success">Picture correcty saved.</string>
     <string name="save_picture_error">Error saving picture.</string>
     <string name="save_picture_empty">No picture to show.</string>
+    <string name="load_picture_error">Failed to load pictures.</string>
 
     <!-- Comment -->
     <string name="comment">Comment</string>
@@ -81,6 +82,10 @@
     <string name="settings_wallpaper_title">Wallpaper</string>
     <string name="settings_wallpaper_summary">Change your wallpaper when internet is swicthed on.</string>
 
+    <!-- User -->
+    <string name="profil_registration_date">Registered since %1$s</string>
+    <string name="profil_see_pictures">See (his/her) pictures</string>
+
     <!-- Content description -->
     <string name="content_logo">Pictothemo\'s logo</string>
     <string name="content_loading">Loading</string>
@@ -89,6 +94,7 @@
     <string name="content_negative_count">Positive votes count</string>
     <string name="content_positive_count">Negative votes count</string>
     <string name="content_is_potd">Indicator for picture of the day</string>
+    <string name="content_profil_trophy">User\'s trophy</string>
 
     <string name="default_int_value">0</string>
 </resources>

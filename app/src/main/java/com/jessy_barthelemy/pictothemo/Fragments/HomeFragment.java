@@ -96,7 +96,13 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
         this.localRequest = true;
         Calendar today = Calendar.getInstance();
-        GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(today, today, null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+        GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(
+                                                        today,
+                                                        today,
+                                                        null, null, null,
+                                                        ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS,
+                                                        this.getActivity(),
+                                                        this);
         getPicturesInfosTask.execute();
 
         SimpleDateFormat dateFormat;
@@ -120,7 +126,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
             public void onClick(View v) {
                 Calendar tomorrow = Calendar.getInstance();
                 tomorrow.add(Calendar.DATE, 1);
-                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, ApiHelper.FLAG_COMMENTS, HomeFragment.this);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, ApiHelper.FLAG_COMMENTS, HomeFragment.this.getActivity(), HomeFragment.this);
                 getPicturesInfosTask.execute();
             }
         });
@@ -178,6 +184,13 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.picturePositiveVote.setText(String.valueOf(this.picture.getPositiveVote()));
         this.pictureNegativeVote.setText(String.valueOf(this.picture.getNegativeVote()));
         this.pictureCommentCount.setText(String.valueOf(this.picture.getComments().size()));
+
+        this.picturePseudo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((BaseActivity)HomeFragment.this.getActivity()).openProfil(HomeFragment.this.picture.getUser().getId());
+            }
+        });
 
         this.pictureVote.setOnClickListener(new View.OnClickListener() {
             @Override

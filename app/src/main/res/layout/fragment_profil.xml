@@ -1,69 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/appbar_padding_top"
-        android:paddingBottom="@dimen/appbar_padding_top"
-        android:gravity="center_horizontal"
-        android:background="@color/optionsFilter">
-        <ImageView
-            android:contentDescription="@string/content_user_picture"
-            android:id="@+id/profil_picture"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/ic_account_circle"/>
+        android:layout_height="match_parent"
+        android:visibility="gone">
+        <LinearLayout
+            android:id="@+id/options_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/appbar_padding_top"
+            android:paddingBottom="@dimen/appbar_padding_top"
+            android:gravity="center_horizontal"
+            android:background="@color/optionsFilter">
+            <ImageView
+                android:contentDescription="@string/content_user_picture"
+                android:id="@+id/profil_picture"
+                android:layout_width="@dimen/profil_picture"
+                android:layout_height="@dimen/profil_picture"
+                android:src="@drawable/ic_big_account_circle"/>
 
-        <TextView
+            <TextView
+                android:id="@+id/profil_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorAccent"/>
+
+            <TextView
+                android:id="@+id/profil_registration_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/trophy_list"
+            android:layout_below="@id/options_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="@dimen/little_space"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:paddingEnd="@dimen/activity_horizontal_margin">
+            <ImageView
+                android:contentDescription="@string/content_profil_trophy"
+                android:layout_width="@dimen/profil_trophy"
+                android:layout_height="@dimen/profil_trophy"
+                android:src="@drawable/ic_account_circle"/>
+            <ImageView
+                android:contentDescription="@string/content_profil_trophy"
+                android:layout_width="@dimen/profil_trophy"
+                android:layout_height="@dimen/profil_trophy"
+                android:src="@drawable/ic_account_circle"/>
+            <ImageView
+                android:contentDescription="@string/content_profil_trophy"
+                android:layout_width="@dimen/profil_trophy"
+                android:layout_height="@dimen/profil_trophy"
+                android:src="@drawable/ic_account_circle"/>
+            <ImageView
+                android:contentDescription="@string/content_profil_trophy"
+                android:layout_width="@dimen/profil_trophy"
+                android:layout_height="@dimen/profil_trophy"
+                android:src="@drawable/ic_account_circle"/>
+        </LinearLayout>
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/profil_pictures"
+            android:layout_below="@id/trophy_list"
+            android:theme="@style/ColoredButtonBase"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Jessy"
-            android:textColor="@color/colorAccent"/>
-
-        <TextView
+            android:minWidth="@dimen/button_min_width"
+            android:text="@string/profil_see_pictures"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/little_space"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/loader"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ImageView
+            android:contentDescription="@string/content_loading"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Inscrit depuis le 20/08/2014" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="@dimen/little_space"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingEnd="@dimen/activity_horizontal_margin">
-        <ImageView
-            android:contentDescription="@string/content_user_picture"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_account_circle"/>
-        <ImageView
-            android:contentDescription="@string/content_user_picture"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_account_circle"/>
-        <ImageView
-            android:contentDescription="@string/content_user_picture"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_account_circle"/>
-        <ImageView
-            android:contentDescription="@string/content_user_picture"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:src="@drawable/ic_account_circle"/>
-    </LinearLayout>
-
-    <android.support.v7.widget.AppCompatButton
-        android:theme="@style/ColoredButtonBase"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minWidth="@dimen/button_min_width"
-        android:text="Voir ses images"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="@dimen/little_space"/>
-</LinearLayout>
+            android:src="@mipmap/logo_transparent"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+</RelativeLayout>

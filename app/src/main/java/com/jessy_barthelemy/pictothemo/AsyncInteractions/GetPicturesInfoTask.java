@@ -1,11 +1,13 @@
 package com.jessy_barthelemy.pictothemo.AsyncInteractions;
 
+import android.content.Context;
 import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
+import com.jessy_barthelemy.pictothemo.R;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,11 +20,12 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
     private String theme;
     private String user;
     private Integer voteCount;
+    private Context context;
 
     /*reference to the class that want a success callback*/
     private IAsyncApiObjectResponse delegate;
 
-    public GetPicturesInfoTask(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, String flags, IAsyncApiObjectResponse delegate){
+    public GetPicturesInfoTask(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, String flags, Context context, IAsyncApiObjectResponse delegate){
         if(delegate != null)
             this.delegate = delegate;
 
@@ -32,6 +35,7 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
         this.theme = theme;
         this.user = user;
         this.voteCount = voteCount;
+        this.context = context;
     }
 
     @Override
@@ -42,7 +46,12 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
 
     @Override
     protected void onPostExecute(ArrayList<Picture> pictures) {
-        PictureList pictureList = new PictureList(pictures);
-        this.delegate.asyncTaskSuccess(pictureList);
+        if(pictures != null){
+            PictureList pictureList = new PictureList(pictures);
+            this.delegate.asyncTaskSuccess(pictureList);
+        }else{
+            this.delegate.asyncTaskFail(this.context.getString(R.string.save_picture_empty));
+        }
+
     }
 }

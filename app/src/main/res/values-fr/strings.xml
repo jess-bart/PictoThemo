@@ -39,13 +39,7 @@
     <string name="save_picture">Enregistrer l\'image dans mes images.</string>
     <string name="save_picture_success">Image correctement enregistrée.</string>
     <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
-
-    <!-- Picture options -->
-    <string name="sort_by_vote_plus">Trie par vote positif</string>
-    <string name="sort_by_vote_minus">Trie par vote négatif</string>
-    <string name="sort_by_date">Trie par date</string>
-    <string name="sort_by_comment">Trie par commentaires</string>
-    <string name="add_comment">Ajouter un commentaire</string>
+    <string name="load_picture_error">Impossible de charger les images.</string>
 
     <!-- Comment -->
     <string name="comment">Commentaire</string>
@@ -56,6 +50,13 @@
     <string name="comment_error">Impossible d\'ajouter un commentaire.</string>
     <string name="comment_empty">Pas encore de commentaire.</string>
     <string name="save_picture_empty">Aucune image à afficher.</string>
+
+    <!-- Sort options -->
+    <string name="sort_by_vote_plus">Trie par vote positif</string>
+    <string name="sort_by_vote_minus">Trie par vote négatif</string>
+    <string name="sort_by_date">Trie par date</string>
+    <string name="sort_by_comment">Trie par commentaires</string>
+    <string name="add_comment">Ajouter un commentaire</string>
 
     <!-- Search -->
     <string name="user">Utilisateur</string>
@@ -74,6 +75,10 @@
     <string name="settings_wallpaper_title">Fond d\'ecran</string>
     <string name="settings_wallpaper_summary">Change votre fond ecran avec l\'image du jour dès qu\'internet est allumé.</string>
 
+    <!-- User -->
+    <string name="profil_registration_date">Inscrit depuis le %1$s</string>
+    <string name="profil_see_pictures">Voir ses images</string>
+
     <!-- Content description -->
     <string name="content_logo">Logo de pictothemo</string>
     <string name="content_loading">Chargement</string>
@@ -82,5 +87,6 @@
     <string name="content_negative_count">Nombre de votes positifs</string>
     <string name="content_positive_count">Nombre de votes negatifs</string>
     <string name="content_is_potd">Indicateur pour l\'image du jour</string>
+    <string name="content_profil_trophy">Trophé de l\'utilisateur</string>
 
 </resources>

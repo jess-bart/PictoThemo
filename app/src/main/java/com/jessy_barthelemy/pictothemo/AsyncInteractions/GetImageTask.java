@@ -53,9 +53,9 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
     public GetImageTask(Context context, ImageView imageView, View progressBar, Calendar date, boolean setAsWallpaper){
         this(context, imageView, progressBar, setAsWallpaper);
-        this.url = ApiHelper.URL_POTD+ApplicationHelper.convertDateToString(date, false);
+        this.url = ApiHelper.URL_POTD+ApplicationHelper.convertDateToString(date, false, false);
 
-        this.name = ApplicationHelper.convertDateToString(date, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
+        this.name = ApplicationHelper.convertDateToString(date, false, false)+ApplicationHelper.DEFAULT_PICTURE_FORMAT;
         this.cache = this.getCacheDir();
     }
 

@@ -25,6 +25,7 @@ import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
+import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.SaveImageToDiskTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.UploadPictureTask;
@@ -106,7 +107,12 @@ public class BaseActivity extends AppCompatActivity
                 fragment = new HomeFragment();
                 break;
             case R.id.nav_profil:
-                fragment = new ProfilFragment();
+                User user = ApplicationHelper.getCurrentUser(this);
+                if(user != null){
+                    ProfilFragment profil = new ProfilFragment();
+                    profil.setUserId(user.getId());
+                    fragment = profil;
+                }
                 break;
             case R.id.nav_logout:
                 ApplicationHelper.resetPreferences(this);
@@ -121,7 +127,7 @@ public class BaseActivity extends AppCompatActivity
             case R.id.nav_picture_month:
                 Calendar startOfMonth = Calendar.getInstance();
                 startOfMonth.set(Calendar.DAY_OF_MONTH, 1);
-                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startOfMonth, Calendar.getInstance(), null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startOfMonth, Calendar.getInstance(), null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this, this);
                 getPicturesInfosTask.execute();
                 break;
             case R.id.nav_search:
@@ -258,5 +264,11 @@ public class BaseActivity extends AppCompatActivity
         picturesFragment.setPictures(pictures);
 
         this.setCurrentFragment(picturesFragment);
+    }
+
+    public void openProfil(int userId){
+        ProfilFragment profilFragment = new ProfilFragment();
+        profilFragment.setUserId(userId);
+        this.setCurrentFragment(profilFragment);
     }
 }

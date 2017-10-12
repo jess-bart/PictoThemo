@@ -18,6 +18,9 @@
 
     <!-- Button -->
     <dimen name="circle_button">30dp</dimen>
-
     <dimen name="picture_height">200dp</dimen>
+
+    <!-- Profil -->
+    <dimen name="profil_picture">100dp</dimen>
+    <dimen name="profil_trophy">50dp</dimen>
 </resources>

@@ -8,6 +8,7 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.Trophy;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Enum.CommentResult;
@@ -34,18 +35,23 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Locale;
 
 public class ApiHelper {
     private static final String URL_API = "http://ptapi.esy.es/api/test";
-
     //Entity
     public static final String ENTITY_PICTURES = "pictures";
     public static final String ENTITY_THEMES = "themes";
+    public static final String ENTITY_TROPHIES = "trophies";
+    public static final String ENTITY_USER= "user";
 
     //Authentication fields
     public static final String THEME_NAME = "name";
+    public static final String TROPHY_TITLE = "title";
+    public static final String TROPHY_DESCRIPTION = "description";
     public static final String ID = "id";
     public static final String PSEUDO = "pseudo";
+    public static final String REGISTRATION_DATE = "registration_date";
     private static final String FLAGS = "flags";
     private static final String PASSWORD = "password";
     private static final String USER_ID = "userID";
@@ -145,6 +151,108 @@ public class ApiHelper {
         login.execute();
     }
 
+    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters, boolean authorization) throws IOException{
+        URL url;
+        if(method.equals(HttpVerb.GET.toString())){
+            if(parameters == null)
+                parameters = new Uri.Builder();
+
+            parameters.appendQueryParameter("locale", Locale.getDefault().getCountry());
+            url = new URL(Url+parameters.toString());
+        }
+        else
+            url = new URL(Url);
+
+        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        http.setRequestMethod(method);
+        http.setRequestProperty("Connection", "close");
+        if(authorization && this.tokensInfos != null)
+            http.addRequestProperty("Authorization", this.tokensInfos.getAccessToken());
+
+        if(method.equals(HttpVerb.POST.toString()) || method.equals(HttpVerb.PUT.toString())){
+            http.setDoOutput(true);
+            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            if(parameters != null){
+                OutputStream os = http.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+                writer.write(parameters.build().getEncodedQuery());
+
+                writer.flush();
+                writer.close();
+                os.close();
+            }
+        }
+
+        http.connect();
+        return http;
+    }
+
+    private JSONObject getJSONResponse(HttpURLConnection http) throws IOException, JSONException {
+        BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+        String inputLine;
+        StringBuilder response = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            response.append(inputLine);
+        }
+        in.close();
+        //TODO
+        String test = response.toString();
+        return new JSONObject(response.toString());
+    }
+
+    public User getUser(int id) {
+
+        HttpURLConnection http = null;
+        try {
+            http = this.createHttpConnection(URL_USERS+"/"+id, HttpVerb.GET.toString(), null, true);
+
+            if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
+                JSONObject response = this.getJSONResponse(http);
+
+                if(response.length() == 0)
+                    return null;
+
+                if(!response.has(ApiHelper.ENTITY_USER))
+                    return null;
+
+                JSONObject userObj = response.getJSONObject(ApiHelper.ENTITY_USER);
+                String name = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
+                String date = userObj.has(ApiHelper.REGISTRATION_DATE)?userObj.getString(ApiHelper.REGISTRATION_DATE):"";
+
+                User user = new User(id, name, ApplicationHelper.convertStringToDate(date, false));
+
+                int trophyId;
+                boolean validated;
+                String title;
+                String description;
+                JSONObject trophy;
+                JSONArray trophies = response.getJSONArray(ApiHelper.ENTITY_TROPHIES);
+                for (int i = 0, len = trophies.length();i < len; i++) {
+                    trophy = trophies.getJSONObject(i);
+                    trophyId = trophy.has(ApiHelper.ID)?trophy.getInt(ApiHelper.ID):0;
+                    title = trophy.has(ApiHelper.TROPHY_TITLE)?trophy.getString(ApiHelper.TROPHY_TITLE):"";
+                    description = trophy.has(ApiHelper.TROPHY_DESCRIPTION)?trophy.getString(ApiHelper.TROPHY_DESCRIPTION):"";
+                    validated = trophy.has(ApiHelper.USER_ID)?trophy.getInt(ApiHelper.USER_ID) > 0:false;
+                    user.addTrophy(new Trophy(trophyId, title, description, validated));
+                }
+
+                return user;
+
+            }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
+                throw new InvalidParameterException();
+            }
+
+        } catch (IOException | JSONException e) {
+            return null;
+        } finally {
+            if(http != null)
+                http.disconnect();
+        }
+
+        return null;
+    }
+
     public TokenInformations createUser(String pseudo, String password) throws IOException, JSONException, ParseException {
         Uri.Builder parameter = new Uri.Builder()
                 .appendQueryParameter(PSEUDO, pseudo)
@@ -176,58 +284,15 @@ public class ApiHelper {
         return result;
     }
 
-    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters, boolean authorization) throws IOException{
-        URL url;
-        if(method.equals(HttpVerb.GET.toString()) && parameters != null)
-            url = new URL(Url+parameters.toString());
-        else
-            url = new URL(Url);
-
-        HttpURLConnection http = (HttpURLConnection)url.openConnection();
-        http.setRequestMethod(method);
-        http.setRequestProperty("Connection", "close");
-        if(authorization && this.tokensInfos != null)
-            http.addRequestProperty("Authorization", this.tokensInfos.getAccessToken());
-
-        if(method.equals(HttpVerb.POST.toString()) || method.equals(HttpVerb.PUT.toString())){
-            http.setDoOutput(true);
-            http.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-             if(parameters != null){
-                 OutputStream os = http.getOutputStream();
-                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-                 writer.write(parameters.build().getEncodedQuery());
-
-                 writer.flush();
-                 writer.close();
-                 os.close();
-             }
-        }
-
-        http.connect();
-        return http;
-    }
-
-    private JSONObject getJSONResponse(HttpURLConnection http) throws IOException, JSONException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
-        }
-        in.close();
-        return new JSONObject(response.toString());
-    }
-
     public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, String flags) {
         Uri.Builder parameter = new Uri.Builder().appendQueryParameter(FLAGS, flags);
 
         ArrayList<Picture> pictures = null;
         if(startingDate != null)
-            parameter.appendQueryParameter(STARTING_DATE, ApplicationHelper.convertDateToString(startingDate, false));
+            parameter.appendQueryParameter(STARTING_DATE, ApplicationHelper.convertDateToString(startingDate, false, false));
 
         if(endingDate != null)
-            parameter.appendQueryParameter(ENDING_DATE, ApplicationHelper.convertDateToString(endingDate, false));
+            parameter.appendQueryParameter(ENDING_DATE, ApplicationHelper.convertDateToString(endingDate, false, false));
 
         if(theme != null)
             parameter.appendQueryParameter(THEME, theme);
@@ -312,7 +377,7 @@ public class ApiHelper {
 
         HttpURLConnection http = null;
         try {
-            String date = ApplicationHelper.convertDateToString(candidateDate, false);
+            String date = ApplicationHelper.convertDateToString(candidateDate, false, false);
             http = this.createHttpConnection(URL_THEMES+"/"+date, HttpVerb.GET.toString(), null, false);
 
             if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
@@ -323,10 +388,12 @@ public class ApiHelper {
                     return null;
 
                 String name;
+                int id;
+                JSONObject theme;
                 JSONArray themes = response.getJSONArray(ApiHelper.ENTITY_THEMES);
                 for (int i = 0, len = themes.length();i < len; i++) {
-                    JSONObject theme = themes.getJSONObject(i);
-                    int id = theme.has(ApiHelper.ID)?theme.getInt(ApiHelper.ID):0;
+                    theme = themes.getJSONObject(i);
+                    id = theme.has(ApiHelper.ID)?theme.getInt(ApiHelper.ID):0;
                     name = theme.has(ApiHelper.THEME_NAME)?theme.getString(ApiHelper.THEME_NAME):"";
                     date = theme.has(ApiHelper.CANDIDATE_DATE)?theme.getString(ApiHelper.CANDIDATE_DATE):"";
                     themeList.add(new Theme(id, name, ApplicationHelper.convertStringToDate(date, false)));

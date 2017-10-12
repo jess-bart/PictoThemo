@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -131,9 +132,15 @@ public class ApplicationHelper {
         }
     }
 
-    public static String convertDateToString(Calendar date, boolean longFormat){
-        SimpleDateFormat formatter = new SimpleDateFormat((longFormat)?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT, Locale.getDefault());
-        return formatter.format(date.getTime());
+    public static String convertDateToString(Calendar date, boolean longFormat, boolean presentationFormat){
+        if(presentationFormat){
+            DateFormat df = DateFormat.getDateInstance((longFormat)? DateFormat.SHORT:DateFormat.LONG, Locale.getDefault());
+            return df.format(date.getTime());
+        }else{
+            String format = longFormat?MYSQL_DATE_LONG_FORMAT:MYSQL_DATE_FORMAT;
+            SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.getDefault());
+            return formatter.format(date.getTime());
+        }
     }
 
     public static String handleUnknowPseudo(Context ctx, String pseudo){
