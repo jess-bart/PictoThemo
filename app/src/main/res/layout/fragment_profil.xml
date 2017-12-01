@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:visibility="gone">
         <LinearLayout
-            android:id="@+id/options_filter"
+            android:id="@+id/profil"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
@@ -21,9 +21,7 @@
                 android:contentDescription="@string/content_user_picture"
                 android:id="@+id/profil_picture"
                 android:layout_width="@dimen/profil_picture"
-                android:layout_height="@dimen/profil_picture"
-                android:src="@drawable/ic_big_account_circle"/>
-
+                android:layout_height="@dimen/profil_picture"/>
             <TextView
                 android:id="@+id/profil_user_name"
                 android:layout_width="wrap_content"
@@ -36,35 +34,16 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <LinearLayout
+        <com.jessy_barthelemy.pictothemo.Layout.FlowLayout
+            android:orientation="horizontal"
             android:id="@+id/trophy_list"
-            android:layout_below="@id/options_filter"
-            android:layout_width="match_parent"
+            android:layout_below="@id/profil"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingTop="@dimen/little_space"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin">
-            <ImageView
-                android:contentDescription="@string/content_profil_trophy"
-                android:layout_width="@dimen/profil_trophy"
-                android:layout_height="@dimen/profil_trophy"
-                android:src="@drawable/ic_account_circle"/>
-            <ImageView
-                android:contentDescription="@string/content_profil_trophy"
-                android:layout_width="@dimen/profil_trophy"
-                android:layout_height="@dimen/profil_trophy"
-                android:src="@drawable/ic_account_circle"/>
-            <ImageView
-                android:contentDescription="@string/content_profil_trophy"
-                android:layout_width="@dimen/profil_trophy"
-                android:layout_height="@dimen/profil_trophy"
-                android:src="@drawable/ic_account_circle"/>
-            <ImageView
-                android:contentDescription="@string/content_profil_trophy"
-                android:layout_width="@dimen/profil_trophy"
-                android:layout_height="@dimen/profil_trophy"
-                android:src="@drawable/ic_account_circle"/>
-        </LinearLayout>
+        </com.jessy_barthelemy.pictothemo.Layout.FlowLayout>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/profil_pictures"

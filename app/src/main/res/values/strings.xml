@@ -85,6 +85,8 @@
     <!-- User -->
     <string name="profil_registration_date">Registered since %1$s</string>
     <string name="profil_see_pictures">See (his/her) pictures</string>
+    <string name="profil_normal">profil_%d</string>
+    <string name="profil_big">profil_big_%d</string>
 
     <!-- Content description -->
     <string name="content_logo">Pictothemo\'s logo</string>

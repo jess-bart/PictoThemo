@@ -8,6 +8,7 @@ public class User implements Serializable {
     private int id;
     private String pseudo;
     private Calendar registrationDate;
+    private int profil;
     private ArrayList<Trophy> trophies;
 
     public User(){}
@@ -16,19 +17,22 @@ public class User implements Serializable {
         this.id = -1;
         this.pseudo = pseudo;
         this.trophies = new ArrayList<>();
+        this.profil = 0;
     }
 
     public User(int id, String pseudo){
         this.id = id;
         this.pseudo = pseudo;
         this.trophies = new ArrayList<>();
+        this.profil = 0;
     }
 
-    public User(int id, String pseudo, Calendar registrationDate){
+    public User(int id, String pseudo, Calendar registrationDate, int profil){
         this.id = id;
         this.pseudo = pseudo;
         this.trophies = new ArrayList<>();
         this.registrationDate = registrationDate;
+        this.profil = profil;
     }
 
     public String getPseudo() { return pseudo; }
@@ -55,5 +59,9 @@ public class User implements Serializable {
 
     public ArrayList<Trophy> getTrophies() {
         return trophies;
+    }
+
+    public int getProfil() {
+        return profil;
     }
 }

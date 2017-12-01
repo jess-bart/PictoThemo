@@ -55,6 +55,7 @@ public class ApiHelper {
     private static final String FLAGS = "flags";
     private static final String PASSWORD = "password";
     private static final String USER_ID = "userID";
+    private static final String PROFIL_ID = "profil_id";
     private static final String THEME = "theme";
     private static final String POTD = "potd";
     private static final String VOTE_COUNT = "voteCount";
@@ -196,8 +197,6 @@ public class ApiHelper {
             response.append(inputLine);
         }
         in.close();
-        //TODO
-        String test = response.toString();
         return new JSONObject(response.toString());
     }
 
@@ -218,9 +217,9 @@ public class ApiHelper {
 
                 JSONObject userObj = response.getJSONObject(ApiHelper.ENTITY_USER);
                 String name = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
+                int profil = userObj.has(ApiHelper.PROFIL_ID)?userObj.getInt(ApiHelper.PROFIL_ID):0;
                 String date = userObj.has(ApiHelper.REGISTRATION_DATE)?userObj.getString(ApiHelper.REGISTRATION_DATE):"";
-
-                User user = new User(id, name, ApplicationHelper.convertStringToDate(date, false));
+                User user = new User(id, name, ApplicationHelper.convertStringToDate(date, false), profil);
 
                 int trophyId;
                 boolean validated;

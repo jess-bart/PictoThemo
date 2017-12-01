@@ -1,6 +1,8 @@
 package com.jessy_barthelemy.pictothemo.ApiObjects;
 
-public class Trophy {
+import java.io.Serializable;
+
+public class Trophy implements Serializable{
     private int id;
     private String title;
     private String description;
@@ -11,5 +13,21 @@ public class Trophy {
         this.title = title;
         this.description = description;
         this.validated = validated;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isValidated() {
+        return validated;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 }

@@ -1,19 +1,26 @@
 package com.jessy_barthelemy.pictothemo.Fragments;
 
+import android.content.Context;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.os.Bundle;
 import android.support.v7.widget.AppCompatButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.jessy_barthelemy.pictothemo.ApiObjects.Trophy;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetUserTask;
+import com.jessy_barthelemy.pictothemo.Dialogs.TrophyDialog;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
+import com.jessy_barthelemy.pictothemo.Layout.FlowLayout;
 import com.jessy_barthelemy.pictothemo.R;
 
 public class ProfilFragment extends BaseFragment implements IAsyncApiObjectResponse{
@@ -22,6 +29,11 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
     private TextView profilUserName;
     private TextView profilRegistrationDate;
     private AppCompatButton profilPictures;
+    private ImageView profilPicture;
+    private FlowLayout trophyList;
+    private ColorMatrixColorFilter disabledFilter;
+    private TrophyDialog dialog;
+
     private RelativeLayout main;
     private RelativeLayout loader;
 
@@ -37,8 +49,14 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
         this.profilUserName = (TextView) view.findViewById(R.id.profil_user_name);
         this.profilRegistrationDate = (TextView) view.findViewById(R.id.profil_registration_date);
         this.profilPictures = (AppCompatButton) view.findViewById(R.id.profil_pictures);
+        this.trophyList = (FlowLayout) view.findViewById(R.id.trophy_list);
+        this.profilPicture = (ImageView) view.findViewById(R.id.profil_picture);
         this.main = (RelativeLayout) view.findViewById(R.id.main);
         this.loader = (RelativeLayout) view.findViewById(R.id.loader);
+
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+        this.disabledFilter = new ColorMatrixColorFilter(matrix);
 
         if(this.user != null){
             GetUserTask userTask = new GetUserTask(this.user.getId(), this.getActivity(), this);
@@ -58,6 +76,21 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
             String date = ApplicationHelper.convertDateToString(this.user.getRegistrationDate(), false, true);
             this.profilRegistrationDate.setText(this.getString(R.string.profil_registration_date, date));
 
+            this.profilPicture.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.user.getProfil(),  true));
+
+            ImageView trophyImg;
+
+            for(Trophy trophy : user.getTrophies()){
+                trophyImg = new ImageView(this.getActivity());
+                trophyImg.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), trophy.getId(),  false));
+                trophyImg.setPadding(0, 0, 15, 15);
+
+                if(!trophy.isValidated())
+                    trophyImg.setColorFilter(this.disabledFilter);
+
+                this.trophyList.addView(trophyImg);
+            }
+
             this.profilPictures.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -70,6 +103,14 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
                     getPicturesInfosTask.execute();
                 }
             });
+
+            this.trophyList.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ProfilFragment.this.dialog = new TrophyDialog(ProfilFragment.this.getActivity(), user.getTrophies());
+                    ProfilFragment.this.dialog.show();
+                }
+            });
         }else{
             super.asyncTaskSuccess(response);
         }
@@ -80,5 +121,20 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
         super.asyncTaskFail(errorMessage);
         this.main.setVisibility(View.VISIBLE);
         this.loader.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        if(ProfilFragment.this.dialog != null && ProfilFragment.this.dialog.isShowing())
+            ProfilFragment.this.dialog.dismiss();
+
+        ProfilFragment.this.dialog = null;
+    }
+
+    public static int getProfilDrawableByName(Context context, int profil, boolean big){
+        String name = big ? context.getString(R.string.profil_big) : context.getString(R.string.profil_normal);
+        return context.getResources().getIdentifier(String.format(name, profil), "drawable", context.getPackageName());
     }
 }
