@@ -108,11 +108,9 @@ public class BaseActivity extends AppCompatActivity
                 break;
             case R.id.nav_profil:
                 User user = ApplicationHelper.getCurrentUser(this);
-                if(user != null){
-                    ProfilFragment profil = new ProfilFragment();
-                    profil.setUserId(user.getId());
-                    fragment = profil;
-                }
+                ProfilFragment profil = new ProfilFragment();
+                profil.setUserId(user.getId());
+                fragment = profil;
                 break;
             case R.id.nav_logout:
                 ApplicationHelper.resetPreferences(this);
@@ -127,7 +125,7 @@ public class BaseActivity extends AppCompatActivity
             case R.id.nav_picture_month:
                 Calendar startOfMonth = Calendar.getInstance();
                 startOfMonth.set(Calendar.DAY_OF_MONTH, 1);
-                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startOfMonth, Calendar.getInstance(), null, null, null, ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS, this, this);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startOfMonth, Calendar.getInstance(), null, null, null, true, this, this);
                 getPicturesInfosTask.execute();
                 break;
             case R.id.nav_search:

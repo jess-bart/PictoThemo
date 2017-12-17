@@ -75,7 +75,6 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
             this.profilUserName.setText(this.user.getPseudo());
             String date = ApplicationHelper.convertDateToString(this.user.getRegistrationDate(), false, true);
             this.profilRegistrationDate.setText(this.getString(R.string.profil_registration_date, date));
-
             this.profilPicture.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.user.getProfil(),  true));
 
             ImageView trophyImg;
@@ -97,7 +96,7 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
                     GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(null, null, null,
                                                                 ProfilFragment.this.user.getPseudo(),
                                                                 null,
-                                                                ApiHelper.FLAG_COMMENTS,
+                                                                null,
                                                                 ProfilFragment.this.getActivity(),
                                                                 ProfilFragment.this);
                     getPicturesInfosTask.execute();

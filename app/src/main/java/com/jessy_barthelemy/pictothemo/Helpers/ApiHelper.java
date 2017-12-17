@@ -7,13 +7,14 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.Comment;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
-import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Trophy;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.Enum.CommentResult;
 import com.jessy_barthelemy.pictothemo.Enum.HttpVerb;
 import com.jessy_barthelemy.pictothemo.Enum.UploadResult;
+import com.jessy_barthelemy.pictothemo.Exception.PictothemoException;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 
 import org.json.JSONArray;
@@ -35,85 +36,97 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class ApiHelper {
-    private static final String URL_API = "http://ptapi.esy.es/api/test";
+    private static final String URL_API = "http://192.168.0.10:8080/web";
     //Entity
     public static final String ENTITY_PICTURES = "pictures";
     public static final String ENTITY_THEMES = "themes";
-    public static final String ENTITY_TROPHIES = "trophies";
-    public static final String ENTITY_USER= "user";
+    private static final String ENTITY_TROPHIES = "trophies";
+    private static final String ENTITY_USER= "user";
 
     //Authentication fields
     public static final String THEME_NAME = "name";
-    public static final String TROPHY_TITLE = "title";
-    public static final String TROPHY_DESCRIPTION = "description";
+    private static final String TROPHY_TITLE = "title";
+    private static final String TROPHY_DESCRIPTION = "description";
     public static final String ID = "id";
+    private static final String PROFIL_ID = "profilId";
     public static final String PSEUDO = "pseudo";
-    public static final String REGISTRATION_DATE = "registration_date";
+    private static final String VALIDATED = "validated";
+    private static final String REGISTRATION_DATE = "registrationDate";
     private static final String FLAGS = "flags";
     private static final String PASSWORD = "password";
-    private static final String USER_ID = "userID";
-    private static final String PROFIL_ID = "profil_id";
     private static final String THEME = "theme";
     private static final String POTD = "potd";
     private static final String VOTE_COUNT = "voteCount";
 
-    private static final String ACCESS_TOKEN = "access_token";
-    private static final String EXPIRES_TOKEN = "expires_token";
+    private static final String ACCESS_TOKEN = "accessToken";
+    private static final String EXPIRES_TOKEN = "expiresToken";
 
     private static final String COMMENTS = "comments";
     private static final String COMMENT_TEXT = "text";
-    private static final String STARTING_DATE = "starting_date";
-    private static final String ENDING_DATE = "ending_date";
-    private static final String PUBLISH_DATE = "publish_date";
-    private static final String CANDIDATE_DATE = "candidate_date";
+    private static final String STARTING_DATE = "startingDate";
+    private static final String ENDING_DATE = "endingDate";
+    private static final String PUBLISH_DATE = "publishDate";
+    private static final String CANDIDATE_DATE = "candidateDate";
 
     private static final String SUCCESS = "success";
     private static final String FORMAT_ERROR = "format";
     private static final String SIZE_ERROR = "size";
-    private static final String ALREADY_COMMENTED = "already_commented";
+    private static final String ENTITY_ALREADY_EXISTS = "ENTITY_ALREADY_EXISTS";
 
-    public static final String POSITIVE_VOTE = "positive";
-    public static final String NEGATIVE_VOTE = "negative";
+    public static final String POSITIVE_VOTE = "positives";
+    public static final String NEGATIVE_VOTE = "negatives";
     private static final String SALT = "salt";
     public static final String FLAG_SALT = "SALTED";
     public static final String FLAG_POTD = "POTD";
-    public static final String FLAG_COMMENTS = "COMMENTS";
+
+    //error
+    private static final String CODE = "code";
 
     //endpoint
-    public static final String URL_POTD = URL_API+"/POTD/";
-    public static final String URL_PICTURE = URL_API+"/Picture/";
-    private static final String URL_PICTURE_INFO = URL_API+"/PictureInfo";
-    private static final String URL_PICTURE_VOTE = URL_API+"/PictureVote";
-    private static final String URL_THEMES = URL_API+"/Theme";
-    private static final String URL_AUTHENTICATION = URL_API+"/Authentication";
-    private static final String URL_COMMENT = URL_API+"/Comment";
-    private static final String URL_USERS = URL_API+"/User";
+    private static final String URL_PICTURE_INFO = URL_API+"/picture";
+    public static final String URL_PICTURE = URL_PICTURE_INFO+"/content";
+    public static final String URL_PICTURE_DATE = URL_PICTURE+"/date";
 
-    private TokenInformations tokensInfos;
+    private static final String URL_PICTURE_VOTE = URL_PICTURE_INFO+"/vote";
+    private static final String URL_THEMES = URL_API+"/theme";
+    private static final String URL_USERS = URL_API+"/user";
+    private static final String URL_USERS_BY_ID = URL_USERS+"/id/%s";
+    private static final String URL_AUTHENTICATION = URL_USERS+"/authentication";
+    private static final String URL_COMMENT = URL_PICTURE_INFO+"/comment";
+
+    private TokenInformation tokensInfos;
 
     public ApiHelper(){
         this.tokensInfos = null;
     }
 
-    public ApiHelper(TokenInformations tokensInfos){
+    public ApiHelper(TokenInformation tokensInfos){
         this.tokensInfos = tokensInfos;
     }
 
-    public TokenInformations getAccessToken(String pseudo, String password, String flags) throws IOException, JSONException, InvalidParameterException, ParseException {
-        Uri.Builder parameters = new Uri.Builder()
-                .appendQueryParameter(PSEUDO, pseudo)
-                .appendQueryParameter(PASSWORD, password);
+    public TokenInformation getAccessToken(String pseudo, String password, String flags) throws IOException, JSONException, PictothemoException, ParseException {
+        Uri.Builder parameters = null;
 
-        if(flags != null)
+        if(flags != null){
+            parameters = new Uri.Builder();
             parameters.appendQueryParameter(FLAGS, flags);
+        }
+
         boolean isPasswordSalted = flags != null && flags.equals(FLAG_SALT);
-        HttpURLConnection http = this.createHttpConnection(URL_AUTHENTICATION, HttpVerb.POST.toString(), parameters, false);
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(PSEUDO, pseudo);
+        headers.put(PASSWORD, password);
+
+        HttpURLConnection http = this.createHttpConnection(URL_AUTHENTICATION, HttpVerb.POST.toString(), parameters, headers, false);
 
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-            JSONObject result = this.getJSONResponse(http);
+            JSONObject result = this.getJSONObjectResponse(http, false);
+            http.disconnect();
             if(result.has(ApiHelper.ACCESS_TOKEN) && !result.getString(ApiHelper.ACCESS_TOKEN).isEmpty()){
 
                 if(!isPasswordSalted){
@@ -124,21 +137,20 @@ public class ApiHelper {
                 }
 
                 int id = result.has(ApiHelper.ID)?result.getInt(ApiHelper.ID):-1;
-                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
+                this.tokensInfos = new TokenInformation(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
                                                          new User(id, pseudo), password, isPasswordSalted);
                 return this.tokensInfos;
             }else{
                 return null;
             }
-        }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
-            throw new InvalidParameterException();
+        }else{
+            JSONObject response = this.getJSONObjectResponse(http, true);
+            http.disconnect();
+            throw new PictothemoException(response);
         }
-
-        http.disconnect();
-        return null;
     }
 
-    public void validateToken(Context context, TokenInformations tokenInfos, IAsyncResponse delegate){
+    public void validateToken(Context context, TokenInformation tokenInfos, IAsyncResponse delegate){
         if(Calendar.getInstance().after(tokenInfos.getExpiresToken())){
             this.refreshToken(context, tokenInfos, delegate);
         }else{
@@ -146,29 +158,32 @@ public class ApiHelper {
         }
     }
 
-    private void refreshToken(Context context, TokenInformations tokenInfos, IAsyncResponse delegate){
+    private void refreshToken(Context context, TokenInformation tokenInfos, IAsyncResponse delegate){
         LogInTask login = new LogInTask(context, tokenInfos, false);
         login.setDelegate(delegate);
         login.execute();
     }
 
-    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters, boolean authorization) throws IOException{
+    private HttpURLConnection createHttpConnection(String Url, String method, Uri.Builder parameters, HashMap<String, String> headers, final boolean authorization) throws IOException{
         URL url;
-        if(method.equals(HttpVerb.GET.toString())){
-            if(parameters == null)
-                parameters = new Uri.Builder();
-
-            parameters.appendQueryParameter("locale", Locale.getDefault().getCountry());
+        if(method.equals(HttpVerb.GET.toString()) && parameters != null)
             url = new URL(Url+parameters.toString());
-        }
         else
             url = new URL(Url);
 
-        HttpURLConnection http = (HttpURLConnection)url.openConnection();
+        HttpURLConnection  http = (HttpURLConnection)url.openConnection();
         http.setRequestMethod(method);
         http.setRequestProperty("Connection", "close");
+
+        //headers
         if(authorization && this.tokensInfos != null)
             http.addRequestProperty("Authorization", this.tokensInfos.getAccessToken());
+
+        http.addRequestProperty("Accept-language", Locale.getDefault().getCountry());
+
+        if(headers != null)
+            for (Map.Entry<String, String > entry : headers.entrySet())
+                http.addRequestProperty(entry.getKey(), entry.getValue());
 
         if(method.equals(HttpVerb.POST.toString()) || method.equals(HttpVerb.PUT.toString())){
             http.setDoOutput(true);
@@ -188,8 +203,8 @@ public class ApiHelper {
         return http;
     }
 
-    private JSONObject getJSONResponse(HttpURLConnection http) throws IOException, JSONException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(http.getInputStream()));
+    private String getJSONResponse(HttpURLConnection http, boolean error) throws IOException, JSONException {
+        BufferedReader in = new BufferedReader(new InputStreamReader((error) ? http.getErrorStream() : http.getInputStream()));
         String inputLine;
         StringBuilder response = new StringBuilder();
 
@@ -197,42 +212,47 @@ public class ApiHelper {
             response.append(inputLine);
         }
         in.close();
-        return new JSONObject(response.toString());
+        String temp3 = response.toString();
+        return response.toString();
+    }
+
+    private JSONObject getJSONObjectResponse(HttpURLConnection http, boolean error) throws IOException, JSONException {
+        return new JSONObject(this.getJSONResponse(http, error));
+    }
+
+    private JSONArray getJSONArrayResponse(HttpURLConnection http) throws IOException, JSONException {
+        return new JSONArray(this.getJSONResponse(http, false));
     }
 
     public User getUser(int id) {
 
         HttpURLConnection http = null;
         try {
-            http = this.createHttpConnection(URL_USERS+"/"+id, HttpVerb.GET.toString(), null, true);
+            http = this.createHttpConnection(String.format(URL_USERS_BY_ID, id), HttpVerb.GET.toString(), null, null, true);
 
             if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-                JSONObject response = this.getJSONResponse(http);
+                JSONObject userObj = this.getJSONObjectResponse(http, false);
 
-                if(response.length() == 0)
+                if(userObj.length() == 0)
                     return null;
 
-                if(!response.has(ApiHelper.ENTITY_USER))
-                    return null;
-
-                JSONObject userObj = response.getJSONObject(ApiHelper.ENTITY_USER);
                 String name = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
-                int profil = userObj.has(ApiHelper.PROFIL_ID)?userObj.getInt(ApiHelper.PROFIL_ID):0;
+                int profile = userObj.has(ApiHelper.PROFIL_ID)?userObj.getInt(ApiHelper.PROFIL_ID):0;
                 String date = userObj.has(ApiHelper.REGISTRATION_DATE)?userObj.getString(ApiHelper.REGISTRATION_DATE):"";
-                User user = new User(id, name, ApplicationHelper.convertStringToDate(date, false), profil);
+                User user = new User(id, name, ApplicationHelper.convertStringToDate(date, false), profile);
 
                 int trophyId;
                 boolean validated;
                 String title;
                 String description;
                 JSONObject trophy;
-                JSONArray trophies = response.getJSONArray(ApiHelper.ENTITY_TROPHIES);
+                JSONArray trophies = userObj.getJSONArray(ENTITY_TROPHIES);
                 for (int i = 0, len = trophies.length();i < len; i++) {
                     trophy = trophies.getJSONObject(i);
-                    trophyId = trophy.has(ApiHelper.ID)?trophy.getInt(ApiHelper.ID):0;
-                    title = trophy.has(ApiHelper.TROPHY_TITLE)?trophy.getString(ApiHelper.TROPHY_TITLE):"";
-                    description = trophy.has(ApiHelper.TROPHY_DESCRIPTION)?trophy.getString(ApiHelper.TROPHY_DESCRIPTION):"";
-                    validated = trophy.has(ApiHelper.USER_ID)?trophy.getInt(ApiHelper.USER_ID) > 0:false;
+                    trophyId = trophy.has(ID)?trophy.getInt(ID):0;
+                    title = trophy.has(TROPHY_TITLE)?trophy.getString(TROPHY_TITLE):"";
+                    description = trophy.has(TROPHY_DESCRIPTION)?trophy.getString(TROPHY_DESCRIPTION):"";
+                    validated = trophy.has(VALIDATED) && trophy.getBoolean(VALIDATED);
                     user.addTrophy(new Trophy(trophyId, title, description, validated));
                 }
 
@@ -252,39 +272,31 @@ public class ApiHelper {
         return null;
     }
 
-    public TokenInformations createUser(String pseudo, String password) throws IOException, JSONException, ParseException {
-        Uri.Builder parameter = new Uri.Builder()
-                .appendQueryParameter(PSEUDO, pseudo)
-                .appendQueryParameter(PASSWORD, password);
-        HttpURLConnection http = this.createHttpConnection(URL_USERS, HttpVerb.PUT.toString(), parameter, false);
+    public TokenInformation createUser(String pseudo, String password) throws IOException, JSONException, ParseException, PictothemoException {
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put(PSEUDO, pseudo);
+        headers.put(PASSWORD, password);
+        HttpURLConnection http = this.createHttpConnection(URL_USERS, HttpVerb.POST.toString(), null, headers, false);
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-            JSONObject result = this.getJSONResponse(http);
+            JSONObject result = this.getJSONObjectResponse(http, false);
+            http.disconnect();
             if(result.has(ApiHelper.ACCESS_TOKEN) && result.has(ApiHelper.EXPIRES_TOKEN) && result.has(ApiHelper.SALT) && result.has(ApiHelper.ID)){
                 User user = new User(result.getInt(ApiHelper.ID), pseudo);
-                this.tokensInfos = new TokenInformations(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
+                this.tokensInfos = new TokenInformation(result.getString(ApiHelper.ACCESS_TOKEN), ApplicationHelper.convertStringToDate(result.getString(ApiHelper.EXPIRES_TOKEN), false),
                     user, ApplicationHelper.hashPassword(password+result.getString(ApiHelper.SALT)), true);
                 return this.tokensInfos;
             }
-        }else if(http.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN){
-            throw new InvalidParameterException();
+        }else{
+            JSONObject response = this.getJSONObjectResponse(http, true);
+            http.disconnect();
+            throw new PictothemoException(response);
         }
 
-        http.disconnect();
         return null;
     }
 
-    public boolean deleteUser(String pseudo, String password) throws IOException{
-        boolean result;
-        String parameters = String.format("?pseudo=%s&password=%s", pseudo, password);
-        HttpURLConnection http = this.createHttpConnection(URL_USERS+parameters, HttpVerb.DELETE.toString(), null, true);
-
-        result = http.getResponseCode() == HttpURLConnection.HTTP_OK;
-        http.disconnect();
-        return result;
-    }
-
-    public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, String flags) {
-        Uri.Builder parameter = new Uri.Builder().appendQueryParameter(FLAGS, flags);
+    public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, Boolean potd) {
+        Uri.Builder parameter = new Uri.Builder();
 
         ArrayList<Picture> pictures = null;
         if(startingDate != null)
@@ -293,52 +305,63 @@ public class ApiHelper {
         if(endingDate != null)
             parameter.appendQueryParameter(ENDING_DATE, ApplicationHelper.convertDateToString(endingDate, false, false));
 
-        if(theme != null)
+        if(theme != null && !theme.isEmpty())
             parameter.appendQueryParameter(THEME, theme);
 
-        if(user != null)
-            parameter.appendQueryParameter(PSEUDO, user);
+        if(user != null && !user.isEmpty())
+            parameter.appendQueryParameter(ENTITY_USER, user);
 
         if(voteCount != null)
             parameter.appendQueryParameter(VOTE_COUNT, String.valueOf(voteCount));
 
+        if(potd != null)
+            parameter.appendQueryParameter(POTD, potd.toString());
+
         HttpURLConnection http = null;
         try{
-            http = this.createHttpConnection(URL_PICTURE_INFO, HttpVerb.GET.toString(), parameter, false);
+            http = this.createHttpConnection(URL_PICTURE_INFO, HttpVerb.GET.toString(), parameter, null, false);
 
             if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
-                JSONObject result = this.getJSONResponse(http);
+                JSONArray picturesObj = this.getJSONArrayResponse(http);
 
-                if(result.length() == 0)
+                if(picturesObj.length() == 0)
                     return null;
 
                 pictures = new ArrayList<>();
-                JSONArray picturesObj = result.getJSONArray(ApiHelper.ENTITY_PICTURES);
 
                 JSONObject commentObj, pictureObj;
                 JSONArray comments;
-                boolean potd;
-                int id, userID, positiveVote, negativeVote;
+                int userID = -1;
+                int id, positiveVote, negativeVote;
                 Picture picture;
-                String textComment, pictureTheme;
+                String textComment;
+                String pictureTheme = null;
+                String pseudo = null;
                 User pictureUser;
                 Calendar date;
+                JSONObject themeObj;
+                JSONObject userObj;
                 for(int i = 0, length = picturesObj.length(); i < length; ++i){
                     pictureObj = picturesObj.getJSONObject(i);
-
-                    id = pictureObj.has(ApiHelper.ID)?pictureObj.getInt(ApiHelper.ID):0;
-                    pictureTheme = pictureObj.has(ApiHelper.THEME_NAME)?pictureObj.getString(ApiHelper.THEME_NAME):"";
-
-                    userID = pictureObj.has(ApiHelper.USER_ID)?pictureObj.getInt(ApiHelper.USER_ID):0;
-                    String pseudo = pictureObj.has(ApiHelper.PSEUDO)?pictureObj.getString(ApiHelper.PSEUDO):"";
-
                     date = null;
-                    if(pictureObj.has(ApiHelper.CANDIDATE_DATE))
-                        date = ApplicationHelper.convertStringToDate(pictureObj.getString(ApiHelper.CANDIDATE_DATE), false);
+                    id = pictureObj.has(ApiHelper.ID)?pictureObj.getInt(ApiHelper.ID):0;
+
+                    themeObj = pictureObj.has(ApiHelper.THEME)?pictureObj.getJSONObject(ApiHelper.THEME):null;
+                    if(themeObj != null){
+                        pictureTheme = themeObj.has(ApiHelper.THEME_NAME)?themeObj.getString(ApiHelper.THEME_NAME):"";
+                        if(themeObj.has(ApiHelper.CANDIDATE_DATE))
+                            date = ApplicationHelper.convertStringToDate(themeObj.getString(ApiHelper.CANDIDATE_DATE), false);
+                    }
+
+                    userObj = pictureObj.has(ApiHelper.ENTITY_USER)?pictureObj.getJSONObject(ApiHelper.ENTITY_USER):null;
+                    if(userObj != null){
+                        userID = userObj.has(ApiHelper.ID)?userObj.getInt(ApiHelper.ID):0;
+                        pseudo = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
+                    }
 
                     positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE)?pictureObj.getInt(ApiHelper.POSITIVE_VOTE):0;
                     negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE)?pictureObj.getInt(ApiHelper.NEGATIVE_VOTE):0;
-                    potd = pictureObj.has(ApiHelper.POTD) && pictureObj.getInt(ApiHelper.POTD) > 0;
+                    potd = pictureObj.has(ApiHelper.POTD) && pictureObj.getBoolean(ApiHelper.POTD);
 
                     picture = new Picture(id, new Theme(pictureTheme, date), new User(userID, pseudo), positiveVote, negativeVote, potd);
 
@@ -349,7 +372,14 @@ public class ApiHelper {
                             commentObj = comments.getJSONObject(j);
 
                             textComment=  commentObj.getString(COMMENT_TEXT);
-                            pictureUser = new User(commentObj.getInt(ApiHelper.ID), commentObj.getString(ApiHelper.PSEUDO));
+
+                            userObj = commentObj.has(ApiHelper.ENTITY_USER)?commentObj.getJSONObject(ApiHelper.ENTITY_USER):null;
+                            if(userObj != null){
+                                userID = userObj.has(ApiHelper.ID)?userObj.getInt(ApiHelper.ID):0;
+                                pseudo = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
+                            }
+
+                            pictureUser = new User(userID, pseudo);
                             Comment comment = new Comment(pictureUser, textComment, ApplicationHelper.convertStringToDate(commentObj.getString(PUBLISH_DATE), true));
                             picture.getComments().add(comment);
                         }
@@ -371,25 +401,24 @@ public class ApiHelper {
 
         return pictures;
     }
-
+    
     public ThemeList getThemes(Calendar candidateDate) {
 
         HttpURLConnection http = null;
         try {
             String date = ApplicationHelper.convertDateToString(candidateDate, false, false);
-            http = this.createHttpConnection(URL_THEMES+"/"+date, HttpVerb.GET.toString(), null, false);
+            http = this.createHttpConnection(URL_THEMES+"/"+date, HttpVerb.GET.toString(), null, null, false);
 
             if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
                 ArrayList<Theme> themeList = new ArrayList<>();
-                JSONObject response = this.getJSONResponse(http);
+                JSONArray themes = this.getJSONArrayResponse(http);
 
-                if(response.length() == 0)
+                if(themes.length() == 0)
                     return null;
 
                 String name;
                 int id;
                 JSONObject theme;
-                JSONArray themes = response.getJSONArray(ApiHelper.ENTITY_THEMES);
                 for (int i = 0, len = themes.length();i < len; i++) {
                     theme = themes.getJSONObject(i);
                     id = theme.has(ApiHelper.ID)?theme.getInt(ApiHelper.ID):0;
@@ -415,34 +444,31 @@ public class ApiHelper {
     }
 
     public boolean voteForTheme(int theme) throws IOException, JSONException, ParseException {
-        HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+theme, HttpVerb.PUT.toString(), null, true);
+        HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+theme, HttpVerb.POST.toString(), null, null, true);
         int resultCode = http.getResponseCode();
         http.disconnect();
         return resultCode == HttpURLConnection.HTTP_OK;
     }
 
     public Picture voteForPicture(Picture picture, boolean positive) {
-        Uri.Builder parameter = new Uri.Builder().appendQueryParameter(POSITIVE_VOTE, positive ? "1" : "0");
         HttpURLConnection http = null;
         try {
-            http = this.createHttpConnection(URL_PICTURE_VOTE + "/" + picture.getId(), HttpVerb.POST.toString(), parameter, true);
+            http = this.createHttpConnection(String.format("%s/%s/%s", URL_PICTURE_VOTE, picture.getId(), positive), HttpVerb.POST.toString(), null, null, true);
             int resultCode = http.getResponseCode();
 
             if (resultCode != HttpURLConnection.HTTP_OK)
                 return null;
 
-            JSONObject resultArray = this.getJSONResponse(http);
+            JSONObject pictureObj = this.getJSONObjectResponse(http, false);
 
-            if (resultArray.length() == 0)
+            if (pictureObj.length() == 0)
                 return null;
 
-            JSONObject result = resultArray.getJSONArray(ApiHelper.ENTITY_PICTURES).getJSONObject(0);
+            if (pictureObj.has(ApiHelper.POSITIVE_VOTE))
+                picture.setPositiveVote(pictureObj.getInt(ApiHelper.POSITIVE_VOTE));
 
-            if (result.has(ApiHelper.POSITIVE_VOTE))
-                picture.setPositiveVote(result.getInt(ApiHelper.POSITIVE_VOTE));
-
-            if (result.has(ApiHelper.NEGATIVE_VOTE))
-                picture.setNegativeVote(result.getInt(ApiHelper.NEGATIVE_VOTE));
+            if (pictureObj.has(ApiHelper.NEGATIVE_VOTE))
+                picture.setNegativeVote(pictureObj.getInt(ApiHelper.NEGATIVE_VOTE));
 
             return picture;
         } catch (IOException | JSONException e) {
@@ -457,18 +483,21 @@ public class ApiHelper {
         Uri.Builder parameter = new Uri.Builder().appendQueryParameter(COMMENT_TEXT, text);
         HttpURLConnection http = null;
         try {
-            http = this.createHttpConnection(URL_COMMENT + "/" + picture, HttpVerb.POST.toString(), parameter, true);
+            http = this.createHttpConnection(URL_COMMENT + "/" + picture, HttpVerb.POST.toString(), parameter, null, true);
             int resultCode = http.getResponseCode();
 
-            if (resultCode != HttpURLConnection.HTTP_OK)
+            JSONObject resultArray;
+            if (resultCode != HttpURLConnection.HTTP_OK){
+                resultArray = this.getJSONObjectResponse(http, true);
+
+                if (resultArray.has(CODE) && resultArray.getString(CODE).equalsIgnoreCase(ENTITY_ALREADY_EXISTS))
+                    return CommentResult.ALREADY_COMMENTED;
                 return CommentResult.ERROR;
+            }
 
-            JSONObject resultArray = this.getJSONResponse(http);
+            resultArray = this.getJSONObjectResponse(http, false);
 
-            if (resultArray.has(ALREADY_COMMENTED))
-                return CommentResult.ALREADY_COMMENTED;
-
-            if (resultArray.has(SUCCESS))
+            if (resultArray.has(SUCCESS) && resultArray.getBoolean(SUCCESS))
                 return CommentResult.SUCCESS;
 
             return CommentResult.ERROR;
@@ -484,16 +513,15 @@ public class ApiHelper {
         HttpURLConnection http = null;
         boolean result = false;
         try {
-            http = this.createHttpConnection(URL_COMMENT + "/" + picture, HttpVerb.DELETE.toString(), null, true);
+            http = this.createHttpConnection(URL_COMMENT + "/" + picture, HttpVerb.DELETE.toString(), null, null, true);
             int resultCode = http.getResponseCode();
 
             if (resultCode != HttpURLConnection.HTTP_OK)
                 return false;
 
-            JSONObject resultArray = this.getJSONResponse(http);
+            JSONObject resultArray = this.getJSONObjectResponse(http, false);
 
-
-            if (resultArray.has(SUCCESS))
+            if (resultArray.has(SUCCESS) && resultArray.getBoolean(SUCCESS))
                 result =  resultArray.getBoolean(SUCCESS);
         } catch (IOException | JSONException e) {
             result = false;
@@ -547,11 +575,9 @@ public class ApiHelper {
         dos.writeBytes(lineEnd);
         dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
 
+        int temp1 = http.getResponseCode();
         if(http.getResponseCode() == HttpURLConnection.HTTP_OK) {
-            JSONObject result = this.getJSONResponse(http);
-
-            if(result == null)
-                return UploadResult.ERROR;
+            JSONObject result = this.getJSONObjectResponse(http, false);
 
             fileInputStream.close();
             dos.flush();
@@ -565,6 +591,9 @@ public class ApiHelper {
                 return UploadResult.SIZE_ERROR;
             else if (result.has(SUCCESS) && result.getBoolean(SUCCESS))
                 return UploadResult.SUCCESS;
+        }else{
+            JSONObject result = this.getJSONObjectResponse(http, true);
+            String temp2 = "";
         }
 
         return UploadResult.ERROR;

@@ -56,11 +56,8 @@ public class SearchFragment extends BaseFragment implements IAsyncApiObjectRespo
                 String voteCountStr = SearchFragment.this.voteCount.getText().toString();
                 Integer voteCount = voteCountStr.isEmpty()? null : Integer.parseInt(voteCountStr);
 
-                String flags = ApiHelper.FLAG_COMMENTS;
-                if(SearchFragment.this.potd.isChecked())
-                    flags += "|"+ApiHelper.FLAG_POTD;
                 GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(startingCalendar, endingCalendar,
-                                                            theme, user, voteCount, flags
+                                                            theme, user, voteCount, SearchFragment.this.potd.isChecked()
                                                             , SearchFragment.this.getActivity()
                                                             , SearchFragment.this);
                 getPicturesInfosTask.execute();

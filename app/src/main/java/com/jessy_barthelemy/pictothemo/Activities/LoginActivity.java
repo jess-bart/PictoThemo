@@ -15,7 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.LogInTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.RegistrationTask;
@@ -33,7 +33,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     private FormHelper formHelper;
     private ImageView loader;
     private LinearLayout loginContainer;
-    private TokenInformations tokenInfos;
+    private TokenInformation tokenInfos;
     /*Keep the last action to execute on password IME action (login or register)*/
     private boolean attemptRegitration;
 
@@ -107,7 +107,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.attemptRegitration = true;
 
         ApplicationHelper.resetPreferences(this);
-        this.tokenInfos = new TokenInformations();
+        this.tokenInfos = new TokenInformation();
 
         if(this.isFormValid()){
             /*Database verification*/
@@ -122,7 +122,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.attemptRegitration = false;
 
         ApplicationHelper.resetPreferences(this);
-        this.tokenInfos = new TokenInformations();
+        this.tokenInfos = new TokenInformation();
 
         if(this.isFormValid()){
             this.tokenInfos.setUser(new User(pseudo.getEditText().getText().toString()));

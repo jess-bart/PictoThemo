@@ -100,7 +100,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                                                         today,
                                                         today,
                                                         null, null, null,
-                                                        ApiHelper.FLAG_POTD+"|"+ApiHelper.FLAG_COMMENTS,
+                                                        true,
                                                         this.getActivity(),
                                                         this);
         getPicturesInfosTask.execute();
@@ -126,7 +126,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
             public void onClick(View v) {
                 Calendar tomorrow = Calendar.getInstance();
                 tomorrow.add(Calendar.DATE, 1);
-                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, ApiHelper.FLAG_COMMENTS, HomeFragment.this.getActivity(), HomeFragment.this);
+                GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, null, HomeFragment.this.getActivity(), HomeFragment.this);
                 getPicturesInfosTask.execute();
             }
         });
@@ -241,21 +241,22 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
             this.updatePicture();
         }else if(response instanceof ThemeList){
             ThemeList themeList = (ThemeList) response;
-            if(themeList.getThemes() != null && themeList.getThemes().size() > 1){
+            if(themeList.getThemes() != null && themeList.getThemes().size() > 2){
+                Theme theme0 = themeList.getThemes().get(0);
                 this.theme1 = themeList.getThemes().get(1);
                 this.theme2 = themeList.getThemes().get(2);
 
-                this.voteThemeButton.setText(themeList.getThemes().get(0).getName());
-                this.theme1Button.setText(themeList.getThemes().get(1).getName());
-                this.theme2Button.setText(themeList.getThemes().get(2).getName());
+                this.voteThemeButton.setText(theme0.getName());
+                this.theme1Button.setText(theme1.getName());
+                this.theme2Button.setText(theme2.getName());
 
                 this.voteThemeButton.setEnabled(true);
                 this.theme1Button.setEnabled(true);
                 this.theme2Button.setEnabled(true);
 
                 SharedPreferences settings = this.getActivity().getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
-                boolean theme1enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme1, false);
-                boolean theme2enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme2, false);
+                boolean theme1enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme1.getId(), false);
+                boolean theme2enabled = settings.getBoolean(ApplicationHelper.THEME_PREFS_PREFIX+this.theme2.getId(), false);
 
                 if(theme1enabled || theme2enabled)
                     HomeFragment.this.setThemeButtonColor(theme1enabled);
@@ -268,7 +269,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
             editor.putBoolean(ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(theme.getId()), true);
 
-            editor.remove((this.theme1.getId() == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1));
+            editor.remove((this.theme1.getId() == theme.getId())?ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme2.getId()):ApplicationHelper.THEME_PREFS_PREFIX+String.valueOf(this.theme1.getId()));
             editor.apply();
         }
     }

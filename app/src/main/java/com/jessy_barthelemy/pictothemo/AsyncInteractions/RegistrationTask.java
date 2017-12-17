@@ -4,23 +4,22 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
+import com.jessy_barthelemy.pictothemo.Exception.PictothemoException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
-import java.security.InvalidParameterException;
-
 public class RegistrationTask extends AsyncTask<String, Void, String> {
 
     private Context context;
     private ProgressDialog waitDialog;
-    private TokenInformations tokensInfos;
+    private TokenInformation tokensInfos;
     /*reference to the class that want a success callback*/
     private IAsyncResponse delegate;
 
-    public RegistrationTask(Context ctx, TokenInformations tokenInfos, IAsyncResponse delegate){
+    public RegistrationTask(Context ctx, TokenInformation tokenInfos, IAsyncResponse delegate){
         this.context = ctx;
         this.tokensInfos = tokenInfos;
 
@@ -54,8 +53,8 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
             if(this.tokensInfos == null){
                 errorMessage = context.getResources().getString(R.string.network_unavalaible);
             }
-        }catch (InvalidParameterException ipe){
-            errorMessage = context.getResources().getString(R.string.registration_fail);
+        }catch (PictothemoException pe){
+            errorMessage = pe.getMessage();
         }catch (Exception e){
             errorMessage = context.getResources().getString(R.string.network_unavalaible);
         }

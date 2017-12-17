@@ -12,7 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
-import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.R;
 
@@ -63,15 +63,18 @@ public class ApplicationHelper {
             byte[] digest = m.digest();
             BigInteger bigInt = new BigInteger(1,digest);
             hashText = bigInt.toString(16);
+            StringBuilder builder = new StringBuilder();
             while(hashText.length() < 32 ){
-                hashText = "0"+hashText;
+                builder.append("0");
             }
+
+            hashText = builder.append(hashText).toString();
         }
 
         return hashText;
     }
 
-    public static void savePreferences(Context context, TokenInformations tokenInfos){
+    public static void savePreferences(Context context, TokenInformation tokenInfos){
         SharedPreferences settings = context.getSharedPreferences(ApplicationHelper.PICTOTHEMO_PREFS, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
 
@@ -86,7 +89,7 @@ public class ApplicationHelper {
         editor.apply();
     }
 
-    public static TokenInformations getTokenInformations(Context context){
+    public static TokenInformation getTokenInformations(Context context){
         if(context == null)
             return null;
 
@@ -99,7 +102,7 @@ public class ApplicationHelper {
         Calendar expiresDate;
         expiresDate = ApplicationHelper.convertStringToDate(expiresToken, false);
 
-        return new TokenInformations(accessToken, expiresDate, new User(id, pseudo), password, !accessToken.isEmpty());
+        return new TokenInformation(accessToken, expiresDate, new User(id, pseudo), password, !accessToken.isEmpty());
     }
 
     public static User getCurrentUser(Context context){
@@ -133,6 +136,9 @@ public class ApplicationHelper {
     }
 
     public static String convertDateToString(Calendar date, boolean longFormat, boolean presentationFormat){
+        if(date == null)
+            return null;
+
         if(presentationFormat){
             DateFormat df = DateFormat.getDateInstance((longFormat)? DateFormat.SHORT:DateFormat.LONG, Locale.getDefault());
             return df.format(date.getTime());

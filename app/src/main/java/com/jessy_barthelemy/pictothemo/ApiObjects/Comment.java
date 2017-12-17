@@ -34,6 +34,6 @@ public class Comment implements Serializable, Comparable<Comment> {
 
     @Override
     public int compareTo(@NonNull Comment comment) {
-        return comment.getDate().compareTo(this.date);
+        return comment.getDate() != null ? comment.getDate().compareTo(this.date) : -1;
     }
 }

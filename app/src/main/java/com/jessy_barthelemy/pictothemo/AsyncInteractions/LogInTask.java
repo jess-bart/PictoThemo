@@ -4,26 +4,25 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformations;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
+import com.jessy_barthelemy.pictothemo.Exception.PictothemoException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncResponse;
 import com.jessy_barthelemy.pictothemo.R;
-
-import java.security.InvalidParameterException;
 
 public class LogInTask extends AsyncTask<Void, Void, String> {
 
     private Context context;
     private ProgressDialog waitDialog;
     private boolean showLoading;
-    private TokenInformations tokensInfos;
+    private TokenInformation tokensInfos;
     /*reference to the class that want a success callback*/
     private IAsyncResponse delegate;
     private boolean isNetworkAvailable;
 
     /*Constructor without ui*/
-    public LogInTask(Context ctx, TokenInformations tokenInfos, boolean showLoading){
+    public LogInTask(Context ctx, TokenInformation tokenInfos, boolean showLoading){
         this.context = ctx;
         this.showLoading = showLoading;
         this.tokensInfos = tokenInfos;
@@ -65,11 +64,10 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
             ApiHelper helper = new ApiHelper();
             this.tokensInfos = helper.getAccessToken(this.tokensInfos.getUser().getPseudo(), this.tokensInfos.getPassword(), flags);
 
-            if(this.tokensInfos == null){
+            if(this.tokensInfos == null)
                 errorMessage = context.getResources().getString(R.string.login_fail);
-            }
-        }catch (InvalidParameterException ipe){
-            errorMessage = context.getResources().getString(R.string.login_fail);
+        }catch (PictothemoException pe){
+            errorMessage = pe.getMessage();
         }catch (Exception e){
             isNetworkAvailable = false;
             errorMessage = context.getResources().getString(R.string.network_unavalaible);

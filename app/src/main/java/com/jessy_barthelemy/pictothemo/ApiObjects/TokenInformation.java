@@ -2,14 +2,14 @@ package com.jessy_barthelemy.pictothemo.ApiObjects;
 
 import java.util.Calendar;
 
-public class TokenInformations {
+public class TokenInformation {
     private String accessToken;
     private Calendar expiresToken;
     private User user;
     private String password;
     private boolean isPasswordSalted;
 
-    public TokenInformations() {
+    public TokenInformation() {
         this.accessToken = "";
         this.password = "";
         this.user = new User();
@@ -17,7 +17,7 @@ public class TokenInformations {
         this.isPasswordSalted = false;
     }
 
-    public TokenInformations(String accessToken,Calendar expiresToken, User user, String password, boolean isPasswordSalted) {
+    public TokenInformation(String accessToken, Calendar expiresToken, User user, String password, boolean isPasswordSalted) {
         this.accessToken = accessToken;
         this.user = user;
         this.password = password;
