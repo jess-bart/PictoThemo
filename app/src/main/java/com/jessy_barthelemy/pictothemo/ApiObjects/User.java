@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 public class User implements Serializable {
-    private int id;
+    private long id;
     private String pseudo;
     private Calendar registrationDate;
     private int profil;
@@ -20,14 +20,19 @@ public class User implements Serializable {
         this.profil = 0;
     }
 
-    public User(int id, String pseudo){
+    public User(long id, String pseudo){
         this.id = id;
         this.pseudo = pseudo;
         this.trophies = new ArrayList<>();
         this.profil = 0;
     }
 
-    public User(int id, String pseudo, Calendar registrationDate, int profil){
+    public User(long id, String pseudo, int profil){
+        this(id, pseudo);
+        this.profil = profil;
+    }
+
+    public User(long id, String pseudo, Calendar registrationDate, int profil){
         this.id = id;
         this.pseudo = pseudo;
         this.trophies = new ArrayList<>();
@@ -41,11 +46,11 @@ public class User implements Serializable {
         this.pseudo = pseudo;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -63,5 +68,9 @@ public class User implements Serializable {
 
     public int getProfil() {
         return profil;
+    }
+
+    public void setProfil(int profil) {
+        this.profil = profil;
     }
 }

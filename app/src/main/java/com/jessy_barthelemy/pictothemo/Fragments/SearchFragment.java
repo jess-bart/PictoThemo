@@ -66,12 +66,27 @@ public class SearchFragment extends BaseFragment implements IAsyncApiObjectRespo
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
+        Calendar date = null;
         this.startingDate.init(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker datePicker, int year, int month, int dayOfMonth) {
                 Calendar date = SearchFragment.this.getDate(datePicker);
-                SearchFragment.this.endingDate.setMinDate(0);
+                Calendar maxDate = (Calendar) date.clone();
+                maxDate.add(Calendar.YEAR, 5);
+
+                date.set(Calendar.HOUR_OF_DAY, date.getMinimum(Calendar.HOUR_OF_DAY));
+                date.set(Calendar.MINUTE, date.getMinimum(Calendar.MINUTE));
+                date.set(Calendar.SECOND, date.getMinimum(Calendar.SECOND));
+                date.set(Calendar.MILLISECOND, date.getMinimum(Calendar.MILLISECOND));
+
+                maxDate.set(Calendar.HOUR_OF_DAY, maxDate.getMaximum(Calendar.HOUR_OF_DAY));
+                maxDate.set(Calendar.MINUTE, maxDate.getMaximum(Calendar.MINUTE));
+                maxDate.set(Calendar.SECOND, maxDate.getMaximum(Calendar.SECOND));
+                maxDate.set(Calendar.MILLISECOND, maxDate.getMaximum(Calendar.MILLISECOND));
+
                 SearchFragment.this.endingDate.setMinDate(date.getTimeInMillis());
+                SearchFragment.this.endingDate.setMaxDate(maxDate.getTimeInMillis());
+
             }
         });
 

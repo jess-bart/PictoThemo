@@ -6,6 +6,8 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.Activities.BaseActivity;
 import com.jessy_barthelemy.pictothemo.Adapters.CommentArrayAdapter;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Comment;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
@@ -42,6 +45,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
     private final int DELETE_COMMENT_MENU = 1;
     private Picture picture;
     private ImageView pictureIsPotd;
+    private ImageView pictureProfile;
     private TextView picturePseudo;
     private TextView pictureTheme;
     private TextView pictureDate;
@@ -52,6 +56,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
     private ListView comments;
     private User me;
     private CommentArrayAdapter commentAdapter;
+    private InputFilter emojiFilter;
 
     public PictureFragment() {}
 
@@ -71,6 +76,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
         View rootView = inflater.inflate(R.layout.fragment_pictures, container, false);
 
         ImageView pictureView = (ImageView) rootView.findViewById(R.id.picture);
+        this.pictureProfile = (ImageView)rootView.findViewById(R.id.picture_profil);
         this.picturePseudo = (TextView)rootView.findViewById(R.id.picture_pseudo);
         this.pictureTheme = (TextView)rootView.findViewById(R.id.picture_theme);
         this.pictureDate = (TextView)rootView.findViewById(R.id.picture_date);
@@ -83,6 +89,18 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
         this.pictureIsPotd = (ImageView)rootView.findViewById(R.id.is_potd);
 
         View pictureVote = rootView.findViewById(R.id.vote);
+
+        this.emojiFilter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                for (int i = start; i < end; i++) {
+                    int type = Character.getType(source.charAt(i));
+                    if (type == Character.SURROGATE || type == Character.OTHER_SYMBOL)
+                        return "";
+                }
+                return null;
+            }
+        };
 
         if(this.picture.isPotd())
             this.pictureIsPotd.setVisibility(View.VISIBLE);
@@ -125,6 +143,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
     }
 
     private void updateImage(){
+        this.pictureProfile.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.picture.getUser().getProfil(), false));
         this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getActivity(), this.picture.getUser().getPseudo()));
         this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
 
@@ -135,6 +154,20 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
         this.picturePositiveVote.setText(String.valueOf(this.picture.getPositiveVote()));
         this.pictureNegativeVote.setText(String.valueOf(this.picture.getNegativeVote()));
         this.updateCommentCount();
+
+        this.pictureProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((BaseActivity)PictureFragment.this.getActivity()).openProfil(PictureFragment.this.picture.getUser().getId());
+            }
+        });
+
+        this.picturePseudo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((BaseActivity)PictureFragment.this.getActivity()).openProfil(PictureFragment.this.picture.getUser().getId());
+            }
+        });
     }
 
     @Override
@@ -236,6 +269,9 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
         LayoutInflater inflater = PictureFragment.this.getActivity().getLayoutInflater();
         View alertLayout = inflater.inflate(R.layout.add_comment, null);
         final EditText commentText = (EditText) alertLayout.findViewById(R.id.add_comment_text);
+
+        commentText.setFilters(new InputFilter[]{this.emojiFilter});
+
         new AlertDialog.Builder(PictureFragment.this.getActivity())
                 .setTitle(R.string.comment)
                 .setView(alertLayout)

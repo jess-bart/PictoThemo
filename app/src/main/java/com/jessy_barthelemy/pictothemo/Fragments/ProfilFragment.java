@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Trophy;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
@@ -37,9 +38,12 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
     private RelativeLayout main;
     private RelativeLayout loader;
 
-    public void setUserId(int userId){
+    public void setUserId(long userId){
         this.user = new User();
         this.user.setId(userId);
+
+        GetUserTask userTask = new GetUserTask(this.user.getId(), this.getActivity(), this);
+        userTask.execute();
     }
 
     @Override
@@ -58,11 +62,6 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
         matrix.setSaturation(0);
         this.disabledFilter = new ColorMatrixColorFilter(matrix);
 
-        if(this.user != null){
-            GetUserTask userTask = new GetUserTask(this.user.getId(), this.getActivity(), this);
-            userTask.execute();
-        }
-
         return view;
     }
 
@@ -75,7 +74,6 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
             this.profilUserName.setText(this.user.getPseudo());
             String date = ApplicationHelper.convertDateToString(this.user.getRegistrationDate(), false, true);
             this.profilRegistrationDate.setText(this.getString(R.string.profil_registration_date, date));
-            this.profilPicture.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.user.getProfil(),  true));
 
             ImageView trophyImg;
 
@@ -89,6 +87,8 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
 
                 this.trophyList.addView(trophyImg);
             }
+
+            this.setProfilId(this.user.getProfil());
 
             this.profilPictures.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -106,7 +106,15 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
             this.trophyList.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ProfilFragment.this.dialog = new TrophyDialog(ProfilFragment.this.getActivity(), user.getTrophies());
+                    ProfilFragment.this.dialog = new TrophyDialog(ProfilFragment.this, user);
+                    ProfilFragment.this.dialog.show();
+                }
+            });
+
+            this.profilPicture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ProfilFragment.this.dialog = new TrophyDialog(ProfilFragment.this, user);
                     ProfilFragment.this.dialog.show();
                 }
             });
@@ -133,7 +141,14 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
     }
 
     public static int getProfilDrawableByName(Context context, int profil, boolean big){
+        if(context == null)
+            return -1;
         String name = big ? context.getString(R.string.profil_big) : context.getString(R.string.profil_normal);
         return context.getResources().getIdentifier(String.format(name, profil), "drawable", context.getPackageName());
+    }
+
+    public void setProfilId(int id){
+        this.user.setProfil(id);
+        this.profilPicture.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), id,  true));
     }
 }

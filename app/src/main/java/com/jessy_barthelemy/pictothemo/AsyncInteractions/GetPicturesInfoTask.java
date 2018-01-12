@@ -49,7 +49,7 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
         if(pictures != null){
             PictureList pictureList = new PictureList(pictures);
             this.delegate.asyncTaskSuccess(pictureList);
-        }else{
+        }else if(this.context != null){
             this.delegate.asyncTaskFail(this.context.getString(R.string.save_picture_empty));
         }
 

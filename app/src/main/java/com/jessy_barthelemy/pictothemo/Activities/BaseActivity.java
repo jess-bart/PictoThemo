@@ -2,6 +2,7 @@ package com.jessy_barthelemy.pictothemo.Activities;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
@@ -78,7 +79,7 @@ public class BaseActivity extends AppCompatActivity
         Fragment home = new HomeFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, home)
+                .replace(R.id.fragmentContainer, home)
                 .commit();
     }
 
@@ -101,6 +102,7 @@ public class BaseActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         Fragment fragment = null;
+        getSupportActionBar().setTitle(item.getTitle());
 
         switch(id){
             case R.id.nav_potd:
@@ -137,7 +139,7 @@ public class BaseActivity extends AppCompatActivity
         }
 
         if(fragment != null)
-            this.setCurrentFragment(fragment);
+            this.setCurrentFragment(fragment, false);
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -237,7 +239,7 @@ public class BaseActivity extends AppCompatActivity
 
             PicturesFragment picturesFragment = new PicturesFragment();
             picturesFragment.setPictures(pictures);
-            this.setCurrentFragment(picturesFragment);
+            this.setCurrentFragment(picturesFragment, true);
         }
     }
 
@@ -246,12 +248,22 @@ public class BaseActivity extends AppCompatActivity
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
-    private void setCurrentFragment(Fragment fragment){
+    protected void setCurrentFragment(Fragment fragment, boolean addToBackStack){
         FragmentManager fragmentManager = getFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer,  fragment, CURRENT_FRAGMENT)
-                .addToBackStack(fragment.getClass().getName())
-                .commit();
+        FragmentTransaction transaction = fragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer,  fragment, CURRENT_FRAGMENT);
+
+        if(addToBackStack)
+            transaction.addToBackStack(fragment.getClass().getName());
+        else{
+            int count = fragmentManager.getBackStackEntryCount();
+
+            while(count > 0){
+                fragmentManager.popBackStack();
+                count--;
+            }
+        }
+        transaction.commit();
     }
 
     public void openPOTD(Picture picture){
@@ -261,12 +273,12 @@ public class BaseActivity extends AppCompatActivity
         PicturesFragment picturesFragment = new PicturesFragment();
         picturesFragment.setPictures(pictures);
 
-        this.setCurrentFragment(picturesFragment);
+        this.setCurrentFragment(picturesFragment, true);
     }
 
-    public void openProfil(int userId){
+    public void openProfil(long userId){
         ProfilFragment profilFragment = new ProfilFragment();
         profilFragment.setUserId(userId);
-        this.setCurrentFragment(profilFragment);
+        this.setCurrentFragment(profilFragment, false);
     }
 }

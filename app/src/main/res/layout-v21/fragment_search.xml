@@ -97,7 +97,8 @@
                 android:theme="@style/ColoredButtonAccent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/search" />
+                android:text="@string/search"
+                android:visibility="visible"/>
             <ProgressBar
                 android:id="@+id/search_progress"
                 android:layout_width="wrap_content"
@@ -108,7 +109,8 @@
                 android:layout_centerInParent="true"
                 android:translationZ="3dp"
                 android:visibility="gone"
-                android:indeterminateTint="@android:color/white"/>
+                android:indeterminateTint="@android:color/white"
+                android:indeterminateTintMode="src_in"/>
         </RelativeLayout>
     </LinearLayout>
 </ScrollView>

@@ -1,5 +1,5 @@
 package com.jessy_barthelemy.pictothemo.Enum;
 
-public enum CommentResult{
+public enum CommentStatus {
     SUCCESS, ERROR, ALREADY_COMMENTED
 }

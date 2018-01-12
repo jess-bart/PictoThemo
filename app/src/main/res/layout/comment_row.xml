@@ -5,10 +5,11 @@
     android:padding="@dimen/little_space">
 
     <ImageView
+        android:id="@+id/comment_profil"
         android:contentDescription="@string/content_user_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_account_circle"
+        android:src="@drawable/profil_0"
         android:paddingStart="@dimen/little_space"
         android:paddingEnd="@dimen/little_space"/>
 

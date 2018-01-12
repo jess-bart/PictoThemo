@@ -7,15 +7,16 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
+import com.jessy_barthelemy.pictothemo.R;
 
 public class GetUserTask extends AsyncTask<String, Void, User> {
 
-    private int id;
+    private long id;
     private Context context;
     /*reference to the class that want a success callback*/
     private IAsyncApiObjectResponse delegate;
 
-    public GetUserTask(int id, Context context, IAsyncApiObjectResponse delegate){
+    public GetUserTask(long id, Context context, IAsyncApiObjectResponse delegate){
         this.id = id;
         this.context = context;
 
@@ -33,7 +34,7 @@ public class GetUserTask extends AsyncTask<String, Void, User> {
     protected void onPostExecute(User user) {
         if(user != null)
             this.delegate.asyncTaskSuccess(user);
-        else
-            this.delegate.asyncTaskFail("erreur user");
+        else if(this.context != null)
+            this.delegate.asyncTaskFail(this.context.getString(R.string.profil_load_error));
     }
 }

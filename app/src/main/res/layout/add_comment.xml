@@ -8,5 +8,5 @@
         android:id="@+id/add_comment_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/comment_placeholder"/>
+        android:hint="@string/comment_placeholder" />
 </LinearLayout>

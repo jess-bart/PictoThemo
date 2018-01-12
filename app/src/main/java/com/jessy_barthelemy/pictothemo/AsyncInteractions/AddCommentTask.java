@@ -4,7 +4,10 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Comment;
-import com.jessy_barthelemy.pictothemo.Enum.CommentResult;
+import com.jessy_barthelemy.pictothemo.ApiObjects.CommentResult;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
+import com.jessy_barthelemy.pictothemo.Enum.CommentStatus;
+import com.jessy_barthelemy.pictothemo.Exception.TokenExpiredException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
@@ -31,13 +34,29 @@ public class AddCommentTask extends AsyncTask<Void, Object, CommentResult> {
 
     @Override
     protected CommentResult doInBackground(Void... params) {
-        ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
-        return helper.addComment(this.picture, this.text);
+        try {
+            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+            ApiHelper helper = new ApiHelper(tokenInfo);
+            try {
+                return helper.addComment(this.picture, this.text);
+            } catch (TokenExpiredException e) {
+                LogInTask.login(tokenInfo, this.context);
+                LogInTask.postExcecute(false, null, this.context, null, null);
+                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
+                return helper.addComment(this.picture, this.text);
+            }
+        }catch (Exception e) {
+            CommentResult result = new CommentResult();
+            result.setResult(CommentStatus.ERROR);
+            return result;
+        }
+
     }
 
     @Override
     protected void onPostExecute(CommentResult result) {
-        switch (result){
+        CommentStatus status = result.getResult();
+        switch (status){
             case ALREADY_COMMENTED:
                 this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.already_commented));
                 break;
@@ -45,7 +64,7 @@ public class AddCommentTask extends AsyncTask<Void, Object, CommentResult> {
                 this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.comment_add_error));
                 break;
             case SUCCESS:
-                this.delegate.asyncTaskSuccess(new Comment(ApplicationHelper.getCurrentUser(this.context), this.text, Calendar.getInstance()));
+                this.delegate.asyncTaskSuccess(result.getComment());
                 break;
         }
     }

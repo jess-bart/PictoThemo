@@ -4,17 +4,20 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
+import com.jessy_barthelemy.pictothemo.Exception.TokenExpiredException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
-public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
+public class VoteThemeTask extends AsyncTask<String, Void, Boolean>{
 
-    private Context context;
+    Context context;
     /*reference to the class that want a success callback*/
     private IAsyncApiObjectResponse delegate;
     private Theme theme;
+    ApiHelper helper;
 
     public VoteThemeTask(Theme theme, Context context, IAsyncApiObjectResponse delegate){
         this.theme = theme;
@@ -25,10 +28,18 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean> {
 
     @Override
     protected Boolean doInBackground(String... params) {
-        ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
+        TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+        this.helper = new ApiHelper(tokenInfo);
         try {
-            return helper.voteForTheme(this.theme.getId());
-        } catch (Exception e) {
+            try {
+                return this.helper.voteForTheme(this.theme.getId());
+            } catch (TokenExpiredException e) {
+                LogInTask.login(tokenInfo, this.context);
+                LogInTask.postExcecute(false, null, this.context, null, null);
+                this.helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
+                return this.helper.voteForTheme(this.theme.getId());
+            }
+        }catch (Exception e) {
             return false;
         }
     }

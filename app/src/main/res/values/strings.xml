@@ -60,7 +60,7 @@
     <string name="sort_by_vote_plus">Order by positive vote</string>
     <string name="sort_by_vote_minus">Order by negative vote</string>
     <string name="sort_by_date">Order by date</string>
-    <string name="sort_by_comment">Order by comments</string>
+    <string name="sort_by_comment">Order by comment count</string>
     <string name="add_comment">Add a comment</string>
 
     <!-- Search -->
@@ -87,6 +87,8 @@
     <string name="profil_see_pictures">See (his/her) pictures</string>
     <string name="profil_normal">profil_%d</string>
     <string name="profil_big">profil_big_%d</string>
+    <string name="profil_load_error">Cannot load user information</string>
+    <string name="profil_profil_error">Cannot set profil picture</string>
 
     <!-- Content description -->
     <string name="content_logo">Pictothemo\'s logo</string>

@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
+import com.jessy_barthelemy.pictothemo.Enum.UploadResult;
+import com.jessy_barthelemy.pictothemo.Exception.TokenExpiredException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
@@ -29,8 +32,19 @@ public class VotePictureTask extends AsyncTask<Void, Object, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-        ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
-        this.picture = helper.voteForPicture(this.picture, this.positive);
+        try {
+            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+            ApiHelper helper = new ApiHelper(tokenInfo);
+            try {
+                this.picture = helper.voteForPicture(this.picture, this.positive);
+            } catch (TokenExpiredException e) {
+                LogInTask.login(tokenInfo, this.context);
+                LogInTask.postExcecute(false, null, this.context, null, null);
+                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
+                this.picture = helper.voteForPicture(this.picture, this.positive);
+            }
+        }catch (Exception e) {}
+
         return null;
     }
 

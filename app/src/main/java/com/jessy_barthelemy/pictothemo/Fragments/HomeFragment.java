@@ -3,6 +3,7 @@ package com.jessy_barthelemy.pictothemo.Fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.PorterDuff;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
+import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetThemeTask;
@@ -50,6 +52,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     private Theme theme1;
     private Theme theme2;
     private ImageView pictureView;
+    private ImageView pictureProfil;
     private AppCompatButton voteThemeButton;
     private AppCompatButton theme1Button;
     private AppCompatButton theme2Button;
@@ -70,6 +73,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         this.pictureView = (ImageView)view.findViewById(R.id.picture);
+        this.pictureProfil = (ImageView)view.findViewById(R.id.picture_profil);
         this.picturePseudo = (TextView)view.findViewById(R.id.picture_pseudo);
         this.pictureTheme = (TextView)view.findViewById(R.id.picture_theme);
         this.pictureDate = (TextView)view.findViewById(R.id.picture_date);
@@ -176,6 +180,10 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     }
 
     protected void updatePicture(){
+        try{
+            this.pictureProfil.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.picture.getUser().getProfil(), false));
+        }catch(Resources.NotFoundException e){}
+
         this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getActivity(), this.picture.getUser().getPseudo()));
         this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
         DateFormat formater = android.text.format.DateFormat.getDateFormat(this.getActivity());
@@ -186,6 +194,13 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.pictureCommentCount.setText(String.valueOf(this.picture.getComments().size()));
 
         this.picturePseudo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ((BaseActivity)HomeFragment.this.getActivity()).openProfil(HomeFragment.this.picture.getUser().getId());
+            }
+        });
+
+        this.pictureProfil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((BaseActivity)HomeFragment.this.getActivity()).openProfil(HomeFragment.this.picture.getUser().getId());

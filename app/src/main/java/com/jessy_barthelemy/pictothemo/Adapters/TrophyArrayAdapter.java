@@ -64,5 +64,4 @@ public class TrophyArrayAdapter extends ArrayAdapter<Trophy> {
 
         return view;
     }
-
 }

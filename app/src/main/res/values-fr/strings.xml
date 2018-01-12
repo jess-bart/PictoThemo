@@ -55,7 +55,7 @@
     <string name="sort_by_vote_plus">Trie par vote positif</string>
     <string name="sort_by_vote_minus">Trie par vote négatif</string>
     <string name="sort_by_date">Trie par date</string>
-    <string name="sort_by_comment">Trie par commentaires</string>
+    <string name="sort_by_comment">Trie par nombre de commentaires</string>
     <string name="add_comment">Ajouter un commentaire</string>
 
     <!-- Search -->
@@ -78,6 +78,9 @@
     <!-- User -->
     <string name="profil_registration_date">Inscrit depuis le %1$s</string>
     <string name="profil_see_pictures">Voir ses images</string>
+    <string name="profil_load_error">Impossible de recuperer les informations de l\'utilisateur</string>
+    <string name="profil_profil_error">Impossible de modifier l\'image de profil</string>
+
 
     <!-- Content description -->
     <string name="content_logo">Logo de pictothemo</string>
