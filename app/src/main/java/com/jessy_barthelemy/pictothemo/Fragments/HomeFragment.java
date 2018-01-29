@@ -232,6 +232,8 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
     @Override
     public void asyncTaskSuccess(Object response) {
+        if (getActivity() == null) return;
+
         if(response instanceof String){
             Toast.makeText(this.getActivity(), response.toString(), Toast.LENGTH_LONG).show();
         }else if(response instanceof PictureList){

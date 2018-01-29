@@ -1,9 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jessy_barthelemy.pictothemo.Activities.FirstTimeActivity">
+    tools:context="com.jessy_barthelemy.pictothemo.Activities.FirstLaunchActivity">
+    <android.support.v4.view.ViewPager
+        android:id="@+id/fragment_first_launch"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-</android.support.constraint.ConstraintLayout>
+
+    <LinearLayout
+        android:id="@+id/first_launch_tuto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:layout_margin="20dp"
+        android:layout_above="@+id/first_launch_navigator">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/first_launch_preference_tuto"
+            android:textColor="@color/colorAccent"
+            android:padding="@dimen/little_space"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@id/first_launch_navigator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin">
+        <ImageView
+            android:id="@+id/first_circle"
+            android:layout_width="@dimen/first_launch_navigator"
+            android:layout_height="@dimen/first_launch_navigator"
+            android:layout_marginEnd="@dimen/little_space"
+            android:contentDescription="@string/first_launch_navigator"
+            android:background="@drawable/first_launch_circle"/>
+        <ImageView
+            android:id="@+id/second_circle"
+            android:layout_width="@dimen/first_launch_navigator"
+            android:layout_height="@dimen/first_launch_navigator"
+            android:background="@drawable/first_launch_circle"
+            android:contentDescription="@string/first_launch_navigator"
+            android:alpha="0.3"/>
+        <ImageView
+            android:id="@+id/third_circle"
+            android:layout_width="@dimen/first_launch_navigator"
+            android:layout_height="@dimen/first_launch_navigator"
+            android:background="@drawable/first_launch_circle"
+            android:layout_marginStart="@dimen/little_space"
+            android:contentDescription="@string/first_launch_navigator"
+            android:alpha="0.3"/>
+    </LinearLayout>
+</RelativeLayout>

@@ -67,6 +67,8 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
 
     @Override
     public void asyncTaskSuccess(Object response) {
+        if (getActivity() == null) return;
+
         this.main.setVisibility(View.VISIBLE);
         this.loader.setVisibility(View.GONE);
         if(response instanceof User){
@@ -125,6 +127,8 @@ public class ProfilFragment extends BaseFragment implements IAsyncApiObjectRespo
 
     @Override
     public void asyncTaskFail(String errorMessage) {
+        if (getActivity() == null) return;
+
         super.asyncTaskFail(errorMessage);
         this.main.setVisibility(View.VISIBLE);
         this.loader.setVisibility(View.GONE);

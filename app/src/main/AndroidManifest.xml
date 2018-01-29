@@ -19,11 +19,6 @@
         <activity
             android:name=".Activities.LoginActivity"
             android:screenOrientation="portrait">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
         </activity>
         <activity
             android:name=".Activities.BaseActivity"
@@ -37,8 +32,14 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activities.FirstTimeActivity"
-                  android:screenOrientation="portrait"></activity>
+        <activity android:name=".Activities.FirstLaunchActivity"
+                  android:screenOrientation="portrait"
+                  android:noHistory="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

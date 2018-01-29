@@ -106,12 +106,16 @@ public class SearchFragment extends BaseFragment implements IAsyncApiObjectRespo
 
     @Override
     public void asyncTaskSuccess(Object response) {
+        if (getActivity() == null) return;
+
         this.searchCompleted();
         super.asyncTaskSuccess(response);
     }
 
     @Override
     public void asyncTaskFail(String errorMessage) {
+        if (getActivity() == null) return;
+
         this.searchCompleted();
         super.asyncTaskFail(errorMessage);
     }

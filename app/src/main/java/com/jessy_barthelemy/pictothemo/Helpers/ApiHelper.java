@@ -43,9 +43,9 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ApiHelper {
-    private static final String URL_API = "http://192.168.0.10:8080/web";
+    //private static final String URL_API = "http://192.168.0.13:8080/web";
 
-    //private static final String URL_API = "http://83.154.88.156/Pictothemo";
+    private static final String URL_API = "http://83.154.88.156/Pictothemo";
     //Entity
     private static final String ENTITY_TROPHIES = "trophies";
     private static final String ENTITY_USER= "user";
@@ -228,6 +228,7 @@ public class ApiHelper {
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
         }
+
         in.close();
         return response.toString();
     }

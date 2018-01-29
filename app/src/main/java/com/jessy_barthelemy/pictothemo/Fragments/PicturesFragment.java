@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import com.jessy_barthelemy.pictothemo.Adapters.SectionsPagerAdapter;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.Enum.PictureOrder;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
@@ -70,6 +71,7 @@ public class PicturesFragment extends BaseFragment implements IBackPressedEventH
         clickDetector.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
+                view.performClick();
                 if(PicturesFragment.this.fabOptions.getVisibility() == View.VISIBLE)
                     PicturesFragment.this.closeClickDetector(clickDetector, slideDown, fadeOut);
                 return false;

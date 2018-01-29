@@ -1,4 +1,4 @@
-package com.jessy_barthelemy.pictothemo.Fragments;
+package com.jessy_barthelemy.pictothemo.Adapters;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -7,12 +7,13 @@ import android.view.ViewGroup;
 
 import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.Enum.PictureOrder;
+import com.jessy_barthelemy.pictothemo.Fragments.PictureFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-class SectionsPagerAdapter extends FragmentPagerAdapter {
+public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
     private ArrayList<PictureFragment> picturesFragment;
     private PictureFragment currentFragment;
@@ -21,7 +22,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
     private Comparator<PictureFragment> dateComparator;
     private Comparator<PictureFragment> commentComparator;
 
-    SectionsPagerAdapter(FragmentManager fragmentManager, final ArrayList<Picture> pictures) {
+    public SectionsPagerAdapter(FragmentManager fragmentManager, final ArrayList<Picture> pictures) {
         super(fragmentManager);
         this.picturesFragment = new ArrayList<>();
 
@@ -62,7 +63,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         };
     }
 
-    Fragment getCurrentFragment() {
+    public Fragment getCurrentFragment() {
         return currentFragment;
     }
 
@@ -100,7 +101,7 @@ class SectionsPagerAdapter extends FragmentPagerAdapter {
         return this.picturesFragment.get(position).getPicture().getTheme().getName();
     }
 
-    void sortPictures(PictureOrder order){
+    public void sortPictures(PictureOrder order){
         switch (order){
             case VOTE_POS:
                 Collections.sort(this.picturesFragment, this.votePosComparator);

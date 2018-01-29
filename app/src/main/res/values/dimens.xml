@@ -23,4 +23,7 @@
     <!-- Profil -->
     <dimen name="profil_picture">100dp</dimen>
     <dimen name="profil_trophy">50dp</dimen>
+
+    <!-- First launch -->
+    <dimen name="first_launch_navigator">8dp</dimen>
 </resources>

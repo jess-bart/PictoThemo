@@ -81,6 +81,8 @@
     <string name="settings_wallpaper_key">setWallpaper</string>
     <string name="settings_wallpaper_title">Wallpaper</string>
     <string name="settings_wallpaper_summary">Change your wallpaper when internet is swicthed on.</string>
+    <string name="settings_replay_tuto_key">TUTORIAL_PREF</string>
+    <string name="settings_replay_tuto_title">Replay tutorial on next launch</string>
 
     <!-- User -->
     <string name="profil_registration_date">Registered since %1$s</string>
@@ -99,6 +101,23 @@
     <string name="content_positive_count">Negative votes count</string>
     <string name="content_is_potd">Indicator for picture of the day</string>
     <string name="content_profil_trophy">User\'s trophy</string>
+    <string name="content_launch_icon">Icone premiere utilisation</string>s
 
     <string name="default_int_value">0</string>
+
+    <!-- First launch -->
+    <string name="first_launch_navigator">Navigateur</string>
+
+    <string name="first_launch_title1">Welcome to Pictothemo</string>
+    <string name="first_launch_title2">How it works</string>
+    <string name="first_launch_title3">Its interest</string>
+    <string name="first_launch_desc1"><![CDATA[Pictothemo is an app which highlight one member\'s image a day.
+    This picture refers to a <b>theme</b> and had been <b>elected picture of the day</b> by the <b>community</b>.]]></string>
+    <string name="first_launch_desc2"><![CDATA[<b>Every day</b> you can <b>vote</b> for your favourite picture which will be elected the following day.
+    You can also <b>vote for the theme</b> of two days later.]]></string>
+    <string name="first_launch_desc3"><![CDATA[You can choose to <b>replace your wallpaper everyday</b> by the winning picture in the parameters.
+    You can also propose your image and try to <b>unlock all the Pictothemo trophies.</b>!]]></string>
+
+    <string name="first_launch_validation">LET\'S GO</string>
+    <string name="first_launch_preference_tuto">At any moment you will be able to replay this tutorial in the parameter center.</string>
 </resources>

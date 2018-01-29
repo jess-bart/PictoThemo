@@ -5,4 +5,8 @@
         android:title="@string/settings_wallpaper_title"
         android:summary="@string/settings_wallpaper_summary"
         android:defaultValue="false" />
+    <SwitchPreference
+        android:key="@string/settings_replay_tuto_key"
+        android:title="@string/settings_replay_tuto_title"
+        android:defaultValue="false"/>
 </PreferenceScreen>

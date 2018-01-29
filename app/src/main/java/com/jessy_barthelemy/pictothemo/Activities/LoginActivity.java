@@ -40,6 +40,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
 
         this.pseudo = (TextInputLayout) this.findViewById(R.id.login_pseudo);

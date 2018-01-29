@@ -172,12 +172,16 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
 
     @Override
     public void asyncTaskSuccess(boolean positive) {
+        if (getActivity() == null) return;
+
         VotePictureTask voteTask = new VotePictureTask(PictureFragment.this.picture, positive, this.getActivity(), this);
         voteTask.execute();
     }
 
     @Override
     public void asyncTaskSuccess(Object response) {
+        if (getActivity() == null) return;
+
         if(response instanceof Picture){
             this.picture = (Picture)response;
             PictureFragment.this.updateImage();

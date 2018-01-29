@@ -74,6 +74,7 @@
     <!-- Settings -->
     <string name="settings_wallpaper_title">Fond d\'ecran</string>
     <string name="settings_wallpaper_summary">Change votre fond ecran avec l\'image du jour dès qu\'internet est allumé.</string>
+    <string name="settings_replay_tuto_title">Rejouer le tutoriel au prochain redémarrage</string>
 
     <!-- User -->
     <string name="profil_registration_date">Inscrit depuis le %1$s</string>
@@ -91,5 +92,20 @@
     <string name="content_positive_count">Nombre de votes negatifs</string>
     <string name="content_is_potd">Indicateur pour l\'image du jour</string>
     <string name="content_profil_trophy">Trophé de l\'utilisateur</string>
+    <string name="content_launch_icon">First launch icon</string>
 
+    <!-- First launch -->
+    <string name="first_launch_navigator">Navigator</string>
+
+    <string name="first_launch_title1">Bienvenue sur Pictothemo</string>
+    <string name="first_launch_title2">Son fonctionnement</string>
+    <string name="first_launch_title3">Son interêt</string>
+    <string name="first_launch_desc1"><![CDATA[Pictothemo est une application qui mets en avant une image d\'un membre par jour.
+    Cette image fait référence à un <b>thème</b> et à été <b>élue image du jour</b> par la <b>communauté</b>.]]></string>
+    <string name="first_launch_desc2"><![CDATA[<b>Chaque jour,</b> vous pouvez <b>voter</b> pour l\'image du lendemain que vous preferez.
+    Vous pouvez aussi <b>voter pour le thème</b> du sur-lendemain.]]></string>
+    <string name="first_launch_desc3"><![CDATA[Vous pouvez choisir de <b>modifier votre fond d\'écran chaque jours</b> par l\'image gagnante du jour dans les paramètres.
+    Vous pouvez aussi proposer vos images et essayer de <b>débloquer tous les trophés de Pictothemo!</b>]]></string>
+    <string name="first_launch_validation">C\'EST PARTI!</string>
+    <string name="first_launch_preference_tuto">À tout moment vous pourrez rejouer ce tutoriel dans les paramètres de l\'application</string>
 </resources>

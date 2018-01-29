@@ -16,8 +16,8 @@ public class SettingsFragment extends PreferenceFragment{
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
 
-        Preference pref = this.findPreference(this.getString(R.string.settings_wallpaper_key));
-        pref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        Preference setWallpaper = this.findPreference(this.getString(R.string.settings_wallpaper_key));
+        setWallpaper.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 boolean hasToChangeBackground = (boolean) newValue;
