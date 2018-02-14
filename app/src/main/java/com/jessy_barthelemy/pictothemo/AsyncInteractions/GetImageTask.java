@@ -191,6 +191,4 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
             } catch (FileNotFoundException ignored) {}
         }
     }
-
-
 }

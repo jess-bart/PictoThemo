@@ -69,7 +69,7 @@
     <string name="upload_success">Image correctement envoyée</string>
     <string name="upload_error">Impossible d\'envoyer l\'image.</string>
     <string name="upload_format_error">Format d\'image non autorisé</string>
-    <string name="upload_size_error">Image trop lourde (max 10mo)</string>
+    <string name="upload_size_error">Image trop lourde (max 5mo)</string>
 
     <!-- Settings -->
     <string name="settings_wallpaper_title">Fond d\'ecran</string>

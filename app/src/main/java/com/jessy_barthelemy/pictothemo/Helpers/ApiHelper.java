@@ -43,9 +43,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ApiHelper {
-    //private static final String URL_API = "http://192.168.0.13:8080/web";
-
-    private static final String URL_API = "http://83.154.88.156/Pictothemo";
+    private static final String URL_API = "http://pictothemo.ddns.net/Pictothemo";
     //Entity
     private static final String ENTITY_TROPHIES = "trophies";
     private static final String ENTITY_USER= "user";
@@ -185,7 +183,7 @@ public class ApiHelper {
         http.setRequestMethod(method);
         http.setRequestProperty("Connection", "close");
 
-        http.addRequestProperty("Accept-language", Locale.getDefault().getCountry());
+        http.addRequestProperty("Accept-Language", Locale.getDefault().toString().replace('_', '-'));
 
         if(headers != null)
             for (Map.Entry<String, String > entry : headers.entrySet())
@@ -603,8 +601,7 @@ public class ApiHelper {
         return result;
     }
 
-    public UploadResult uploadFile(InputStream fileInputStream, String filename) throws IOException, JSONException, ParseException{
-
+    public UploadResult uploadFile(InputStream fileInputStream, String filename) throws IOException, JSONException, ParseException, TokenExpiredException{
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary =  "*****";
@@ -623,7 +620,6 @@ public class ApiHelper {
 
         http.setDoInput(true);
         http.setDoOutput(true);
-        http.setUseCaches(false);
         http.setRequestProperty("Connection", "Keep-Alive");
         http.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
         http.setRequestProperty("Authorization", this.tokensInfos.getAccessToken());
@@ -662,6 +658,8 @@ public class ApiHelper {
             else if (result.has(SUCCESS) && result.getBoolean(SUCCESS))
                 return UploadResult.SUCCESS;
         }
+        else if(resultCode == HttpURLConnection.HTTP_FORBIDDEN)
+            throw new TokenExpiredException();
 
         return UploadResult.ERROR;
     }

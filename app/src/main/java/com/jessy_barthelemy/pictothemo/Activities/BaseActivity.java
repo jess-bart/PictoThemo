@@ -5,9 +5,11 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -35,12 +37,13 @@ import com.jessy_barthelemy.pictothemo.Fragments.PicturesFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.ProfilFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.SearchFragment;
 import com.jessy_barthelemy.pictothemo.Fragments.SettingsFragment;
-import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.Interfaces.IBackPressedEventHandler;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -171,6 +174,7 @@ public class BaseActivity extends AppCompatActivity
                 return true;
             case SET_WALLPAPER_MENU:
                 BitmapDrawable pictureDrawable = (BitmapDrawable) this.pictureToSave.getDrawable();
+
                 ApplicationHelper.setWallpaper(this, pictureDrawable.getBitmap());
                 return true;
             default:
@@ -202,13 +206,19 @@ public class BaseActivity extends AppCompatActivity
                     Uri picturePath = resultData.getData();
                     Cursor filenameCursor = null;
                     try{
-                        InputStream in = this.getContentResolver().openInputStream(picturePath);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), picturePath);
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, ApplicationHelper.UPLOAD_IMAGE_COMPRESSION, bos);
+
+                        byte[] bitmapdata = bos.toByteArray();
+                        InputStream in = new ByteArrayInputStream(bitmapdata);
+
                         filenameCursor = this.getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
                         {
                             String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, null, null, this, this);
+                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, null, null, this.getApplicationContext(), this);
                             uploadTask.execute();
                         }else
                             Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG).show();

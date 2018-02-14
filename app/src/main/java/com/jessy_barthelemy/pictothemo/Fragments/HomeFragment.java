@@ -5,18 +5,22 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatButton;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +29,6 @@ import com.jessy_barthelemy.pictothemo.ApiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.ApiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.ApiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.ApiObjects.ThemeList;
-import com.jessy_barthelemy.pictothemo.ApiObjects.User;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetThemeTask;
@@ -33,11 +36,12 @@ import com.jessy_barthelemy.pictothemo.AsyncInteractions.UploadPictureTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.AsyncInteractions.VoteThemeTask;
 import com.jessy_barthelemy.pictothemo.Dialogs.VoteDialog;
-import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.Helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.Interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -62,6 +66,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     private TextView picturePositiveVote;
     private TextView pictureNegativeVote;
     private View pictureVote;
+    private LinearLayout themeLayout;
     private TextView pictureCommentCount;
     private Picture picture;
     private boolean localRequest;
@@ -86,6 +91,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.voteThemeButton = (AppCompatButton)view.findViewById(R.id.home_vote);
         this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
+        this.themeLayout = (LinearLayout) view.findViewById(R.id.theme_layout);
 
         ImageView pictureImg = (ImageView) view.findViewById(R.id.is_potd);
         pictureImg.setVisibility(View.VISIBLE);
@@ -138,9 +144,9 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.theme1Button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HomeFragment.this.setThemeButtonColor(true);
-                VoteThemeTask voteTask = new VoteThemeTask(HomeFragment.this.theme1, HomeFragment.this.getActivity(), HomeFragment.this);
-                voteTask.execute();
+            HomeFragment.this.setThemeButtonColor(true);
+            VoteThemeTask voteTask = new VoteThemeTask(HomeFragment.this.theme1, HomeFragment.this.getActivity(), HomeFragment.this);
+            voteTask.execute();
             }
         });
 
@@ -164,7 +170,6 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         });
 
         this.registerForContextMenu(HomeFragment.this.pictureView);
-
         return view;
     }
 
@@ -182,7 +187,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     protected void updatePicture(){
         try{
             this.pictureProfil.setImageResource(ProfilFragment.getProfilDrawableByName(this.getActivity(), this.picture.getUser().getProfil(), false));
-        }catch(Resources.NotFoundException e){}
+        }catch(Resources.NotFoundException ignored){}
 
         this.picturePseudo.setText(ApplicationHelper.handleUnknowPseudo(this.getActivity(), this.picture.getUser().getPseudo()));
         this.pictureTheme.setText(String.format(getResources().getString(R.string.theme_name), this.picture.getTheme().getName()));
@@ -309,7 +314,12 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                     Uri picturePath = data.getData();
                     Cursor filenameCursor = null;
                     try{
-                        InputStream in = getActivity().getContentResolver().openInputStream(picturePath);
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), picturePath);
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, ApplicationHelper.UPLOAD_IMAGE_COMPRESSION, bos);
+
+                        byte[] bitmapdata = bos.toByteArray();
+                        InputStream in = new ByteArrayInputStream(bitmapdata);
                         filenameCursor = getActivity().getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
@@ -317,7 +327,9 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                             this.fab.setVisibility(View.GONE);
                             this.uploadProgress.setVisibility(View.VISIBLE);
                             String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this.getActivity(), this);
+                            long test = bitmapdata.length;
+
+                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this.getActivity().getApplicationContext(), this);
                             uploadTask.execute();
                         }else
                             Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG).show();

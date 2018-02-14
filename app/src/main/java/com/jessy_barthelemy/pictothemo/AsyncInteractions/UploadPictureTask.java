@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.view.View;
 
+import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.Enum.UploadResult;
 import com.jessy_barthelemy.pictothemo.Exception.TokenExpiredException;
 import com.jessy_barthelemy.pictothemo.Helpers.ApiHelper;
@@ -41,10 +42,18 @@ public class UploadPictureTask extends AsyncTask<Void, Integer, UploadResult> {
 
     @Override
     protected UploadResult doInBackground(Void... params) {
-        ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
+        TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+        ApiHelper helper = new ApiHelper(tokenInfo);
         try {
-            return helper.uploadFile(this.inputStream, this.filename);
-        } catch (IOException | JSONException | ParseException e) {
+            try {
+                return helper.uploadFile(this.inputStream, this.filename);
+            } catch (TokenExpiredException e) {
+                LogInTask.login(tokenInfo, this.context);
+                LogInTask.postExcecute(false, null, this.context, null, null);
+                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
+                return helper.uploadFile(this.inputStream, this.filename);
+            }
+        } catch (Exception e) {
             return UploadResult.ERROR;
         }
     }

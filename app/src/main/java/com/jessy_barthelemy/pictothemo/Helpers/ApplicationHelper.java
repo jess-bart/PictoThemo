@@ -5,19 +5,18 @@ import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 import com.jessy_barthelemy.pictothemo.Activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.ApiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.ApiObjects.User;
-import com.jessy_barthelemy.pictothemo.Fragments.FirstLaunchFragment;
+import com.jessy_barthelemy.pictothemo.AsyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.io.IOException;
@@ -47,6 +46,7 @@ public class ApplicationHelper {
     public static final String PREF_WALLPAPER_DATE = "wallpaperLastChange";
 
     public static final String DEFAULT_PICTURE_FORMAT = ".png";
+    public static final int UPLOAD_IMAGE_COMPRESSION = 50;
 
     public static final String MYSQL_DATE_FORMAT = "yyyy-MM-dd";
     private static final String MYSQL_DATE_LONG_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -161,20 +161,6 @@ public class ApplicationHelper {
             return pseudo;
     }
 
-    /*wallpaper*/
-    private static void refreshWallpaper(Context context) {
-        try {
-            WallpaperManager wallpaperManager = WallpaperManager.getInstance(context);
-            WallpaperInfo wallpaperInfo = wallpaperManager.getWallpaperInfo();
-
-            if (wallpaperInfo == null) {
-                Drawable wallpaper = wallpaperManager.getDrawable();
-                Bitmap wallpaperBitmap = drawableToBitmap(wallpaper);
-                wallpaperManager.setBitmap(wallpaperBitmap);
-            }
-        } catch (Exception ignored) {}
-    }
-
     private static Bitmap drawableToBitmap(Drawable drawable) {
         if (drawable instanceof BitmapDrawable)
             return ((BitmapDrawable) drawable).getBitmap();
@@ -203,10 +189,8 @@ public class ApplicationHelper {
             public void run() {
             WallpaperManager wallpaperManager = WallpaperManager.getInstance(context.getApplicationContext());
             try {
-                if(image != null){
+                if(image != null)
                     wallpaperManager.setBitmap(image);
-                    refreshWallpaper(context);
-                }
             } catch (IOException ignored) {}
             }
         };
@@ -219,5 +203,24 @@ public class ApplicationHelper {
         SharedPreferences.Editor edit = prefs.edit();
         edit.putBoolean(ApplicationHelper.TUTORIAL_PREF, showTutorial);
         edit.apply();
+    }
+
+    public static void changeBackgroundIfNeeded(Context context){
+        boolean hasToChangeBackground = ApplicationHelper.hasToChangeBackgroundToday(context, false);
+        if (isOnline(context) && hasToChangeBackground){
+            GetImageTask imageTask = new GetImageTask(context, null, null, Calendar.getInstance(), true);
+            imageTask.execute();
+        }
+    }
+
+    private static boolean isOnline(Context context) {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo netInfo = cm.getActiveNetworkInfo();
+            return (netInfo != null && netInfo.isConnected());
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
