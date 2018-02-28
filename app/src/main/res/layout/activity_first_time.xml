@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.jessy_barthelemy.pictothemo.Activities.FirstLaunchActivity">
+    tools:context="com.jessy_barthelemy.pictothemo.activities.FirstLaunchActivity">
     <android.support.v4.view.ViewPager
         android:id="@+id/fragment_first_launch"
         android:layout_width="match_parent"

@@ -5,7 +5,7 @@
     android:fillViewport="true"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="com.jessy_barthelemy.pictothemo.Fragments.SearchFragment"
+    tools:context="com.jessy_barthelemy.pictothemo.fragments.SearchFragment"
     >
     <LinearLayout
         android:layout_width="match_parent"

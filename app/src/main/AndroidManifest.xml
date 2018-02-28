@@ -19,31 +19,31 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".Activities.LoginActivity"
+            android:name=".activities.LoginActivity"
             android:screenOrientation="portrait">
         </activity>
         <activity
-            android:name=".Activities.BaseActivity"
+            android:name=".activities.BaseActivity"
             android:label="@string/picture_of_the_day"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
-        <receiver android:name=".BroadcastReceiver.NetworkReceiver">
+        <receiver android:name=".broadcastReceivers.NetworkReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".BroadcastReceiver.BootReceiver">
+        <receiver android:name=".broadcastReceivers.BootReceiver">
             <intent-filter>
                 <action
                     android:name="android.intent.action.BOOT_COMPLETED"/>
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".BroadcastReceiver.AlarmReceiver"/>
+        <receiver android:name=".broadcastReceivers.AlarmReceiver"/>
 
-        <activity android:name=".Activities.FirstLaunchActivity"
+        <activity android:name=".activities.FirstLaunchActivity"
                   android:screenOrientation="portrait"
                   android:noHistory="true">
             <intent-filter>

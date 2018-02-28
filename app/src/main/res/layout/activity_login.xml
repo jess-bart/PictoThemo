@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.jessy_barthelemy.pictothemo.Activities.LoginActivity">
+    tools:context="com.jessy_barthelemy.pictothemo.activities.LoginActivity">
 
     <ImageView
         android:contentDescription="@string/content_loading"
@@ -39,7 +39,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="@string/login_registration"
+            android:text="@string/login_title"
             android:layout_marginBottom="@dimen/activity_vertical_margin"/>
 
         <android.support.design.widget.TextInputLayout

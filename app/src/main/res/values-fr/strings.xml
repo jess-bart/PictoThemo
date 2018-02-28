@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">PictoThemo</string>
+
     <!-- Global -->
     <string name="network_unavalaible">Veuillez activer internet.</string>
     <string name="picture_of_the_day">Image du jour</string>
@@ -11,8 +13,10 @@
     <string name="picture">Image</string>
 
     <!-- Connexion/Registration form -->
+    <string name="login_pseudo">Pseudo</string>
     <string name="login_password">Mot de passe</string>
     <string name="login_registration">Inscription</string>
+    <string name="login_title">Bienvenue !</string>
     <string name="login_login">Connexion</string>
     <string name="login_verification">Vérification des informations</string>
     <string name="login_pseudo_verification">Pseudo invalide.</string>
@@ -25,17 +29,20 @@
     <string name="nav_preferences">Préférences</string>
     <string name="navigation_drawer_open">Ouvrir le menu</string>
     <string name="navigation_drawer_close">Fermer le menu</string>
-    <string name="set_as_wallaper">Definir comme fond d\'écran</string>
+    <string name="set_as_wallaper">Définir comme fond d\'écran</string>
 
     <!-- Picture -->
     <string name="user_unknow">Anonyme</string>
     <string name="theme_title">Thème du %1$s</string>
-    <string name="theme_vote_error">Impossible de voter pour le theme %1$s.</string>
+    <string name="theme_name">#%1$s</string>
+    <string name="theme_vote_error">Impossible de voter pour le thème %1$s.</string>
     <string name="vote_tomorrow_picture">L\'image de demain</string>
+    <string name="title_activity_pictures">Images</string>
     <string name="picture_vote_error">Impossible de voter pour l\'image.</string>
     <string name="comments">Commentaires</string>
     <string name="vote">Vote</string>
     <string name="vote_success">Vote pris en compte.</string>
+    <string name="vote_not_allowed">Vous ne pouvez pas voter pour votre image.</string>
     <string name="save_picture">Enregistrer l\'image dans mes images.</string>
     <string name="save_picture_success">Image correctement enregistrée.</string>
     <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
@@ -47,7 +54,8 @@
     <string name="comment_add">Envoyer</string>
     <string name="comment_cancel">Annuler</string>
     <string name="already_commented">Seulement 1 commentaire par image.</string>
-    <string name="comment_error">Impossible d\'ajouter un commentaire.</string>
+    <string name="comment_add_error">Impossible d\'ajouter un commentaire.</string>
+    <string name="comment_remove_error">Impossible de supprimer le commentaire.</string>
     <string name="comment_empty">Pas encore de commentaire.</string>
     <string name="save_picture_empty">Aucune image à afficher.</string>
 
@@ -72,16 +80,20 @@
     <string name="upload_size_error">Image trop lourde (max 5mo)</string>
 
     <!-- Settings -->
+    <string name="title_activity_settings_fragment">Paramètres</string>
+    <string name="settings_wallpaper_key">setWallpaper</string>
     <string name="settings_wallpaper_title">Fond d\'ecran</string>
-    <string name="settings_wallpaper_summary">Change votre fond ecran avec l\'image du jour dès qu\'internet est allumé.</string>
+    <string name="settings_wallpaper_summary">Change quotidiennement votre fond d\'écran avec l\'image du jour.</string>
+    <string name="settings_replay_tuto_key">TUTORIAL_PREF</string>
     <string name="settings_replay_tuto_title">Rejouer le tutoriel au prochain redémarrage</string>
 
     <!-- User -->
     <string name="profil_registration_date">Inscrit depuis le %1$s</string>
     <string name="profil_see_pictures">Voir ses images</string>
     <string name="profil_load_error">Impossible de recuperer les informations de l\'utilisateur</string>
+    <string name="profil_normal">profil_%d</string>
+    <string name="profil_big">profil_big_%d</string>
     <string name="profil_profil_error">Impossible de modifier l\'image de profil</string>
-
 
     <!-- Content description -->
     <string name="content_logo">Logo de pictothemo</string>
@@ -94,6 +106,8 @@
     <string name="content_profil_trophy">Trophé de l\'utilisateur</string>
     <string name="content_launch_icon">First launch icon</string>
 
+    <string name="default_int_value">0</string>
+
     <!-- First launch -->
     <string name="first_launch_navigator">Navigator</string>
 
@@ -101,11 +115,18 @@
     <string name="first_launch_title2">Son fonctionnement</string>
     <string name="first_launch_title3">Son interêt</string>
     <string name="first_launch_desc1"><![CDATA[Pictothemo est une application qui mets en avant une image d\'un membre par jour.
-    Cette image fait référence à un <b>thème</b> et à été <b>élue image du jour</b> par la <b>communauté</b>.]]></string>
-    <string name="first_launch_desc2"><![CDATA[<b>Chaque jour,</b> vous pouvez <b>voter</b> pour l\'image du lendemain que vous preferez.
+    Cette image fait référence a un <b>thème</b> et à été <b>élue image du jour</b> par la <b>communauté</b>.]]></string>
+    <string name="first_launch_desc2"><![CDATA[<b>Chaque jour,</b> vous pouvez <b>voter</b> pour l\'image du lendemain que vous préférez.
     Vous pouvez aussi <b>voter pour le thème</b> du sur-lendemain.]]></string>
-    <string name="first_launch_desc3"><![CDATA[Vous pouvez choisir de <b>modifier votre fond d\'écran chaque jours</b> par l\'image gagnante du jour dans les paramètres.
+    <string name="first_launch_desc3"><![CDATA[Vous pouvez choisir de <b>modifier votre fond d\'écran chaque jour</b> par l\'image gagnante du jour dans les paramètres.
     Vous pouvez aussi proposer vos images et essayer de <b>débloquer tous les trophés de Pictothemo!</b>]]></string>
     <string name="first_launch_validation">C\'EST PARTI!</string>
     <string name="first_launch_preference_tuto">À tout moment vous pourrez rejouer ce tutoriel dans les paramètres de l\'application</string>
+
+    <!-- Review -->
+    <string name="review_title">Vous aimez Pictothemo?</string>
+    <string name="review_description">Si vous aimez Pictothemo, pourriez-vous prendre un petit moment pour noter l\'application. </string>
+    <string name="review_yes">Oui</string>
+    <string name="review_no">Non</string>
+    <string name="review_later">Plus tard</string>
 </resources>

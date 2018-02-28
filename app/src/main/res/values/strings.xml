@@ -2,7 +2,7 @@
     <string name="app_name">PictoThemo</string>
 
     <!-- Global -->
-    <string name="network_unavalaible">Please enable internet connection.</string>
+    <string name="network_unavalaible">Please enable your internet connection.</string>
     <string name="picture_of_the_day">Picture of the day</string>
     <string name="my_profile">My profile</string>
     <string name="picture_of_the_month">Pictures of the month</string>
@@ -14,7 +14,8 @@
     <!-- Connexion/Registration form -->
     <string name="login_pseudo">Pseudo</string>
     <string name="login_password">Password</string>
-    <string name="login_registration">Register</string>
+    <string name="login_registration">Registration</string>
+    <string name="login_title">Welcome!</string>
     <string name="login_login">Log in</string>
     <string name="login_verification">Verifying the information</string>
     <string name="login_pseudo_verification">Invalid pseudo</string>
@@ -40,6 +41,7 @@
     <string name="comments">Comments</string>
     <string name="vote">Vote</string>
     <string name="vote_success">Voted.</string>
+    <string name="vote_not_allowed">Voting for your picture is not allowed.</string>
     <string name="save_picture">Save picture to Image directory</string>
     <string name="save_picture_success">Picture correcty saved.</string>
     <string name="save_picture_error">Error saving picture.</string>
@@ -80,7 +82,7 @@
     <!-- Settings -->
     <string name="settings_wallpaper_key">setWallpaper</string>
     <string name="settings_wallpaper_title">Wallpaper</string>
-    <string name="settings_wallpaper_summary">Change your wallpaper when internet is swicthed on.</string>
+    <string name="settings_wallpaper_summary">Change your wallpaper everyday with the picture of the day.</string>
     <string name="settings_replay_tuto_key">TUTORIAL_PREF</string>
     <string name="settings_replay_tuto_title">Replay tutorial on next launch</string>
 
@@ -120,4 +122,11 @@
 
     <string name="first_launch_validation">LET\'S GO</string>
     <string name="first_launch_preference_tuto">At any moment you will be able to replay this tutorial in the parameter center.</string>
+
+    <!-- Review -->
+    <string name="review_title">Do you like Picothemo?</string>
+    <string name="review_description">If you like Pictothemo, could you take a moment to review the app. </string>
+    <string name="review_yes">Yes</string>
+    <string name="review_no">No</string>
+    <string name="review_later">Later</string>
 </resources>

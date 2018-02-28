@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <com.jessy_barthelemy.pictothemo.Layout.FlowLayout
+        <com.jessy_barthelemy.pictothemo.layouts.FlowLayout
             android:orientation="horizontal"
             android:id="@+id/trophy_list"
             android:layout_below="@id/profil"
@@ -43,7 +43,7 @@
             android:paddingTop="@dimen/little_space"
             android:paddingStart="@dimen/activity_horizontal_margin"
             android:paddingEnd="@dimen/activity_horizontal_margin">
-        </com.jessy_barthelemy.pictothemo.Layout.FlowLayout>
+        </com.jessy_barthelemy.pictothemo.layouts.FlowLayout>
 
         <android.support.v7.widget.AppCompatButton
             android:id="@+id/profil_pictures"
