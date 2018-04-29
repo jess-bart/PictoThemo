@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -12,29 +11,25 @@ import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.AppCompatButton;
-import android.text.InputFilter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.activities.BaseActivity;
 import com.jessy_barthelemy.pictothemo.apiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.apiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.apiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.apiObjects.ThemeList;
-import com.jessy_barthelemy.pictothemo.asyncInteractions.AddCommentTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.GetThemeTask;
@@ -42,9 +37,9 @@ import com.jessy_barthelemy.pictothemo.asyncInteractions.UploadPictureTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.VoteThemeTask;
 import com.jessy_barthelemy.pictothemo.dialogs.VoteDialog;
+import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IVoteResponse;
-import com.jessy_barthelemy.pictothemo.R;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -72,7 +67,6 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
     private TextView picturePositiveVote;
     private TextView pictureNegativeVote;
     private View pictureVote;
-    private LinearLayout themeLayout;
     private TextView pictureCommentCount;
     private Picture picture;
     private boolean localRequest;
@@ -121,7 +115,9 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.voteThemeButton = (AppCompatButton)view.findViewById(R.id.home_vote);
         this.theme1Button = (AppCompatButton)view.findViewById(R.id.home_theme_1);
         this.theme2Button = (AppCompatButton)view.findViewById(R.id.home_theme_2);
-        this.themeLayout = (LinearLayout) view.findViewById(R.id.theme_layout);
+
+        ApiHelper helper = ApiHelper.getInstance();
+        helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.getActivity()));
 
         ImageView pictureImg = (ImageView) view.findViewById(R.id.is_potd);
         pictureImg.setVisibility(View.VISIBLE);
@@ -164,6 +160,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
         this.voteThemeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                HomeFragment.this.localRequest = false;
                 Calendar tomorrow = Calendar.getInstance();
                 tomorrow.add(Calendar.DATE, 1);
                 GetPicturesInfoTask getPicturesInfosTask = new GetPicturesInfoTask(tomorrow, tomorrow, null, null, null, null, HomeFragment.this.getActivity(), HomeFragment.this);
@@ -203,6 +200,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
 
         if(ApplicationHelper.hasToShowReview(HomeFragment.this.getActivity()))
             showReviewDialog();
+
         return view;
     }
 

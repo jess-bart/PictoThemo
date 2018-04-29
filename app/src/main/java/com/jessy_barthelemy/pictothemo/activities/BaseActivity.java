@@ -55,6 +55,7 @@ public class BaseActivity extends AppCompatActivity
 
     private static final int SAVE_PICTURE_MENU = 2;
     private static final int SET_WALLPAPER_MENU = 3;
+    public static final int REMOVE_PICTURE = 4;
 
     private static final int SAVE_PICTURE_DESTINATION = 3;
     private static final int UPLOAD_PICTURE_MENU = 5;
@@ -62,6 +63,7 @@ public class BaseActivity extends AppCompatActivity
     private ImageView pictureToSave;
 
     protected NavigationView navigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,6 +251,7 @@ public class BaseActivity extends AppCompatActivity
 
             PicturesFragment picturesFragment = new PicturesFragment();
             picturesFragment.setPictures(pictures);
+
             this.setCurrentFragment(picturesFragment, true);
         }
     }

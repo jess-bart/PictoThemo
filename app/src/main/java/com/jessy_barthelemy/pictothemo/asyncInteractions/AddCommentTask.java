@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import com.jessy_barthelemy.pictothemo.apiObjects.CommentResult;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.enumerations.CommentStatus;
-import com.jessy_barthelemy.pictothemo.exceptions.TokenExpiredException;
+import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
@@ -33,13 +33,13 @@ public class AddCommentTask extends AsyncTask<Void, Object, CommentResult> {
     protected CommentResult doInBackground(Void... params) {
         try {
             TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
-            ApiHelper helper = new ApiHelper(tokenInfo);
+            ApiHelper helper = ApiHelper.getInstance();
+
             try {
                 return helper.addComment(this.picture, this.text);
-            } catch (TokenExpiredException e) {
+            } catch (LoginException e) {
                 LogInTask.login(tokenInfo, this.context);
                 LogInTask.postExcecute(false, null, this.context, null, null);
-                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
                 return helper.addComment(this.picture, this.text);
             }
         }catch (Exception e) {

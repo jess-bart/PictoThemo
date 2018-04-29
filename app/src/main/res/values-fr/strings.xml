@@ -47,6 +47,10 @@
     <string name="save_picture_success">Image correctement enregistrée.</string>
     <string name="save_picture_error">Impossible d\'enregistrer l\'image.</string>
     <string name="load_picture_error">Impossible de charger les images.</string>
+    <string name="remove_picture_error">Impossible de supprimer l\'image.</string>
+    <string name="remove_picture">Supprimer l\'image.</string>
+    <string name="remove_picture_success">Image correctement supprimée.</string>
+
 
     <!-- Comment -->
     <string name="comment">Commentaire</string>

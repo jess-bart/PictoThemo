@@ -29,6 +29,7 @@ import com.jessy_barthelemy.pictothemo.apiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.apiObjects.User;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.AddCommentTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.DeleteCommentTask;
+import com.jessy_barthelemy.pictothemo.asyncInteractions.DeletePictureTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.GetImageTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.dialogs.VoteDialog;
@@ -57,6 +58,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
     private User me;
     private CommentArrayAdapter commentAdapter;
     private InputFilter emojiFilter;
+    private boolean removed;
 
     public PictureFragment() {}
 
@@ -197,6 +199,12 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
             this.picture.getComments().add(0, comment);
             this.commentAdapter.notifyDataSetChanged();
             this.updateCommentCount();
+        }else if(response instanceof String){
+            Toast.makeText(this.getActivity(), response.toString(), Toast.LENGTH_LONG).show();
+        }
+
+        if(this.removed){
+            this.getActivity().onBackPressed();
         }
     }
 
@@ -215,6 +223,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
 
     @Override
     public void asyncTaskFail(String errorMessage) {
+        this.removed = false;
         Toast.makeText(this.getActivity(), errorMessage, Toast.LENGTH_LONG).show();
     }
 
@@ -235,6 +244,10 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
                 menu.setHeaderTitle(R.string.comment);
                 menu.add(Menu.NONE, DELETE_COMMENT_MENU, Menu.NONE, R.string.delete);
                 break;
+            case R.id.picture:
+                if(!this.picture.isPotd() && this.picture.getUser().getId() == this.me.getId())
+                    menu.add(Menu.NONE, BaseActivity.REMOVE_PICTURE, Menu.NONE, R.string.remove_picture);
+                break;
         }
     }
 
@@ -245,6 +258,11 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
                 case DELETE_COMMENT_MENU:
                     DeleteCommentTask deleteTask = new DeleteCommentTask(this.picture.getId(), this.getActivity(), this);
                     deleteTask.execute();
+                    return true;
+                case BaseActivity.REMOVE_PICTURE:
+                    this.removed = true;
+                    DeletePictureTask pictureTask = new DeletePictureTask(this.picture.getId(), this.getActivity(), this);
+                    pictureTask.execute();
                     return true;
                 default:
                     return super.onContextItemSelected(item);

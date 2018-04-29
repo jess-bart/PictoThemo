@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import com.jessy_barthelemy.pictothemo.apiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.apiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
+import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
@@ -40,7 +41,7 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
 
     @Override
     protected ArrayList<Picture> doInBackground(String... params) {
-        ApiHelper helper = new ApiHelper();
+        ApiHelper helper = ApiHelper.getInstance();
         return helper.getPicturesInfo(this.startingDate, this.endingDate, this.theme, this.user, this.voteCount, this.potd);
     }
 

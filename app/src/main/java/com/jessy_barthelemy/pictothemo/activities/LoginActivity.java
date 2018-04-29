@@ -53,7 +53,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
 
         this.tokenInfos = ApplicationHelper.getTokenInformations(this);
         if(this.tokenInfos != null && !this.tokenInfos.getAccessToken().isEmpty()){
-            ApiHelper helper = new ApiHelper();
+            ApiHelper helper = ApiHelper.getInstance();
             helper.validateToken(this, this.tokenInfos, this);
 
             this.loginContainer.setVisibility(View.GONE);

@@ -5,7 +5,7 @@ import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.apiObjects.User;
-import com.jessy_barthelemy.pictothemo.exceptions.TokenExpiredException;
+import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
@@ -30,13 +30,13 @@ public class SetUserTask extends AsyncTask<String, Void, Boolean> {
     protected Boolean doInBackground(String... params) {
         try {
             TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
-            ApiHelper helper = new ApiHelper(tokenInfo);
+            ApiHelper helper = ApiHelper.getInstance();
+
             try {
                 return helper.setUser(this.user);
-            } catch (TokenExpiredException e) {
+            } catch (LoginException e) {
                 LogInTask.login(tokenInfo, this.context);
                 LogInTask.postExcecute(false, null, this.context, null, null);
-                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
                 return helper.setUser(this.user);
             }
         }catch (Exception e) {

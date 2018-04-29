@@ -47,7 +47,8 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... params) {
         String errorMessage = null;
         try {
-            ApiHelper helper = new ApiHelper();
+            ApiHelper helper = ApiHelper.getInstance();
+
             this.tokensInfos = helper.createUser(tokensInfos.getUser().getPseudo(), tokensInfos.getPassword());
 
             if(this.tokensInfos == null){

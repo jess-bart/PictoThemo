@@ -47,6 +47,10 @@
     <string name="save_picture_error">Error saving picture.</string>
     <string name="save_picture_empty">No picture to show.</string>
     <string name="load_picture_error">Failed to load pictures.</string>
+    <string name="remove_picture_error">Failed to remove picture.</string>
+    <string name="remove_picture">Remove picture.</string>
+    <string name="remove_picture_success">Picture successfully removed.</string>
+
 
     <!-- Comment -->
     <string name="comment">Comment</string>

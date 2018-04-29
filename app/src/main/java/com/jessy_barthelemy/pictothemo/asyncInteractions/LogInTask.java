@@ -70,7 +70,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
         isNetworkAvailable = true;
         try {
             String flags = (tokens.isPasswordSalted())?ApiHelper.FLAG_SALT:null;
-            ApiHelper helper = new ApiHelper();
+            ApiHelper helper = ApiHelper.getInstance();
             tokensInfos = helper.getAccessToken(tokens.getUser().getPseudo(), tokens.getPassword(), flags);
 
             if(tokensInfos == null)

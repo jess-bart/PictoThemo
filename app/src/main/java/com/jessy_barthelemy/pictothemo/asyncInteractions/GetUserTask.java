@@ -26,7 +26,7 @@ public class GetUserTask extends AsyncTask<String, Void, User> {
 
     @Override
     protected User doInBackground(String... params) {
-        ApiHelper helper = new ApiHelper(ApplicationHelper.getTokenInformations(this.context));
+        ApiHelper helper = ApiHelper.getInstance();
         return helper.getUser(this.id);
     }
 

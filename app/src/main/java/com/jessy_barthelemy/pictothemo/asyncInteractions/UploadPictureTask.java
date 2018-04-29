@@ -7,7 +7,7 @@ import android.view.View;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.enumerations.UploadResult;
-import com.jessy_barthelemy.pictothemo.exceptions.TokenExpiredException;
+import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
@@ -39,14 +39,13 @@ public class UploadPictureTask extends AsyncTask<Void, Integer, UploadResult> {
     @Override
     protected UploadResult doInBackground(Void... params) {
         TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
-        ApiHelper helper = new ApiHelper(tokenInfo);
+        ApiHelper helper = ApiHelper.getInstance();
         try {
             try {
                 return helper.uploadFile(this.inputStream, this.filename);
-            } catch (TokenExpiredException e) {
+            } catch (LoginException e) {
                 LogInTask.login(tokenInfo, this.context);
                 LogInTask.postExcecute(false, null, this.context, null, null);
-                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
                 return helper.uploadFile(this.inputStream, this.filename);
             }
         } catch (Exception e) {

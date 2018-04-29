@@ -198,7 +198,7 @@ public class ApplicationHelper {
             //date + 7 days
             return !alreadyReviewed && System.currentTimeMillis() > context.getPackageManager()
                     .getPackageInfo(context.getPackageName(), 0)
-                    .firstInstallTime; //+ 604800000;
+                    .firstInstallTime + 604800000;
         } catch (PackageManager.NameNotFoundException e) {
             return false;
         }

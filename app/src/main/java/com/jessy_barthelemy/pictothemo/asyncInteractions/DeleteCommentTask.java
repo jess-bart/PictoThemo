@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
-import com.jessy_barthelemy.pictothemo.exceptions.TokenExpiredException;
+import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
@@ -29,13 +29,13 @@ public class DeleteCommentTask extends AsyncTask<Void, Object, Boolean> {
     protected Boolean doInBackground(Void... params) {
         try {
             TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
-            ApiHelper helper = new ApiHelper(tokenInfo);
+            ApiHelper helper = ApiHelper.getInstance();
+
             try {
                 return helper.deleteComment(this.picture);
-            } catch (TokenExpiredException e) {
+            } catch (LoginException e) {
                 LogInTask.login(tokenInfo, this.context);
                 LogInTask.postExcecute(false, null, this.context, null, null);
-                helper.setTokensInfo(ApplicationHelper.getTokenInformations(this.context));
                 return helper.deleteComment(this.picture);
             }
         }catch (Exception e) {

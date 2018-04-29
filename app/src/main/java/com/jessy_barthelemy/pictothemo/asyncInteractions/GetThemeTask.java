@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.ThemeList;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
+import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
 
 import java.util.Calendar;
@@ -23,7 +24,7 @@ public class GetThemeTask extends AsyncTask<String, Void, ThemeList> {
 
     @Override
     protected ThemeList doInBackground(String... params) {
-        ApiHelper helper = new ApiHelper();
+        ApiHelper helper = ApiHelper.getInstance();
         return helper.getThemes(this.date);
     }
 
