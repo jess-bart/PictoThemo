@@ -2,19 +2,17 @@ package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.AsyncTask;
 
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
 import com.jessy_barthelemy.pictothemo.R;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 
-public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
+public class SaveImageToDiskTask extends BaseAsyncTask<Void, Void, Boolean> {
     private Bitmap image;
     private OutputStream stream;
-    private IAsyncApiObjectResponse delegate;
-    private Context context;
 
     SaveImageToDiskTask(Bitmap image, OutputStream stream){
         this.image = image;
@@ -25,7 +23,7 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
         this.image = image;
         this.stream = stream;
         this.delegate = delegate;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
     }
 
     @Override
@@ -47,9 +45,15 @@ public class SaveImageToDiskTask extends AsyncTask<Void, Void, Boolean> {
         if(this.delegate == null)
             return;
 
+        Context context = this.weakContext.get();
+
         if(result)
-            this.delegate.asyncTaskSuccess(this.context.getResources().getString(R.string.save_picture_success));
+            this.getDelegate().asyncTaskSuccess(context.getResources().getString(R.string.save_picture_success));
         else
-            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.save_picture_error));
+            this.getDelegate().asyncTaskFail(context.getResources().getString(R.string.save_picture_error));
+    }
+
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

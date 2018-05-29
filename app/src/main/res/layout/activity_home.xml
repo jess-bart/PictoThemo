@@ -1,8 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/fragmentContainer"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginTop="?attr/actionBarSize"
-    />
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize" />
+    <LinearLayout
+        android:id="@+id/connection_failed"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorAccent"
+        android:visibility="gone"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:contentDescription="@string/connection_error"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_connection_failed"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/connection_error"
+            android:id="@+id/first_launch_title"
+            android:textSize="25sp"
+            android:textColor="@android:color/white"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin" />
+
+        <Button
+            android:id="@+id/refresh_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/retry"
+            android:textColor="@drawable/border_button_text_color"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-light"
+            android:layout_marginTop="20dp"
+            android:paddingLeft="15dp"
+            android:paddingRight="15dp"
+            android:textAlignment="center"
+            android:background="@drawable/border_button"
+            android:includeFontPadding="false"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"/>
+    </LinearLayout>
+</RelativeLayout>
+

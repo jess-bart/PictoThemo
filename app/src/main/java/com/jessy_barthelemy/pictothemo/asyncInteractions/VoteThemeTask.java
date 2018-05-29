@@ -1,42 +1,45 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
-import android.os.AsyncTask;
+import android.util.Log;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.Theme;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.R;
 
-public class VoteThemeTask extends AsyncTask<String, Void, Boolean>{
+import java.lang.ref.WeakReference;
 
-    Context context;
-    /*reference to the class that want a success callback*/
-    private IAsyncApiObjectResponse delegate;
+public class VoteThemeTask extends BaseAsyncTask<String, Void, Boolean>{
+
     private Theme theme;
     ApiHelper helper;
 
     public VoteThemeTask(Theme theme, Context context, IAsyncApiObjectResponse delegate){
         this.theme = theme;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
         if(delegate != null)
             this.delegate = delegate;
     }
 
     @Override
     protected Boolean doInBackground(String... params) {
-        TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+        Log.d("JBA DEBUG","DOINBACK");
+
+
+        Context context = this.weakContext.get();
+        TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(context);
         this.helper = ApiHelper.getInstance();
 
         try {
             try {
                 return this.helper.voteForTheme(this.theme.getId());
             } catch (LoginException e) {
-                LogInTask.login(tokenInfo, this.context);
-                LogInTask.postExcecute(false, null, this.context, null, null);
+                LogInTask.login(tokenInfo, context);
+                LogInTask.postExcecute(false, null, context, null, null);
                 return this.helper.voteForTheme(this.theme.getId());
             }
         }catch (Exception e) {
@@ -46,9 +49,16 @@ public class VoteThemeTask extends AsyncTask<String, Void, Boolean>{
 
     @Override
     protected void onPostExecute(Boolean success) {
+        super.onPostExecute(success);
         if(success)
-            this.delegate.asyncTaskSuccess(new Theme(this.theme.getId(), null));
-        else
-            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.theme_vote_error, this.theme.getName()));
+            this.getDelegate().asyncTaskSuccess(new Theme(this.theme.getId(), null));
+        else{
+            Context context = this.weakContext.get();
+            this.getDelegate().asyncTaskFail(context.getResources().getString(R.string.theme_vote_error, this.theme.getName()));
+        }
+    }
+
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

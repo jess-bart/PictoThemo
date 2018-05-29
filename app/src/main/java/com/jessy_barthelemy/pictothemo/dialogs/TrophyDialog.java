@@ -68,4 +68,9 @@ public class TrophyDialog extends Dialog implements IAsyncApiObjectResponse {
         Toast.makeText(this.fragment.getActivity(), errorMessage, Toast.LENGTH_LONG).show();
 
     }
+
+    @Override
+    public void handleNoConnection() {
+        this.fragment.handleNoConnection();
+    }
 }

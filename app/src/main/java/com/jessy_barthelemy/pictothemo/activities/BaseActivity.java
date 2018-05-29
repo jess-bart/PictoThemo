@@ -6,13 +6,17 @@ import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.provider.DocumentFile;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -23,7 +27,11 @@ import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.Picture;
@@ -32,6 +40,7 @@ import com.jessy_barthelemy.pictothemo.apiObjects.User;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.GetPicturesInfoTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.SaveImageToDiskTask;
 import com.jessy_barthelemy.pictothemo.asyncInteractions.UploadPictureTask;
+import com.jessy_barthelemy.pictothemo.fragments.AboutFragment;
 import com.jessy_barthelemy.pictothemo.fragments.HomeFragment;
 import com.jessy_barthelemy.pictothemo.fragments.PicturesFragment;
 import com.jessy_barthelemy.pictothemo.fragments.ProfilFragment;
@@ -61,6 +70,8 @@ public class BaseActivity extends AppCompatActivity
     private static final int UPLOAD_PICTURE_MENU = 5;
     private static final String CURRENT_FRAGMENT = "CURRENT";
     private ImageView pictureToSave;
+    private LinearLayout connectionFailedLayout;
+    private Button refreshFragment;
 
     protected NavigationView navigationView;
 
@@ -78,14 +89,28 @@ public class BaseActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        this.connectionFailedLayout = (LinearLayout) findViewById(R.id.connection_failed);
+        this.refreshFragment = (Button) findViewById(R.id.refresh_fragment);
+
         this.navigationView = (NavigationView) findViewById(R.id.nav_view);
         this.navigationView.setNavigationItemSelectedListener(this);
 
         Fragment home = new HomeFragment();
-        FragmentManager fragmentManager = getFragmentManager();
+        final FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer, home)
+                .replace(R.id.fragment_container, home)
                 .commit();
+
+        this.refreshFragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Fragment currentFragment = fragmentManager.findFragmentById(R.id.fragment_container);
+                ApplicationHelper.setTitleBarColor(BaseActivity.this, R.color.colorPrimaryDark, R.color.colorPrimary);
+
+                BaseActivity.this.connectionFailedLayout.setVisibility(View.GONE);
+                fragmentManager.beginTransaction().detach(currentFragment).attach(currentFragment).commit();
+            }
+        });
     }
 
     @Override
@@ -107,7 +132,9 @@ public class BaseActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         Fragment fragment = null;
-        getSupportActionBar().setTitle(item.getTitle());
+
+        if(getSupportActionBar() != null)
+            getSupportActionBar().setTitle(item.getTitle());
 
         switch(id){
             case R.id.nav_potd:
@@ -140,6 +167,9 @@ public class BaseActivity extends AppCompatActivity
                 break;
             case R.id.nav_settings:
                 fragment = new SettingsFragment();
+                break;
+            case R.id.nav_about:
+                fragment = new AboutFragment();
                 break;
         }
 
@@ -213,14 +243,13 @@ public class BaseActivity extends AppCompatActivity
                         bitmap.compress(Bitmap.CompressFormat.JPEG, ApplicationHelper.UPLOAD_IMAGE_COMPRESSION, bos);
 
                         byte[] bitmapdata = bos.toByteArray();
-                        InputStream in = new ByteArrayInputStream(bitmapdata);
 
                         filenameCursor = this.getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
                         {
                             String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, null, null, this.getApplicationContext(), this);
+                            UploadPictureTask uploadTask = new UploadPictureTask(bitmapdata, filename, null, null, this.getApplicationContext(), this);
                             uploadTask.execute();
                         }else
                             Toast.makeText(this, R.string.upload_error, Toast.LENGTH_LONG).show();
@@ -261,10 +290,16 @@ public class BaseActivity extends AppCompatActivity
         Toast.makeText(this, errorMessage, Toast.LENGTH_LONG).show();
     }
 
+    @Override
+    public void handleNoConnection() {
+        ApplicationHelper.setTitleBarColor(this, R.color.colorAccentDark, R.color.colorAccent);
+        this.connectionFailedLayout.setVisibility(View.VISIBLE);
+    }
+
     protected void setCurrentFragment(Fragment fragment, boolean addToBackStack){
         FragmentManager fragmentManager = getFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction()
-                .replace(R.id.fragmentContainer,  fragment, CURRENT_FRAGMENT);
+                .replace(R.id.fragment_container,  fragment, CURRENT_FRAGMENT);
 
         if(addToBackStack)
             transaction.addToBackStack(fragment.getClass().getName());

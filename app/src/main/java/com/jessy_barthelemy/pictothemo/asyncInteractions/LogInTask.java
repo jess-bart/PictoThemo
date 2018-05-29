@@ -2,42 +2,43 @@ package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.exceptions.PictothemoException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
-import com.jessy_barthelemy.pictothemo.R;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncSimpleResponse;
 
-public class LogInTask extends AsyncTask<Void, Void, String> {
+import java.lang.ref.WeakReference;
 
-    private Context context;
+public class LogInTask extends BaseAsyncTask<Void, Void, String> {
+
     private ProgressDialog waitDialog;
     private boolean showLoading;
     /*reference to the class that want a success callback*/
-    private IAsyncResponse delegate;
+    private IAsyncSimpleResponse delegate;
     private static boolean isNetworkAvailable;
     private static TokenInformation tokensInfos;
 
     /*Constructor without ui*/
-    public LogInTask(Context ctx, TokenInformation tokenInfos, boolean showLoading){
-        this.context = ctx;
+    public LogInTask(Context context, TokenInformation tokenInfos, boolean showLoading){
+        this.weakContext = new WeakReference<>(context);
         this.showLoading = showLoading;
-        this.tokensInfos = tokenInfos;
+        tokensInfos = tokenInfos;
 
         if(showLoading){
             this.initDialog();
         }
     }
 
-    public void setDelegate(IAsyncResponse context){
+    public void setDelegate(IAsyncSimpleResponse context){
         this.delegate = context;
     }
 
     private void initDialog(){
-        this.waitDialog = new ProgressDialog(this.context);
+        Context context = this.weakContext.get();
+        this.waitDialog = new ProgressDialog(context);
         this.waitDialog.setMessage(context.getResources().getString(R.string.login_verification));
         this.waitDialog.setIndeterminate(false);
         this.waitDialog.setCancelable(false);
@@ -57,11 +58,15 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     * */
     @Override
     protected String doInBackground(Void... params) {
-        return login(tokensInfos, this.context);
+        Context context = this.weakContext.get();
+
+        return login(tokensInfos, context);
     }
 
     @Override
     protected void onPostExecute(String errorMessage) {
+        super.onPostExecute(errorMessage);
+        Context context = this.weakContext.get();
         postExcecute(showLoading, waitDialog, context, delegate, errorMessage);
     }
 
@@ -88,7 +93,7 @@ public class LogInTask extends AsyncTask<Void, Void, String> {
     public static void postExcecute(boolean showLoading,
                                     ProgressDialog waitDialog,
                                     Context context,
-                                    IAsyncResponse delegate,
+                                    IAsyncSimpleResponse delegate,
                                     String errorMessage){
         if(showLoading)
             waitDialog.dismiss();

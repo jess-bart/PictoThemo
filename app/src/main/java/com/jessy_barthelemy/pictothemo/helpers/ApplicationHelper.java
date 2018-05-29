@@ -1,14 +1,21 @@
 package com.jessy_barthelemy.pictothemo.helpers;
 
+import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
+import android.view.WindowManager;
 
 import com.jessy_barthelemy.pictothemo.activities.LoginActivity;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
@@ -227,6 +234,17 @@ public class ApplicationHelper {
         } catch (NullPointerException e) {
             e.printStackTrace();
             return false;
+        }
+    }
+
+    public static void setTitleBarColor(AppCompatActivity activity, int colorStatusBar, int colorTitleBar){
+        activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(activity.getResources().getColor(colorTitleBar)));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Window window = activity.getWindow();
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.setStatusBarColor(ContextCompat.getColor(activity, colorStatusBar));
         }
     }
 }

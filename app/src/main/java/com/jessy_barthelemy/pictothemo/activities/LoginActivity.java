@@ -22,10 +22,10 @@ import com.jessy_barthelemy.pictothemo.asyncInteractions.RegistrationTask;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.helpers.FormHelper;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncSimpleResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
-public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
+public class LoginActivity extends AppCompatActivity implements IAsyncSimpleResponse {
 
     private TextInputLayout pseudo;
     private TextInputLayout password;
@@ -177,4 +177,7 @@ public class LoginActivity extends AppCompatActivity implements IAsyncResponse{
         this.password.setErrorEnabled(true);
         this.password.setError(errorMessage);
     }
+
+    @Override
+    public void handleNoConnection() {}
 }

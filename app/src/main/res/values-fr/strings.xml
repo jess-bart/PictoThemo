@@ -11,6 +11,9 @@
     <string name="logout">Déconnexion</string>
     <string name="delete">Supprimer</string>
     <string name="picture">Image</string>
+    <string name="cancel">Annuler</string>
+    <string name="retry">Réessayer</string>
+    <string name="connection_error">Pas de connexion</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_pseudo">Pseudo</string>
@@ -56,7 +59,6 @@
     <string name="comment">Commentaire</string>
     <string name="comment_placeholder">Votre commentaire</string>
     <string name="comment_add">Envoyer</string>
-    <string name="comment_cancel">Annuler</string>
     <string name="already_commented">Seulement 1 commentaire par image.</string>
     <string name="comment_add_error">Impossible d\'ajouter un commentaire.</string>
     <string name="comment_remove_error">Impossible de supprimer le commentaire.</string>
@@ -90,6 +92,9 @@
     <string name="settings_wallpaper_summary">Change quotidiennement votre fond d\'écran avec l\'image du jour.</string>
     <string name="settings_replay_tuto_key">TUTORIAL_PREF</string>
     <string name="settings_replay_tuto_title">Rejouer le tutoriel au prochain redémarrage</string>
+    <string name="settings_delete_account_key">removeAccount</string>
+    <string name="settings_delete_account">Supprimer mon compte</string>
+    <string name="settings_delete_account_description">Cette action est irreversible.</string>
 
     <!-- User -->
     <string name="profil_registration_date">Inscrit depuis le %1$s</string>
@@ -98,6 +103,8 @@
     <string name="profil_normal">profil_%d</string>
     <string name="profil_big">profil_big_%d</string>
     <string name="profil_profil_error">Impossible de modifier l\'image de profil</string>
+    <string name="remove_user_error">Erreur d\'authentification. Suppression impossible.</string>
+    <string name="remove_user_success">Votre compte a été correctement supprimé.</string>
 
     <!-- Content description -->
     <string name="content_logo">Logo de pictothemo</string>
@@ -133,4 +140,9 @@
     <string name="review_yes">Oui</string>
     <string name="review_no">Non</string>
     <string name="review_later">Plus tard</string>
+
+    <!-- About -->
+    <string name="about">À propos</string>
+    <string name="about_email">jessy.barthelemy08@gmail.com</string>
+    <string name="about_portfolio">http://jessy-barthelemy.byethost6.com/</string>
 </resources>

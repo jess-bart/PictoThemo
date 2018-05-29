@@ -53,8 +53,6 @@
         android:paddingRight="15dp"
         android:textAlignment="center"
         android:background="@drawable/border_button"
-
-
         android:includeFontPadding="false"
         android:paddingTop="0dp"
         android:paddingBottom="0dp"

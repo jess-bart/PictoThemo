@@ -2,6 +2,8 @@ package com.jessy_barthelemy.pictothemo.helpers;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Environment;
+import android.util.Log;
 
 import com.jessy_barthelemy.pictothemo.apiObjects.Comment;
 import com.jessy_barthelemy.pictothemo.apiObjects.CommentResult;
@@ -17,7 +19,7 @@ import com.jessy_barthelemy.pictothemo.enumerations.HttpVerb;
 import com.jessy_barthelemy.pictothemo.enumerations.UploadResult;
 import com.jessy_barthelemy.pictothemo.exceptions.PictothemoException;
 import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncSimpleResponse;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,13 +28,17 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.security.InvalidParameterException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -40,6 +46,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -85,6 +92,7 @@ public class ApiHelper {
     private static final String SUCCESS = "success";
     private static final String FORMAT_ERROR = "format";
     private static final String SIZE_ERROR = "size";
+    private static final String EMPTY_FILE = "EMPTY_FILE";
     private static final String ENTITY_ALREADY_EXISTS = "ENTITY_ALREADY_EXISTS";
 
     private static final String POSITIVE_VOTE = "positives";
@@ -169,7 +177,7 @@ public class ApiHelper {
     }
 
 
-    public void validateToken(Context context, TokenInformation tokenInfos, IAsyncResponse delegate){
+    public void validateToken(Context context, TokenInformation tokenInfos, IAsyncSimpleResponse delegate){
         if(Calendar.getInstance().after(tokenInfos.getExpiresToken())){
             this.refreshToken(context, tokenInfos, delegate);
         }else{
@@ -177,7 +185,7 @@ public class ApiHelper {
         }
     }
 
-    private void refreshToken(Context context, TokenInformation tokenInfos, IAsyncResponse delegate){
+    private void refreshToken(Context context, TokenInformation tokenInfos, IAsyncSimpleResponse delegate){
         LogInTask login = new LogInTask(context, tokenInfos, false);
         login.setDelegate(delegate);
         login.execute();
@@ -259,7 +267,7 @@ public class ApiHelper {
         return new JSONArray(this.getJSONResponse(http, false));
     }
 
-    public User getUser(long id) {
+    public User getUser(long id) throws UnknownHostException{
 
         HttpURLConnection http = null;
         try {
@@ -297,7 +305,9 @@ public class ApiHelper {
                 throw new InvalidParameterException();
             }
 
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             return null;
         } finally {
             if(http != null)
@@ -307,7 +317,7 @@ public class ApiHelper {
         return null;
     }
 
-    public boolean setUser(User user) throws LoginException {
+    public boolean setUser(User user) throws LoginException, UnknownHostException {
         HttpURLConnection http = null;
         try {
             JSONObject userObj = new JSONObject();
@@ -324,7 +334,9 @@ public class ApiHelper {
                 throw new LoginException();
 
             return responseCode == HttpURLConnection.HTTP_OK;
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             return false;
         } finally {
             if(http != null)
@@ -355,7 +367,7 @@ public class ApiHelper {
         return null;
     }
 
-    public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, Boolean potd) {
+    public ArrayList<Picture> getPicturesInfo(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, Boolean potd) throws UnknownHostException{
         Uri.Builder parameter = new Uri.Builder();
 
         ArrayList<Picture> pictures = null;
@@ -378,13 +390,13 @@ public class ApiHelper {
             parameter.appendQueryParameter(POTD, potd.toString());
 
         HttpURLConnection http = null;
-        try{
+        try {
             http = this.createHttpConnection(URL_PICTURE_INFO, HttpVerb.GET.toString(), parameter, null, false);
 
-            if(http.getResponseCode() == HttpURLConnection.HTTP_OK){
+            if (http.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 JSONArray picturesObj = this.getJSONArrayResponse(http);
 
-                if(picturesObj.length() == 0)
+                if (picturesObj.length() == 0)
                     return null;
 
                 pictures = new ArrayList<>();
@@ -402,49 +414,49 @@ public class ApiHelper {
                 Calendar date;
                 JSONObject themeObj;
                 JSONObject userObj;
-                for(int i = 0, length = picturesObj.length(); i < length; ++i){
+                for (int i = 0, length = picturesObj.length(); i < length; ++i) {
                     pictureObj = picturesObj.getJSONObject(i);
                     date = null;
-                    id = pictureObj.has(ApiHelper.ID)?pictureObj.getInt(ApiHelper.ID):0;
+                    id = pictureObj.has(ApiHelper.ID) ? pictureObj.getInt(ApiHelper.ID) : 0;
 
-                    themeObj = pictureObj.has(ApiHelper.THEME)?pictureObj.getJSONObject(ApiHelper.THEME):null;
-                    if(themeObj != null){
-                        pictureTheme = themeObj.has(ApiHelper.THEME_NAME)?themeObj.getString(ApiHelper.THEME_NAME):"";
-                        if(themeObj.has(ApiHelper.CANDIDATE_DATE))
+                    themeObj = pictureObj.has(ApiHelper.THEME) ? pictureObj.getJSONObject(ApiHelper.THEME) : null;
+                    if (themeObj != null) {
+                        pictureTheme = themeObj.has(ApiHelper.THEME_NAME) ? themeObj.getString(ApiHelper.THEME_NAME) : "";
+                        if (themeObj.has(ApiHelper.CANDIDATE_DATE))
                             date = ApplicationHelper.convertStringToDate(themeObj.getString(ApiHelper.CANDIDATE_DATE), false);
                     }
 
-                    userObj = pictureObj.has(ApiHelper.ENTITY_USER) && !pictureObj.isNull(ApiHelper.ENTITY_USER)?pictureObj.getJSONObject(ApiHelper.ENTITY_USER):null;
-                    if(userObj != null){
-                        userID = userObj.has(ApiHelper.ID)?userObj.getInt(ApiHelper.ID):0;
-                        pseudo = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
-                        profil = userObj.has(ApiHelper.PROFIL_ID)?userObj.getInt(ApiHelper.PROFIL_ID):0;
-                    }else{
+                    userObj = pictureObj.has(ApiHelper.ENTITY_USER) && !pictureObj.isNull(ApiHelper.ENTITY_USER) ? pictureObj.getJSONObject(ApiHelper.ENTITY_USER) : null;
+                    if (userObj != null) {
+                        userID = userObj.has(ApiHelper.ID) ? userObj.getInt(ApiHelper.ID) : 0;
+                        pseudo = userObj.has(ApiHelper.PSEUDO) ? userObj.getString(ApiHelper.PSEUDO) : "";
+                        profil = userObj.has(ApiHelper.PROFIL_ID) ? userObj.getInt(ApiHelper.PROFIL_ID) : 0;
+                    } else {
                         userID = 0;
                         pseudo = "";
                         profil = 0;
                     }
 
-                    positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE)?pictureObj.getInt(ApiHelper.POSITIVE_VOTE):0;
-                    negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE)?pictureObj.getInt(ApiHelper.NEGATIVE_VOTE):0;
+                    positiveVote = pictureObj.has(ApiHelper.POSITIVE_VOTE) ? pictureObj.getInt(ApiHelper.POSITIVE_VOTE) : 0;
+                    negativeVote = pictureObj.has(ApiHelper.NEGATIVE_VOTE) ? pictureObj.getInt(ApiHelper.NEGATIVE_VOTE) : 0;
                     potd = pictureObj.has(ApiHelper.POTD) && pictureObj.getBoolean(ApiHelper.POTD);
 
                     picture = new Picture(id, new Theme(pictureTheme, date), new User(userID, pseudo, profil), positiveVote, negativeVote, potd);
 
                     //comments
-                    if(pictureObj.has(ApiHelper.COMMENTS)){
+                    if (pictureObj.has(ApiHelper.COMMENTS)) {
                         comments = pictureObj.getJSONArray(ApiHelper.COMMENTS);
-                        for(int j = 0, commentLength = comments.length(); j < commentLength; ++j){
+                        for (int j = 0, commentLength = comments.length(); j < commentLength; ++j) {
                             commentObj = comments.getJSONObject(j);
 
-                            textComment=  commentObj.getString(COMMENT_TEXT);
+                            textComment = commentObj.getString(COMMENT_TEXT);
 
-                            userObj = commentObj.has(ApiHelper.ENTITY_USER) && !commentObj.isNull(ApiHelper.ENTITY_USER)?commentObj.getJSONObject(ApiHelper.ENTITY_USER):null;
-                            if(userObj != null){
-                                userID = userObj.has(ApiHelper.ID)?userObj.getInt(ApiHelper.ID):0;
-                                pseudo = userObj.has(ApiHelper.PSEUDO)?userObj.getString(ApiHelper.PSEUDO):"";
-                                profil = userObj.has(ApiHelper.PROFIL_ID)?userObj.getInt(ApiHelper.PROFIL_ID):0;
-                            }else{
+                            userObj = commentObj.has(ApiHelper.ENTITY_USER) && !commentObj.isNull(ApiHelper.ENTITY_USER) ? commentObj.getJSONObject(ApiHelper.ENTITY_USER) : null;
+                            if (userObj != null) {
+                                userID = userObj.has(ApiHelper.ID) ? userObj.getInt(ApiHelper.ID) : 0;
+                                pseudo = userObj.has(ApiHelper.PSEUDO) ? userObj.getString(ApiHelper.PSEUDO) : "";
+                                profil = userObj.has(ApiHelper.PROFIL_ID) ? userObj.getInt(ApiHelper.PROFIL_ID) : 0;
+                            } else {
                                 userID = 0;
                                 pseudo = "";
                                 profil = 0;
@@ -460,9 +472,11 @@ public class ApiHelper {
 
                     pictures.add(picture);
                 }
-            }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
+            } else if (http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST) {
                 throw new InvalidParameterException();
             }
+        }catch(UnknownHostException e) {
+            throw e;
         }catch (IOException | JSONException e) {
             return null;
         } finally {
@@ -473,7 +487,7 @@ public class ApiHelper {
         return pictures;
     }
     
-    public ThemeList getThemes(Calendar candidateDate) {
+    public ThemeList getThemes(Calendar candidateDate) throws UnknownHostException{
 
         HttpURLConnection http = null;
         try {
@@ -500,11 +514,12 @@ public class ApiHelper {
 
                 return new ThemeList(themeList);
 
-            }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST){
+            }else if(http.getResponseCode() == HttpURLConnection.HTTP_BAD_REQUEST)
                 throw new InvalidParameterException();
-            }
 
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             return null;
         } finally {
             if(http != null)
@@ -515,8 +530,10 @@ public class ApiHelper {
     }
 
     public boolean voteForTheme(int theme) throws IOException, JSONException, ParseException, LoginException {
+
         HttpURLConnection http = this.createHttpConnection(URL_THEMES+"/"+theme, HttpVerb.POST.toString(), null, null, true);
         int resultCode = http.getResponseCode();
+
         http.disconnect();
         if(resultCode == HttpURLConnection.HTTP_FORBIDDEN)
             throw new LoginException();
@@ -524,7 +541,7 @@ public class ApiHelper {
         return resultCode == HttpURLConnection.HTTP_OK;
     }
 
-    public Picture voteForPicture(Picture picture, boolean positive) throws LoginException {
+    public Picture voteForPicture(Picture picture, boolean positive) throws LoginException, UnknownHostException, UnsupportedOperationException {
         HttpURLConnection http = null;
         try {
             http = this.createHttpConnection(String.format("%s/%s/%s", URL_PICTURE_VOTE, picture.getId(), positive), HttpVerb.POST.toString(), null, null, true);
@@ -532,6 +549,9 @@ public class ApiHelper {
 
             if(resultCode == HttpURLConnection.HTTP_FORBIDDEN)
                 throw new LoginException();
+
+            if(resultCode == HttpURLConnection.HTTP_UNAUTHORIZED)
+                throw new UnsupportedOperationException();
 
             if (resultCode != HttpURLConnection.HTTP_OK)
                 return null;
@@ -548,7 +568,9 @@ public class ApiHelper {
                 picture.setNegativeVote(pictureObj.getInt(ApiHelper.NEGATIVE_VOTE));
 
             return picture;
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             return null;
         }finally {
             if(http != null)
@@ -556,7 +578,7 @@ public class ApiHelper {
         }
     }
 
-    public CommentResult addComment(int picture, String text) throws LoginException {
+    public CommentResult addComment(int picture, String text) throws LoginException, UnknownHostException {
         CommentResult result = new CommentResult();
         result.setResult(CommentStatus.SUCCESS);
 
@@ -591,7 +613,10 @@ public class ApiHelper {
 
                 result.setComment(comment);
             }
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }
+        catch (IOException | JSONException e) {
             result.setResult(CommentStatus.ERROR);
         }
         finally {
@@ -602,7 +627,7 @@ public class ApiHelper {
         return result;
     }
 
-    public boolean deleteComment(int picture) throws LoginException {
+    public boolean deleteComment(int picture) throws LoginException, UnknownHostException {
         HttpURLConnection http = null;
         boolean result = false;
         try {
@@ -619,7 +644,9 @@ public class ApiHelper {
 
             if (resultArray.has(SUCCESS) && resultArray.getBoolean(SUCCESS))
                 result =  resultArray.getBoolean(SUCCESS);
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             result = false;
         }finally {
             if(http != null)
@@ -629,7 +656,7 @@ public class ApiHelper {
         return result;
     }
 
-    public boolean deletePicture(int picture) throws LoginException {
+    public boolean deletePicture(int picture) throws LoginException, UnknownHostException {
         HttpURLConnection http = null;
         boolean result = false;
         try {
@@ -646,7 +673,9 @@ public class ApiHelper {
 
             if (resultArray.has(SUCCESS) && resultArray.getBoolean(SUCCESS))
                 result =  resultArray.getBoolean(SUCCESS);
-        } catch (IOException | JSONException e) {
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
             result = false;
         }finally {
             if(http != null)
@@ -656,7 +685,39 @@ public class ApiHelper {
         return result;
     }
 
-    public UploadResult uploadFile(InputStream fileInputStream, String filename) throws IOException, JSONException, ParseException, LoginException {
+    public boolean deleteUser(String password) throws LoginException, UnknownHostException {
+        HttpURLConnection http = null;
+        boolean result = false;
+        try {
+            HashMap<String, String> headers = new HashMap<>();
+            headers.put(PASSWORD, password);
+
+            http = this.createHttpConnection(URL_USERS, HttpVerb.DELETE.toString(), null, headers, true);
+            int resultCode = http.getResponseCode();
+
+            if(resultCode == HttpURLConnection.HTTP_FORBIDDEN)
+                throw new LoginException();
+
+            if (resultCode != HttpURLConnection.HTTP_OK)
+                return false;
+
+            JSONObject resultArray = this.getJSONObjectResponse(http, false);
+
+            if (resultArray.has(SUCCESS) && resultArray.getBoolean(SUCCESS))
+                result =  resultArray.getBoolean(SUCCESS);
+        }catch(UnknownHostException e) {
+            throw e;
+        }catch (IOException | JSONException e) {
+            result = false;
+        }finally {
+            if(http != null)
+                http.disconnect();
+        }
+
+        return result;
+    }
+
+    public UploadResult uploadFile(InputStream fileInputStream, String filename) throws IOException, JSONException, LoginException {
         String lineEnd = "\r\n";
         String twoHyphens = "--";
         String boundary =  "*****";
@@ -710,6 +771,8 @@ public class ApiHelper {
                 return UploadResult.FORMAT_ERROR;
             else if (result.has(SIZE_ERROR))
                 return UploadResult.SIZE_ERROR;
+            else if (result.has(EMPTY_FILE))
+                return UploadResult.EMPTY_FILE;
             else if (result.has(SUCCESS) && result.getBoolean(SUCCESS))
                 return UploadResult.SUCCESS;
         }

@@ -1,19 +1,19 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.Picture;
 import com.jessy_barthelemy.pictothemo.apiObjects.PictureList;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
-import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.R;
 
+import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Picture>> {
+public class GetPicturesInfoTask extends BaseAsyncTask<String, Void, ArrayList<Picture>> {
 
     private Calendar startingDate;
     private Calendar endingDate;
@@ -21,10 +21,6 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
     private String theme;
     private String user;
     private Integer voteCount;
-    private Context context;
-
-    /*reference to the class that want a success callback*/
-    private IAsyncApiObjectResponse delegate;
 
     public GetPicturesInfoTask(Calendar startingDate, Calendar endingDate, String theme, String user, Integer voteCount, Boolean potd, Context context, IAsyncApiObjectResponse delegate){
         if(delegate != null)
@@ -36,23 +32,33 @@ public class GetPicturesInfoTask extends AsyncTask<String, Void, ArrayList<Pictu
         this.theme = theme;
         this.user = user;
         this.voteCount = voteCount;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
     }
 
     @Override
     protected ArrayList<Picture> doInBackground(String... params) {
         ApiHelper helper = ApiHelper.getInstance();
-        return helper.getPicturesInfo(this.startingDate, this.endingDate, this.theme, this.user, this.voteCount, this.potd);
+        try {
+            return helper.getPicturesInfo(this.startingDate, this.endingDate, this.theme, this.user, this.voteCount, this.potd);
+        } catch (UnknownHostException e) {
+            this.isOffline = true;
+            return null;
+        }
     }
 
     @Override
     protected void onPostExecute(ArrayList<Picture> pictures) {
+        super.onPostExecute(pictures);
+
+        Context context = this.weakContext.get();
         if(pictures != null){
             PictureList pictureList = new PictureList(pictures);
-            this.delegate.asyncTaskSuccess(pictureList);
-        }else if(this.context != null){
-            this.delegate.asyncTaskFail(this.context.getString(R.string.save_picture_empty));
-        }
+            this.getDelegate().asyncTaskSuccess(pictureList);
+        }else if(context != null)
+            this.getDelegate().asyncTaskFail(context.getString(R.string.save_picture_empty));
+    }
 
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.view.View;
@@ -13,9 +12,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
-import com.jessy_barthelemy.pictothemo.R;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -25,28 +24,29 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
 
-public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
-    private ImageView imageView;
-    private View progressBar;
+public class GetImageTask extends BaseAsyncTask<Void, Integer, Bitmap>{
+    private WeakReference<ImageView> weakImageView;
+    private WeakReference<View> weakProgressBar;
     private String url;
-    private Context context;
     private String name;
     private int screenWidth;
     private File cache;
     private boolean setAsWallpaper;
 
     private GetImageTask(Context context, ImageView imageView, View progressBar, boolean setAsWallpaper){
-        this.imageView = imageView;
-        this.progressBar = progressBar;
-        this.context = context;
+        this.weakImageView = new WeakReference<>(imageView);
+        this.weakProgressBar = new WeakReference<>(progressBar);
+        this.weakContext = new WeakReference<>(context);
         this.screenWidth = Resources.getSystem().getDisplayMetrics().widthPixels;
         this.setAsWallpaper = setAsWallpaper;
     }
@@ -66,6 +66,8 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     }
 
     private File getCacheDir(){
+        Context context = this.weakContext.get();
+
         File[] dirs = context.getExternalCacheDirs();
         if(dirs[dirs.length -1] != null){
             return new File(dirs[dirs.length -1].getPath(), this.name);
@@ -102,8 +104,10 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
             connection.connect();
             InputStream input = connection.getInputStream();
             return this.decodeBitmap(input, connection.getContentLength());
+        }catch(UnknownHostException e){
+            this.isOffline = true;
+            return null;
         } catch (Exception e) {
-            e.printStackTrace();
             return null;
         } finally {
             if(connection != null)
@@ -111,7 +115,7 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
         }
     }
 
-    private Bitmap decodeBitmap(InputStream input, long length) throws IOException {
+    private Bitmap decodeBitmap(InputStream input, long length){
         Bitmap result;
         try{
             byte data[] = new byte[8192];
@@ -137,30 +141,38 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
     @Override
     protected void onProgressUpdate(Integer... values) {
         super.onProgressUpdate(values);
-        if(this.progressBar == null)
+        final View progressBar = this.weakProgressBar.get();
+
+        if(progressBar == null)
             return;
-        this.progressBar.getLayoutParams().width = (values[0]*this.screenWidth)/100;
-        this.progressBar.requestLayout();
+        progressBar.getLayoutParams().width = (values[0]*this.screenWidth)/100;
+        progressBar.requestLayout();
     }
 
     @Override
     protected void onPostExecute(final Bitmap image) {
+        super.onPostExecute(image);
+
+        final Context context = this.weakContext.get();
+        final View progressBar = this.weakProgressBar.get();
+        final ImageView imageView = this.weakImageView.get();
+
 
         if(this.setAsWallpaper){
             ApplicationHelper.setWallpaper(context, image);
             SimpleDateFormat dateFormat = new SimpleDateFormat(ApplicationHelper.MYSQL_DATE_FORMAT, Locale.getDefault());
             String today = dateFormat.format(new Date());
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(GetImageTask.this.context);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
             SharedPreferences.Editor editor = prefs.edit();
             editor.putString(ApplicationHelper.PREF_WALLPAPER_DATE, today);
             editor.apply();
         }
 
-        if(this.progressBar != null){
-            this.progressBar.setVisibility(View.GONE);
-            Animation fadeOut = AnimationUtils.loadAnimation(this.context, R.anim.fade_out);
-            this.imageView.startAnimation(fadeOut);
+        if(progressBar != null){
+            progressBar.setVisibility(View.GONE);
+            Animation fadeOut = AnimationUtils.loadAnimation(context, R.anim.fade_out);
+            imageView.startAnimation(fadeOut);
 
             fadeOut.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -168,14 +180,13 @@ public class GetImageTask extends AsyncTask<Void, Integer, Bitmap>{
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    if(image != null){
-                        GetImageTask.this.imageView.setImageBitmap(image);
-                    }else{
-                        GetImageTask.this.imageView.setImageDrawable(ContextCompat.getDrawable(GetImageTask.this.context, R.drawable.error));
-                    }
+                    if(image != null)
+                        imageView.setImageBitmap(image);
+                    else
+                        imageView.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.error));
 
-                    Animation anim = AnimationUtils.loadAnimation(GetImageTask.this.context, R.anim.fade_in);
-                    GetImageTask.this.imageView.startAnimation(anim);
+                    Animation anim = AnimationUtils.loadAnimation(context, R.anim.fade_in);
+                    imageView.startAnimation(anim);
                 }
 
                 @Override

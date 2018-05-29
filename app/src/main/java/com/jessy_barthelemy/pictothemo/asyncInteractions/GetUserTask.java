@@ -1,24 +1,22 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.User;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
-import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.R;
 
-public class GetUserTask extends AsyncTask<String, Void, User> {
+import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
+
+public class GetUserTask extends BaseAsyncTask<String, Void, User> {
 
     private long id;
-    private Context context;
-    /*reference to the class that want a success callback*/
-    private IAsyncApiObjectResponse delegate;
 
     public GetUserTask(long id, Context context, IAsyncApiObjectResponse delegate){
         this.id = id;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
 
         if(delegate != null)
             this.delegate = delegate;
@@ -27,14 +25,26 @@ public class GetUserTask extends AsyncTask<String, Void, User> {
     @Override
     protected User doInBackground(String... params) {
         ApiHelper helper = ApiHelper.getInstance();
-        return helper.getUser(this.id);
+        try {
+            return helper.getUser(this.id);
+        } catch (UnknownHostException e) {
+            this.isOffline = true;
+            return null;
+        }
     }
 
     @Override
     protected void onPostExecute(User user) {
+        super.onPostExecute(user);
+        Context context = this.weakContext.get();
+
         if(user != null)
-            this.delegate.asyncTaskSuccess(user);
-        else if(this.context != null)
-            this.delegate.asyncTaskFail(this.context.getString(R.string.profil_load_error));
+            this.getDelegate().asyncTaskSuccess(user);
+        else if(context != null)
+            this.getDelegate().asyncTaskFail(context.getString(R.string.profil_load_error));
+    }
+
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

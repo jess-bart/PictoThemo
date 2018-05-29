@@ -1,6 +1,5 @@
 package com.jessy_barthelemy.pictothemo.fragments;
 
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -35,13 +34,13 @@ import com.jessy_barthelemy.pictothemo.asyncInteractions.VotePictureTask;
 import com.jessy_barthelemy.pictothemo.dialogs.VoteDialog;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncSimpleResponse;
 import com.jessy_barthelemy.pictothemo.interfaces.IVoteResponse;
 import com.jessy_barthelemy.pictothemo.R;
 
 import java.text.DateFormat;
 
-public class PictureFragment extends Fragment implements IAsyncApiObjectResponse, IVoteResponse, IAsyncResponse {
+public class PictureFragment extends BaseFragment implements IAsyncApiObjectResponse, IVoteResponse, IAsyncSimpleResponse {
 
     private final int DELETE_COMMENT_MENU = 1;
     private Picture picture;
@@ -310,7 +309,7 @@ public class PictureFragment extends Fragment implements IAsyncApiObjectResponse
                         addComment.execute();
                     }
                 })
-                .setNegativeButton(R.string.comment_cancel, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int whichButton) {}
                 })
                 .show();

@@ -1,8 +1,8 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.CommentResult;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.enumerations.CommentStatus;
@@ -10,20 +10,19 @@ import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.R;
 
-public class AddCommentTask extends AsyncTask<Void, Object, CommentResult> {
+import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 
-    private Context context;
-    /*reference to the class that want a success callback*/
-    private IAsyncApiObjectResponse delegate;
+public class AddCommentTask extends BaseAsyncTask<Void, Object, CommentResult> {
+
     private int picture;
     private String text;
 
     public AddCommentTask(int picture, String text, Context context, IAsyncApiObjectResponse delegate){
         this.picture = picture;
         this.text = text;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
 
         if(delegate != null)
             this.delegate = delegate;
@@ -31,38 +30,51 @@ public class AddCommentTask extends AsyncTask<Void, Object, CommentResult> {
 
     @Override
     protected CommentResult doInBackground(Void... params) {
+        Context context = this.weakContext.get();
+
         try {
-            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(context);
             ApiHelper helper = ApiHelper.getInstance();
 
             try {
                 return helper.addComment(this.picture, this.text);
             } catch (LoginException e) {
-                LogInTask.login(tokenInfo, this.context);
-                LogInTask.postExcecute(false, null, this.context, null, null);
+                LogInTask.login(tokenInfo, context);
+                LogInTask.postExcecute(false, null, context, null, null);
                 return helper.addComment(this.picture, this.text);
             }
+        }catch (UnknownHostException e){
+            this.isOffline = true;
+            CommentResult result = new CommentResult();
+            result.setResult(CommentStatus.ERROR);
+            return result;
         }catch (Exception e) {
             CommentResult result = new CommentResult();
             result.setResult(CommentStatus.ERROR);
             return result;
         }
-
     }
 
     @Override
     protected void onPostExecute(CommentResult result) {
+        super.onPostExecute(result);
+
+        Context context = this.weakContext.get();
         CommentStatus status = result.getResult();
         switch (status){
             case ALREADY_COMMENTED:
-                this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.already_commented));
+                this.getDelegate().asyncTaskFail(context.getResources().getString(R.string.already_commented));
                 break;
             case ERROR:
-                this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.comment_add_error));
+                this.getDelegate().asyncTaskFail(context.getResources().getString(R.string.comment_add_error));
                 break;
             case SUCCESS:
-                this.delegate.asyncTaskSuccess(result.getComment());
+                this.getDelegate().asyncTaskSuccess(result.getComment());
                 break;
         }
+    }
+
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

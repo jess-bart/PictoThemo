@@ -2,28 +2,28 @@ package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.os.AsyncTask;
 
+import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
 import com.jessy_barthelemy.pictothemo.exceptions.PictothemoException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
-import com.jessy_barthelemy.pictothemo.R;
+import com.jessy_barthelemy.pictothemo.interfaces.IAsyncSimpleResponse;
 
-public class RegistrationTask extends AsyncTask<String, Void, String> {
+import java.lang.ref.WeakReference;
 
-    private Context context;
+public class RegistrationTask extends BaseAsyncTask<String, Void, String> {
+
     private ProgressDialog waitDialog;
     private TokenInformation tokensInfos;
     /*reference to the class that want a success callback*/
-    private IAsyncResponse delegate;
+    private IAsyncSimpleResponse delegate;
 
-    public RegistrationTask(Context ctx, TokenInformation tokenInfos, IAsyncResponse delegate){
-        this.context = ctx;
+    public RegistrationTask(Context context, TokenInformation tokenInfos, IAsyncSimpleResponse delegate){
+        this.weakContext = new WeakReference<>(context);
         this.tokensInfos = tokenInfos;
 
-        this.waitDialog = new ProgressDialog(ctx);
+        this.waitDialog = new ProgressDialog(context);
         this.waitDialog.setMessage(context.getResources().getString(R.string.login_verification));
         this.waitDialog.setIndeterminate(false);
         this.waitDialog.setCancelable(false);
@@ -46,6 +46,8 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
         String errorMessage = null;
+        Context context = this.weakContext.get();
+
         try {
             ApiHelper helper = ApiHelper.getInstance();
 
@@ -65,15 +67,18 @@ public class RegistrationTask extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String errorMessage) {
+        super.onPostExecute(errorMessage);
+        Context context = this.weakContext.get();
+
         this.waitDialog.dismiss();
 
         if(errorMessage != null && !errorMessage.isEmpty()){
-            ApplicationHelper.resetPreferences(this.context);
+            ApplicationHelper.resetPreferences(context);
             this.delegate.asyncTaskFail(errorMessage);
             return;
         }
 
-        ApplicationHelper.savePreferences(this.context, this.tokensInfos);
+        ApplicationHelper.savePreferences(context, this.tokensInfos);
         this.delegate.asyncTaskSuccess();
     }
 }

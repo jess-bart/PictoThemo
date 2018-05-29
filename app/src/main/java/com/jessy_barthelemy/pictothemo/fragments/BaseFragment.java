@@ -20,4 +20,9 @@ public class BaseFragment extends Fragment implements IAsyncApiObjectResponse {
 
         Toast.makeText(this.getActivity(), errorMessage, Toast.LENGTH_LONG).show();
     }
+
+    @Override
+    public void handleNoConnection() {
+        ((BaseActivity)this.getActivity()).handleNoConnection();
+    }
 }

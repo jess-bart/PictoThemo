@@ -1,7 +1,6 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
-import android.os.AsyncTask;
 
 import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
@@ -9,18 +8,17 @@ import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
 import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncResponse;
 
-public class DeletePictureTask extends AsyncTask<Void, Object, Boolean> {
+import java.lang.ref.WeakReference;
+import java.net.UnknownHostException;
 
-    private Context context;
-    /*reference to the class that want a success callback*/
-    private IAsyncApiObjectResponse delegate;
+public class DeletePictureTask extends BaseAsyncTask<Void, Object, Boolean> {
+
     private int picture;
 
     public DeletePictureTask(int picture, Context context, IAsyncApiObjectResponse delegate){
         this.picture = picture;
-        this.context = context;
+        this.weakContext = new WeakReference<>(context);
 
         if(delegate != null)
             this.delegate = delegate;
@@ -29,16 +27,21 @@ public class DeletePictureTask extends AsyncTask<Void, Object, Boolean> {
     @Override
     protected Boolean doInBackground(Void... params) {
         try {
-            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(this.context);
+            Context context = this.weakContext.get();
+
+            TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(context);
             ApiHelper helper = ApiHelper.getInstance();
 
             try {
                 return helper.deletePicture(this.picture);
             } catch (LoginException e) {
-                LogInTask.login(tokenInfo, this.context);
-                LogInTask.postExcecute(false, null, this.context, null, null);
-                return helper.deleteComment(this.picture);
+                LogInTask.login(tokenInfo, context);
+                LogInTask.postExcecute(false, null, context, null, null);
+                return helper.deletePicture(this.picture);
             }
+        }catch (UnknownHostException e){
+            this.isOffline = true;
+            return false;
         }catch (Exception e) {
             return false;
         }
@@ -46,9 +49,16 @@ public class DeletePictureTask extends AsyncTask<Void, Object, Boolean> {
 
     @Override
     protected void onPostExecute(Boolean result) {
+        super.onPostExecute(result);
+        Context context = this.weakContext.get();
+
         if(result)
-            this.delegate.asyncTaskSuccess(this.context.getResources().getString(R.string.remove_picture_success));
+            this.getDelegate().asyncTaskSuccess(context.getResources().getString(R.string.remove_picture_success));
         else
-            this.delegate.asyncTaskFail(this.context.getResources().getString(R.string.remove_picture_error));
+            this.getDelegate().asyncTaskFail(context.getResources().getString(R.string.remove_picture_error));
+    }
+
+    public IAsyncApiObjectResponse getDelegate(){
+        return (IAsyncApiObjectResponse) this.delegate;
     }
 }

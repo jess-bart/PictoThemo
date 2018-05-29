@@ -10,6 +10,9 @@
     <string name="logout">Logout</string>
     <string name="delete">Delete</string>
     <string name="picture">Picture</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+    <string name="connection_error">No internet connection</string>
 
     <!-- Connexion/Registration form -->
     <string name="login_pseudo">Pseudo</string>
@@ -51,12 +54,10 @@
     <string name="remove_picture">Remove picture.</string>
     <string name="remove_picture_success">Picture successfully removed.</string>
 
-
     <!-- Comment -->
     <string name="comment">Comment</string>
     <string name="comment_placeholder">Type your comment…</string>
     <string name="comment_add">Send</string>
-    <string name="comment_cancel">Cancel</string>
     <string name="already_commented">Only one comment per image.</string>
     <string name="comment_add_error">Cannot add comment.</string>
     <string name="comment_remove_error">Cannot remove comment.</string>
@@ -89,6 +90,9 @@
     <string name="settings_wallpaper_summary">Change your wallpaper everyday with the picture of the day.</string>
     <string name="settings_replay_tuto_key">TUTORIAL_PREF</string>
     <string name="settings_replay_tuto_title">Replay tutorial on next launch</string>
+    <string name="settings_delete_account_key">removeAccount</string>
+    <string name="settings_delete_account">Delete my account</string>
+    <string name="settings_delete_account_description">This action cannot be undone.</string>
 
     <!-- User -->
     <string name="profil_registration_date">Registered since %1$s</string>
@@ -97,6 +101,10 @@
     <string name="profil_big">profil_big_%d</string>
     <string name="profil_load_error">Cannot load user information</string>
     <string name="profil_profil_error">Cannot set profil picture</string>
+    <string name="remove_user_error">Authentication error. Unable to deleteSuppression impossible.</string>
+    <string name="remove_user_success">Votre compte a été correctement supprimé.</string>
+    <string name="account">Account</string>
+    <string name="account_placeholder">Type your password…</string>
 
     <!-- Content description -->
     <string name="content_logo">Pictothemo\'s logo</string>
@@ -133,4 +141,9 @@
     <string name="review_yes">Yes</string>
     <string name="review_no">No</string>
     <string name="review_later">Later</string>
+
+    <!-- About -->
+    <string name="about">About</string>
+    <string name="about_email">jessy.barthelemy08@gmail.com</string>
+    <string name="about_portfolio">http://jessy-barthelemy.byethost6.com/</string>
 </resources>

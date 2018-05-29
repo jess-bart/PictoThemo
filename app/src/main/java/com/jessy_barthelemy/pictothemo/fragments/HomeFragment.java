@@ -43,11 +43,15 @@ import com.jessy_barthelemy.pictothemo.interfaces.IVoteResponse;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class HomeFragment extends BaseFragment implements IVoteResponse {
@@ -191,6 +195,7 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.putExtra("android.content.extra.SHOW_ADVANCED", true);
                 intent.setType("image/*");
                 startActivityForResult(intent, UPLOAD_PICTURE);
             }
@@ -352,7 +357,6 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                         bitmap.compress(Bitmap.CompressFormat.JPEG, ApplicationHelper.UPLOAD_IMAGE_COMPRESSION, bos);
 
                         byte[] bitmapdata = bos.toByteArray();
-                        InputStream in = new ByteArrayInputStream(bitmapdata);
                         filenameCursor = getActivity().getContentResolver().query(picturePath, null, null, null, null);
 
                         if(filenameCursor != null && filenameCursor.moveToFirst())
@@ -361,7 +365,30 @@ public class HomeFragment extends BaseFragment implements IVoteResponse {
                             this.uploadProgress.setVisibility(View.VISIBLE);
                             String filename = filenameCursor.getString(filenameCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
 
-                            UploadPictureTask uploadTask = new UploadPictureTask(in, filename, this.uploadProgress, this.fab, this.getActivity().getApplicationContext(), this);
+                            //temp
+                            File log = null;
+                            File[] dirs = this.getActivity().getExternalCacheDirs();
+                            if(dirs[dirs.length -1] != null){
+                                log =  new File(dirs[dirs.length -1].getPath(), "pictotest123.txt");
+                            }else
+                                log = new File(getActivity().getExternalCacheDir(), "pictotest123.txt");
+
+                            PrintWriter writer = new PrintWriter(log);
+
+                            writer.println(new Date());
+                            writer.println("Upload de : "+filename);
+                            writer.println("Null : "+bitmapdata);
+                            if(bitmapdata != null)
+                                writer.println("Size : "+bitmapdata.length);
+
+                            String t = log.getAbsolutePath();
+
+                            writer.close();
+
+                            ///////////
+
+
+                            UploadPictureTask uploadTask = new UploadPictureTask(bitmapdata, filename, this.uploadProgress, this.fab, this.getActivity().getApplicationContext(), this);
                             uploadTask.execute();
                         }else
                             Toast.makeText(this.getActivity(), R.string.upload_error, Toast.LENGTH_LONG).show();

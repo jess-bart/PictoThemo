@@ -1,45 +1,41 @@
 package com.jessy_barthelemy.pictothemo.asyncInteractions;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.jessy_barthelemy.pictothemo.R;
 import com.jessy_barthelemy.pictothemo.apiObjects.TokenInformation;
-import com.jessy_barthelemy.pictothemo.apiObjects.User;
 import com.jessy_barthelemy.pictothemo.exceptions.LoginException;
 import com.jessy_barthelemy.pictothemo.helpers.ApiHelper;
 import com.jessy_barthelemy.pictothemo.helpers.ApplicationHelper;
-import com.jessy_barthelemy.pictothemo.interfaces.IAsyncApiObjectResponse;
 
 import java.lang.ref.WeakReference;
 import java.net.UnknownHostException;
 
-public class SetUserTask extends BaseAsyncTask<String, Void, Boolean> {
+public class DeleteUserTask extends BaseAsyncTask<Void, Object, Boolean> {
 
-    private User user;
+    private String password;
 
-    public SetUserTask(User user, Context context, IAsyncApiObjectResponse delegate){
-        this.user = user;
+    public DeleteUserTask(String password, Context context){
+        this.password = password;
         this.weakContext = new WeakReference<>(context);
-
-        if(delegate != null)
-            this.delegate = delegate;
     }
 
     @Override
-    protected Boolean doInBackground(String... params) {
+    protected Boolean doInBackground(Void... params) {
         try {
             Context context = this.weakContext.get();
             TokenInformation tokenInfo = ApplicationHelper.getTokenInformations(context);
             ApiHelper helper = ApiHelper.getInstance();
 
             try {
-                return helper.setUser(this.user);
+                return helper.deleteUser(this.password);
             } catch (LoginException e) {
                 LogInTask.login(tokenInfo, context);
                 LogInTask.postExcecute(false, null, context, null, null);
-                return helper.setUser(this.user);
+                return helper.deleteUser(this.password);
             }
-        }catch (UnknownHostException e) {
+        }catch (UnknownHostException e){
             this.isOffline = true;
             return false;
         }catch (Exception e) {
@@ -48,17 +44,15 @@ public class SetUserTask extends BaseAsyncTask<String, Void, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(Boolean success) {
-        super.onPostExecute(success);
-        if(success)
-            this.getDelegate().asyncTaskSuccess(true);
-        else{
-            Context context = this.weakContext.get();
-            this.getDelegate().asyncTaskFail(context.getString(R.string.profil_profil_error));
-        }
-    }
+    protected void onPostExecute(Boolean result) {
+        super.onPostExecute(result);
+        Context context = this.weakContext.get();
 
-    public IAsyncApiObjectResponse getDelegate(){
-        return (IAsyncApiObjectResponse) this.delegate;
+        if(result) {
+            Toast.makeText(context, context.getResources().getString(R.string.remove_user_success), Toast.LENGTH_LONG).show();
+            ApplicationHelper.resetPreferences(context);
+            ApplicationHelper.restartApp(context);
+        }else
+            Toast.makeText(context, context.getResources().getString(R.string.remove_user_error), Toast.LENGTH_LONG).show();
     }
 }

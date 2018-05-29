@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
-        android:key="setWallpaper"
+        android:key="@string/settings_wallpaper_key"
         android:title="@string/settings_wallpaper_title"
         android:summary="@string/settings_wallpaper_summary"
         android:defaultValue="false" />
@@ -9,4 +9,7 @@
         android:key="@string/settings_replay_tuto_key"
         android:title="@string/settings_replay_tuto_title"
         android:defaultValue="false"/>
+    <Preference android:title="@string/settings_delete_account"
+        android:key="@string/settings_delete_account_key"
+        android:summary="@string/settings_delete_account_description" />
 </PreferenceScreen>
